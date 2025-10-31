@@ -1,5 +1,642 @@
-<html>
-  <h1>
-    Hello!
-  </h1>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXUS | 创新团队</title>
+  <!-- 引入外部资源 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  
+  <!-- 配置Tailwind -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#6C5CE7', // 主色调：紫色
+            secondary: '#00CEFF', // 辅助色：亮蓝
+            dark: '#1A1A2E', // 深色背景
+            light: '#F8F9FA', // 浅色文本
+            accent: '#FF3E79', // 强调色：亮粉
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Poppins', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .text-gradient {
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+      }
+      .animate-float {
+        animation: float 6s ease-in-out infinite;
+      }
+      .bg-blur {
+        backdrop-filter: blur(8px);
+      }
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+      100% { transform: translateY(0px); }
+    }
+  </style>
+  
+  <!-- 导入字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-dark text-light font-sans overflow-x-hidden">
+  <!-- 导航栏 -->
+  <header id="navbar" class="fixed w-full z-50 transition-all duration-300">
+    <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="#" class="text-2xl font-display font-bold">
+        <span class="text-primary">NEXUS</span>
+      </a>
+      
+      <!-- 桌面导航 -->
+      <div class="hidden md:flex space-x-8 items-center">
+        <a href="#about" class="hover:text-primary transition-colors">关于我们</a>
+        <a href="#members" class="hover:text-primary transition-colors">团队成员</a>
+        <a href="#strengths" class="hover:text-primary transition-colors">我们的优势</a>
+        <a href="#contact" class="hover:text-primary transition-colors">联系我们</a>
+        <a href="#" class="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-full transition-all transform hover:scale-105">
+          合作咨询
+        </a>
+      </div>
+      
+      <!-- 移动端菜单按钮 -->
+      <button id="menuBtn" class="md:hidden text-2xl">
+        <i class="fa fa-bars"></i>
+      </button>
+    </nav>
+    
+    <!-- 移动端导航菜单 -->
+    <div id="mobileMenu" class="md:hidden bg-dark/95 bg-blur hidden">
+      <div class="container mx-auto px-4 py-4 flex flex-col space-y-4">
+        <a href="#about" class="py-2 hover:text-primary transition-colors">关于我们</a>
+        <a href="#members" class="py-2 hover:text-primary transition-colors">团队成员</a>
+        <a href="#strengths" class="py-2 hover:text-primary transition-colors">我们的优势</a>
+        <a href="#contact" class="py-2 hover:text-primary transition-colors">联系我们</a>
+        <a href="#" class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-full text-center transition-all">
+          合作咨询
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 英雄区域 -->
+  <section class="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+    <!-- 背景装饰 -->
+    <div class="absolute inset-0 z-0">
+      <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full filter blur-3xl"></div>
+      <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/20 rounded-full filter blur-3xl"></div>
+      <div class="absolute top-1/2 left-1/2 w-64 h-64 bg-accent/10 rounded-full filter blur-3xl"></div>
+    </div>
+    
+    <div class="container mx-auto px-4 z-10 text-center">
+      <h1 class="text-[clamp(2.5rem,8vw,5rem)] font-display font-bold leading-tight mb-6">
+        我们是<span class="bg-gradient-to-r from-primary to-secondary text-gradient">NEXUS</span>
+      </h1>
+      <p class="text-[clamp(1rem,3vw,1.25rem)] text-gray-300 max-w-3xl mx-auto mb-10">
+        一群充满激情的创新者，致力于突破界限，创造未来。我们将创意与技术完美融合，打造卓越解决方案。
+      </p>
+      <div class="flex flex-col sm:flex-row justify-center gap-4">
+        <a href="#members" class="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-full transition-all transform hover:scale-105 font-medium">
+          认识团队
+        </a>
+        <a href="#contact" class="border border-primary/50 hover:border-primary text-white px-8 py-4 rounded-full transition-all">
+          联系我们
+        </a>
+      </div>
+      
+      <!-- 滚动提示 -->
+      <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <i class="fa fa-angle-down text-2xl text-gray-400"></i>
+      </div>
+    </div>
+  </section>
+
+  <!-- 关于我们 -->
+  <section id="about" class="py-24 relative">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row gap-12 items-center">
+        <div class="md:w-1/2">
+          <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-display font-bold mb-6">
+            关于<span class="text-primary">NEXUS</span>
+          </h2>
+          <p class="text-gray-300 mb-6 leading-relaxed">
+            NEXUS成立于2018年，是一支由设计师、开发者和战略专家组成的跨学科团队。我们相信多元化的视角是创新的核心，因此我们汇聚了来自不同背景的人才，共同打造独特而有影响力的作品。
+          </p>
+          <p class="text-gray-300 mb-8 leading-relaxed">
+            多年来，我们与各行业领先企业合作，从初创公司到 Fortune 500 强企业，帮助他们实现数字化转型，创造有意义的用户体验。我们的使命是通过创新技术和设计思维解决复杂问题，为客户创造真正的价值。
+          </p>
+          
+          <!-- 数据统计 -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="text-center">
+              <p class="text-4xl font-bold text-primary mb-2">50+</p>
+              <p class="text-gray-400">成功项目</p>
+            </div>
+            <div class="text-center">
+              <p class="text-4xl font-bold text-primary mb-2">25</p>
+              <p class="text-gray-400">团队成员</p>
+            </div>
+            <div class="text-center">
+              <p class="text-4xl font-bold text-primary mb-2">7</p>
+              <p class="text-gray-400">行业领域</p>
+            </div>
+            <div class="text-center">
+              <p class="text-4xl font-bold text-primary mb-2">12</p>
+              <p class="text-gray-400">国际奖项</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="md:w-1/2 relative">
+          <div class="relative z-10 rounded-xl overflow-hidden shadow-2xl transform rotate-2 hover:rotate-0 transition-transform duration-500">
+            <img src="https://picsum.photos/id/1076/800/600" alt="团队工作场景" class="w-full h-auto">
+          </div>
+          <div class="absolute top-10 -right-10 w-64 h-64 bg-secondary/20 rounded-full filter blur-3xl z-0"></div>
+          <div class="absolute -bottom-10 -left-10 w-48 h-48 bg-primary/20 rounded-full filter blur-3xl z-0"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 团队成员 -->
+  <section id="members" class="py-24 bg-dark/50 relative">
+    <div class="container mx-auto px-4">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-display font-bold mb-6">
+          核心团队成员
+        </h2>
+        <p class="text-gray-300">
+          我们的团队由行业精英组成，每个人都在自己的领域拥有丰富经验和独特视角。正是这种多元化的组合，让我们能够应对各种挑战。
+        </p>
+      </div>
+      
+      <!-- 成员卡片 -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <!-- 成员1 -->
+        <div class="bg-dark/80 rounded-xl overflow-hidden group hover:bg-dark transition-all duration-300 transform hover:-translate-y-2">
+          <div class="relative overflow-hidden">
+            <img src="https://picsum.photos/id/1012/400/500" alt="张明 - 创始人兼CEO" class="w-full h-80 object-cover object-center group-hover:scale-110 transition-transform duration-500">
+            <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+              <div class="p-6 flex space-x-4">
+                <a href="#" class="w-10 h-10 rounded-full bg-primary/80 flex items-center justify-center hover:bg-primary transition-colors">
+                  <i class="fa fa-linkedin"></i>
+                </a>
+                <a href="#" class="w-10 h-10 rounded-full bg-primary/80 flex items-center justify-center hover:bg-primary transition-colors">
+                  <i class="fa fa-twitter"></i>
+                </a>
+                <a href="#" class="w-10 h-10 rounded-full bg-primary/80 flex items-center justify-center hover:bg-primary transition-colors">
+                  <i class="fa fa-envelope"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-1">张明</h3>
+            <p class="text-primary mb-3">创始人兼CEO</p>
+            <p class="text-gray-400 text-sm">前谷歌高级工程师，拥有15年科技行业经验，专注于产品战略与创新。</p>
+          </div>
+        </div>
+        
+        <!-- 成员2 -->
+        <div class="bg-dark/80 rounded-xl overflow-hidden group hover:bg-dark transition-all duration-300 transform hover:-translate-y-2">
+          <div class="relative overflow-hidden">
+            <img src="https://picsum.photos/id/1005/400/500" alt="李娜 - 创意总监" class="w-full h-80 object-cover object-center group-hover:scale-110 transition-transform duration-500">
+            <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+              <div class="p-6 flex space-x-4">
+                <a href="#" class="w-10 h-10 rounded-full bg-primary/80 flex items-center justify-center hover:bg-primary transition-colors">
+                  <i class="fa fa-linkedin"></i>
+                </a>
+                <a href="#" class="w-10 h-10 rounded-full bg-primary/80 flex items-center justify-center hover:bg-primary transition-colors">
+                  <i class="fa fa-twitter"></i>
+                </a>
+                <a href="#" class="w-10 h-10 rounded-full bg-primary/80 flex items-center justify-center hover:bg-primary transition-colors">
+                  <i class="fa fa-envelope"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-1">李娜</h3>
+            <p class="text-primary mb-3">创意总监</p>
+            <p class="text-gray-400 text-sm">曾获国际设计大奖，擅长将复杂概念转化为直观、引人入胜的视觉体验。</p>
+          </div>
+        </div>
+        
+        <!-- 成员3 -->
+        <div class="bg-dark/80 rounded-xl overflow-hidden group hover:bg-dark transition-all duration-300 transform hover:-translate-y-2">
+          <div class="relative overflow-hidden">
+            <img src="https://picsum.photos/id/1025/400/500" alt="王浩 - 技术主管" class="w-full h-80 object-cover object-center group-hover:scale-110 transition-transform duration-500">
+            <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+              <div class="p-6 flex space-x-4">
+                <a href="#" class="w-10 h-10 rounded-full bg-primary/80 flex items-center justify-center hover:bg-primary transition-colors">
+                  <i class="fa fa-linkedin"></i>
+                </a>
+                <a href="#" class="w-10 h-10 rounded-full bg-primary/80 flex items-center justify-center hover:bg-primary transition-colors">
+                  <i class="fa fa-github"></i>
+                </a>
+                <a href="#" class="w-10 h-10 rounded-full bg-primary/80 flex items-center justify-center hover:bg-primary transition-colors">
+                  <i class="fa fa-envelope"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-1">王浩</h3>
+            <p class="text-primary mb-3">技术主管</p>
+            <p class="text-gray-400 text-sm">全栈开发专家，热衷于探索前沿技术，确保我们的解决方案既创新又可靠。</p>
+          </div>
+        </div>
+        
+        <!-- 成员4 -->
+        <div class="bg-dark/80 rounded-xl overflow-hidden group hover:bg-dark transition-all duration-300 transform hover:-translate-y-2">
+          <div class="relative overflow-hidden">
+            <img src="https://picsum.photos/id/1062/400/500" alt="陈雨 - 市场战略" class="w-full h-80 object-cover object-center group-hover:scale-110 transition-transform duration-500">
+            <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+              <div class="p-6 flex space-x-4">
+                <a href="#" class="w-10 h-10 rounded-full bg-primary/80 flex items-center justify-center hover:bg-primary transition-colors">
+                  <i class="fa fa-linkedin"></i>
+                </a>
+                <a href="#" class="w-10 h-10 rounded-full bg-primary/80 flex items-center justify-center hover:bg-primary transition-colors">
+                  <i class="fa fa-twitter"></i>
+                </a>
+                <a href="#" class="w-10 h-10 rounded-full bg-primary/80 flex items-center justify-center hover:bg-primary transition-colors">
+                  <i class="fa fa-envelope"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-1">陈雨</h3>
+            <p class="text-primary mb-3">市场战略</p>
+            <p class="text-gray-400 text-sm">市场营销专家，擅长品牌建设与用户增长策略，帮助客户实现业务目标。</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 查看更多按钮 -->
+      <div class="text-center mt-12">
+        <a href="#" class="inline-block border border-primary/50 hover:border-primary text-white px-8 py-3 rounded-full transition-all">
+          查看全部成员 <i class="fa fa-arrow-right ml-2"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 我们的优势 -->
+  <section id="strengths" class="py-24 relative">
+    <div class="container mx-auto px-4">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-display font-bold mb-6">
+          我们的核心优势
+        </h2>
+        <p class="text-gray-300">
+          我们不仅仅是一个团队，更是一个创新引擎。凭借独特的技能组合和协作方式，我们能够为客户提供超越预期的价值。
+        </p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- 优势1 -->
+        <div class="bg-dark/50 p-8 rounded-xl border border-gray-800 hover:border-primary/50 transition-all transform hover:-translate-y-2">
+          <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-6">
+            <i class="fa fa-lightbulb-o text-2xl text-primary"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-4">创新思维</h3>
+          <p class="text-gray-400">
+            我们不断挑战现状，探索新的可能性。通过设计思维方法，我们能够发现别人忽视的机会，创造真正独特的解决方案。
+          </p>
+        </div>
+        
+        <!-- 优势2 -->
+        <div class="bg-dark/50 p-8 rounded-xl border border-gray-800 hover:border-primary/50 transition-all transform hover:-translate-y-2">
+          <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-6">
+            <i class="fa fa-code-fork text-2xl text-primary"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-4">技术专长</h3>
+          <p class="text-gray-400">
+            我们的技术团队精通各种前沿技术栈，能够将复杂的业务需求转化为高效、可靠的技术解决方案，确保最佳性能。
+          </p>
+        </div>
+        
+        <!-- 优势3 -->
+        <div class="bg-dark/50 p-8 rounded-xl border border-gray-800 hover:border-primary/50 transition-all transform hover:-translate-y-2">
+          <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-6">
+            <i class="fa fa-users text-2xl text-primary"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-4">协作精神</h3>
+          <p class="text-gray-400">
+            我们相信团队的力量大于个体之和。通过无缝协作和知识共享，我们能够汇集集体智慧，解决最复杂的挑战。
+          </p>
+        </div>
+      </div>
+      
+      <!-- 能力分布图表 -->
+      <div class="mt-20 bg-dark/50 p-8 rounded-xl border border-gray-800">
+        <h3 class="text-xl font-bold mb-8 text-center">团队能力分布</h3>
+        <div class="h-80">
+          <canvas id="skillsChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 联系我们 -->
+  <section id="contact" class="py-24 bg-gradient-to-b from-dark to-dark/80 relative">
+    <div class="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-dark/50 to-transparent"></div>
+    <div class="container mx-auto px-4">
+      <div class="max-w-6xl mx-auto bg-dark/80 rounded-2xl overflow-hidden shadow-xl border border-gray-800">
+        <div class="flex flex-col md:flex-row">
+          <div class="md:w-1/2 p-10 md:p-16 bg-primary/10">
+            <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-display font-bold mb-6">
+              联系我们
+            </h2>
+            <p class="text-gray-300 mb-10">
+              无论您有合作意向，还是想了解更多关于我们的信息，都欢迎与我们联系。我们期待听到您的声音。
+            </p>
+            
+            <div class="space-y-6">
+              <div class="flex items-start">
+                <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mr-4 mt-1">
+                  <i class="fa fa-map-marker text-primary"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold mb-1">地址</h3>
+                  <p class="text-gray-400">上海市浦东新区张江高科技园区科苑路88号</p>
+                </div>
+              </div>
+              
+              <div class="flex items-start">
+                <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mr-4 mt-1">
+                  <i class="fa fa-envelope text-primary"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold mb-1">邮箱</h3>
+                  <p class="text-gray-400">contact@nexus-team.com</p>
+                </div>
+              </div>
+              
+              <div class="flex items-start">
+                <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mr-4 mt-1">
+                  <i class="fa fa-phone text-primary"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold mb-1">电话</h3>
+                  <p class="text-gray-400">+86 21 5888 xxxx</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-10">
+              <h3 class="font-bold mb-4">关注我们</h3>
+              <div class="flex space-x-4">
+                <a href="#" class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center hover:bg-primary/40 transition-colors">
+                  <i class="fa fa-weixin"></i>
+                </a>
+                <a href="#" class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center hover:bg-primary/40 transition-colors">
+                  <i class="fa fa-weibo"></i>
+                </a>
+                <a href="#" class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center hover:bg-primary/40 transition-colors">
+                  <i class="fa fa-linkedin"></i>
+                </a>
+                <a href="#" class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center hover:bg-primary/40 transition-colors">
+                  <i class="fa fa-github"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <div class="md:w-1/2 p-10 md:p-16">
+            <form>
+              <div class="mb-6">
+                <label for="name" class="block text-sm font-medium mb-2">姓名</label>
+                <input type="text" id="name" class="w-full bg-dark/50 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors" placeholder="请输入您的姓名">
+              </div>
+              
+              <div class="mb-6">
+                <label for="email" class="block text-sm font-medium mb-2">邮箱</label>
+                <input type="email" id="email" class="w-full bg-dark/50 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors" placeholder="请输入您的邮箱">
+              </div>
+              
+              <div class="mb-6">
+                <label for="subject" class="block text-sm font-medium mb-2">主题</label>
+                <input type="text" id="subject" class="w-full bg-dark/50 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors" placeholder="请输入主题">
+              </div>
+              
+              <div class="mb-8">
+                <label for="message" class="block text-sm font-medium mb-2">留言</label>
+                <textarea id="message" rows="4" class="w-full bg-dark/50 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors" placeholder="请输入您的留言"></textarea>
+              </div>
+              
+              <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg transition-all transform hover:scale-[1.02]">
+                发送消息
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="py-12 bg-dark border-t border-gray-800">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="mb-6 md:mb-0">
+          <a href="#" class="text-2xl font-display font-bold">
+            <span class="text-primary">NEXUS</span>
+          </a>
+          <p class="text-gray-400 mt-2">创新团队 · 创造未来</p>
+        </div>
+        
+        <div class="flex flex-wrap justify-center gap-x-8 gap-y-4 mb-6 md:mb-0">
+          <a href="#about" class="text-gray-400 hover:text-primary transition-colors">关于我们</a>
+          <a href="#members" class="text-gray-400 hover:text-primary transition-colors">团队成员</a>
+          <a href="#strengths" class="text-gray-400 hover:text-primary transition-colors">我们的优势</a>
+          <a href="#contact" class="text-gray-400 hover:text-primary transition-colors">联系我们</a>
+          <a href="#" class="text-gray-400 hover:text-primary transition-colors">隐私政策</a>
+        </div>
+        
+        <div class="text-gray-500 text-sm">
+          &copy; 2023 NEXUS团队. 保留所有权利.
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 返回顶部按钮 -->
+  <button id="backToTop" class="fixed bottom-8 right-8 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg opacity-0 invisible transition-all z-50">
+    <i class="fa fa-arrow-up"></i>
+  </button>
+
+  <!-- JavaScript -->
+  <script>
+    // 导航栏滚动效果
+    const navbar = document.getElementById('navbar');
+    const backToTop = document.getElementById('backToTop');
+    
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        navbar.classList.add('bg-dark/90', 'bg-blur', 'shadow-lg');
+        navbar.classList.remove('py-4');
+        navbar.classList.add('py-2');
+        
+        backToTop.classList.remove('opacity-0', 'invisible');
+        backToTop.classList.add('opacity-100', 'visible');
+      } else {
+        navbar.classList.remove('bg-dark/90', 'bg-blur', 'shadow-lg');
+        navbar.classList.remove('py-2');
+        navbar.classList.add('py-4');
+        
+        backToTop.classList.add('opacity-0', 'invisible');
+        backToTop.classList.remove('opacity-100', 'visible');
+      }
+    });
+    
+    // 移动端菜单
+    const menuBtn = document.getElementById('menuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    let menuOpen = false;
+    
+    menuBtn.addEventListener('click', () => {
+      if (menuOpen) {
+        mobileMenu.classList.add('hidden');
+        menuBtn.innerHTML = '<i class="fa fa-bars"></i>';
+      } else {
+        mobileMenu.classList.remove('hidden');
+        menuBtn.innerHTML = '<i class="fa fa-times"></i>';
+      }
+      menuOpen = !menuOpen;
+    });
+    
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        
+        // 关闭移动菜单（如果打开）
+        if (menuOpen) {
+          mobileMenu.classList.add('hidden');
+          menuBtn.innerHTML = '<i class="fa fa-bars"></i>';
+          menuOpen = false;
+        }
+        
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+    
+    // 返回顶部
+    backToTop.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+    
+    // 技能图表
+    window.addEventListener('load', () => {
+      const ctx = document.getElementById('skillsChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: ['UI/UX设计', '前端开发', '后端开发', '产品策略', '市场分析', '项目管理', '数据分析'],
+          datasets: [{
+            label: '团队能力',
+            data: [90, 85, 80, 95, 75, 85, 70],
+            backgroundColor: 'rgba(108, 92, 231, 0.2)',
+            borderColor: 'rgba(108, 92, 231, 1)',
+            pointBackgroundColor: 'rgba(108, 92, 231, 1)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgba(108, 92, 231, 1)'
+          }]
+        },
+        options: {
+          scales: {
+            r: {
+              angleLines: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              },
+              pointLabels: {
+                color: 'rgba(255, 255, 255, 0.7)',
+                font: {
+                  size: 12
+                }
+              },
+              ticks: {
+                color: 'rgba(255, 255, 255, 0.5)',
+                backdropColor: 'transparent',
+                showLabelBackdrop: false
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+    });
+    
+    // 元素进入视口时的动画
+    const animateOnScroll = () => {
+      const elements = document.querySelectorAll('.grid > div, section > div > div > h2, section > div > div > p');
+      
+      elements.forEach(element => {
+        const elementTop = element.getBoundingClientRect().top;
+        const elementVisible = 150;
+        
+        if (elementTop < window.innerHeight - elementVisible) {
+          element.classList.add('opacity-100', 'translate-y-0');
+          element.classList.remove('opacity-0', 'translate-y-8');
+        }
+      });
+    };
+    
+    // 初始化元素状态
+    document.querySelectorAll('.grid > div, section > div > div > h2, section > div > div > p').forEach(el => {
+      el.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-8');
+    });
+    
+    // 初始检查和滚动监听
+    window.addEventListener('load', animateOnScroll);
+    window.addEventListener('scroll', animateOnScroll);
+  </script>
+</body>
 </html>
