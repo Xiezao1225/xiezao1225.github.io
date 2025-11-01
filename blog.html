@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CheeseBlog - Oh Yeah!</title>
+  <title>CheeseBlog</title>
   <!-- 引入外部资源 -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <!-- 引入Markdown编辑器样式 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simplemde@1.11.2/dist/simplemde.min.css">
   
   <!-- 配置Tailwind自定义主题 - 黄色主题 -->
   <script>
@@ -44,8 +46,14 @@
       .card-hover:hover {
         transform: translateY(-3px);
       }
-      .toc-active {
-        @apply text-primary border-l-4 border-primary pl-3 -ml-4 font-medium;
+      .editor-toolbar {
+        @apply bg-gray-50 border-b border-gray-200 p-2 flex flex-wrap gap-1;
+      }
+      .editor-button {
+        @apply w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200 transition-colors text-gray-700;
+      }
+      .editor-button.active {
+        @apply bg-primary/10 text-primary;
       }
     }
   </style>
@@ -85,45 +93,48 @@
       scroll-behavior: smooth;
     }
     
-    /* 文章段落样式 */
-    .blog-content p {
-      margin-bottom: 1.5rem;
-      line-height: 1.8;
+    /* 编辑器样式 */
+    #editor {
+      min-height: 500px;
+      font-family: 'Inter', system-ui, sans-serif;
+      line-height: 1.6;
     }
     
-    .blog-content h2 {
-      font-size: 1.75rem;
+    .preview-content p {
+      margin-bottom: 1rem;
+    }
+    
+    .preview-content h1 {
+      font-size: 1.8rem;
       font-weight: bold;
-      margin: 2rem 0 1rem;
-      color: #1E293B;
+      margin: 1.5rem 0 1rem;
     }
     
-    .blog-content h3 {
+    .preview-content h2 {
       font-size: 1.5rem;
       font-weight: bold;
-      margin: 1.5rem 0 0.75rem;
-      color: #1E293B;
+      margin: 1.2rem 0 0.8rem;
     }
     
-    .blog-content img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 0.5rem;
-      margin: 1.5rem 0;
+    .preview-content ul, .preview-content ol {
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
     }
     
-    .blog-content blockquote {
+    .preview-content ul {
+      list-style-type: disc;
+    }
+    
+    .preview-content ol {
+      list-style-type: decimal;
+    }
+    
+    .preview-content blockquote {
       border-left: 4px solid #F59E0B;
       padding-left: 1rem;
-      margin: 1.5rem 0;
+      margin: 1rem 0;
       color: #64748B;
       font-style: italic;
-    }
-    
-    /* 目录滚动 */
-    .toc-container {
-      max-height: calc(100vh - 8rem);
-      overflow-y: auto;
     }
   </style>
 </head>
@@ -142,7 +153,7 @@
         
         <!-- 搜索框 -->
         <div class="hidden md:flex relative max-w-md w-full mx-8">
-          <input type="text" placeholder="CheeseBlog" class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors">
+          <input type="text" placeholder="搜索文章..." class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors">
           <i class="fa fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
         </div>
         
@@ -163,299 +174,10 @@
   <!-- 主内容区 -->
   <main class="container mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      
-      <!-- 左侧目录 -->
-      <aside class="lg:col-span-3 space-y-6">
-        <!-- 目录卡片 -->
-        <div class="bg-white rounded-xl shadow-sm p-6 sticky top-24 fade-in">
-          <h3 class="text-lg font-bold mb-4 flex items-center">
-            <i class="fa fa-list-ul text-primary mr-2"></i> 文章目录
-          </h3>
-          <div class="toc-container text-gray-700 text-sm">
-            <ul class="space-y-3">
-              <li><a href="#intro" class="block hover:text-primary transition-colors">引言</a></li>
-              <li><a href="#section1" class="block hover:text-primary transition-colors">什么是前端开发</a></li>
-              <li class="pl-4">
-                <a href="#subsection1-1" class="block hover:text-primary transition-colors">前端开发的重要性</a>
-              </li>
-              <li class="pl-4">
-                <a href="#subsection1-2" class="block hover:text-primary transition-colors">前端与后端的区别</a>
-              </li>
-              <li><a href="#section2" class="block hover:text-primary transition-colors">必备技术栈</a></li>
-              <li class="pl-4">
-                <a href="#subsection2-1" class="block hover:text-primary transition-colors">HTML基础</a>
-              </li>
-              <li class="pl-4">
-                <a href="#subsection2-2" class="block hover:text-primary transition-colors">CSS进阶</a>
-              </li>
-              <li class="pl-4">
-                <a href="#subsection2-3" class="block hover:text-primary transition-colors">JavaScript核心</a>
-              </li>
-              <li><a href="#section3" class="block hover:text-primary transition-colors">现代前端框架</a></li>
-              <li><a href="#section4" class="block hover:text-primary transition-colors">学习资源推荐</a></li>
-              <li><a href="#conclusion" class="block hover:text-primary transition-colors">结语</a></li>
-            </ul>
-          </div>
-        </div>
-        
-       
-      <!-- 中间文章主体 -->
-      <article class="lg:col-span-6 space-y-6">
-        <!-- 文章标题区 -->
-          <p><strong>25/11/1</strong></p>
-        <!-- 文章内容区 -->
-        <div class="bg-white rounded-xl shadow-sm p-6 md:p-8 blog-content fade-in" style="animation-delay: 0.1s">
-            
-            <p>哈哈博客成立了。</p>
-
-        </div>
-        
-        <!-- 文章底部操作区 -->
-        <div class="bg-white rounded-xl shadow-sm p-6 flex flex-wrap justify-between items-center fade-in" style="animation-delay: 0.2s">
-          <div class="flex space-x-4 mb-4 sm:mb-0">
-            <button class="flex items-center text-gray-600 hover:text-primary transition-colors">
-              <i class="fa fa-thumbs-o-up mr-2"></i> 点赞 (128)
-            </button>
-            <button class="flex items-center text-gray-600 hover:text-primary transition-colors">
-              <i class="fa fa-bookmark-o mr-2"></i> 收藏 (56)
-            </button>
-            <button class="flex items-center text-gray-600 hover:text-primary transition-colors">
-              <i class="fa fa-share-alt mr-2"></i> 分享
-            </button>
-          </div>
-          <div class="flex space-x-2">
-            <a href="#" class="text-gray-600 hover:text-primary transition-colors">
-              <i class="fa fa-weibo"></i>
-            </a>
-            <a href="#" class="text-gray-600 hover:text-primary transition-colors">
-              <i class="fa fa-weixin"></i>
-            </a>
-            <a href="#" class="text-gray-600 hover:text-primary transition-colors">
-              <i class="fa fa-twitter"></i>
-            </a>
-            <a href="#" class="text-gray-600 hover:text-primary transition-colors">
-              <i class="fa fa-linkedin"></i>
-            </a>
-          </div>
-        </div>
-        
-        <!-- 相关文章推荐 -->
-        <div class="bg-white rounded-xl shadow-sm p-6 fade-in" style="animation-delay: 0.3s">
-          <h3 class="text-lg font-bold mb-6 flex items-center">
-            <i class="fa fa-newspaper-o text-primary mr-2"></i> 相关推荐
-          </h3>
-          <div class="space-y-4">
-            <a href="#" class="flex gap-4 group">
-              <img src="https://picsum.photos/id/160/200/120" alt="相关文章" class="w-24 h-24 object-cover rounded-lg flex-shrink-0">
-              <div>
-                <h4 class="font-medium group-hover:text-primary transition-colors">React Hooks完全指南：从入门到精通</h4>
-                <p class="text-gray-500 text-sm mt-1">2023年9月28日 · 10分钟阅读</p>
-              </div>
-            </a>
-            <a href="#" class="flex gap-4 group">
-              <img src="https://picsum.photos/id/119/200/120" alt="相关文章" class="w-24 h-24 object-cover rounded-lg flex-shrink-0">
-              <div>
-                <h4 class="font-medium group-hover:text-primary transition-colors">CSS Grid布局实战：打造响应式页面</h4>
-                <p class="text-gray-500 text-sm mt-1">2023年10月5日 · 8分钟阅读</p>
-              </div>
-            </a>
-            <a href="#" class="flex gap-4 group">
-              <img src="https://picsum.photos/id/201/200/120" alt="相关文章" class="w-24 h-24 object-cover rounded-lg flex-shrink-0">
-              <div>
-                <h4 class="font-medium group-hover:text-primary transition-colors">TypeScript进阶技巧：提升代码质量</h4>
-                <p class="text-gray-500 text-sm mt-1">2023年10月10日 · 12分钟阅读</p>
-              </div>
-            </a>
-          </div>
-        </div>
-      </article>
-      
-      <!-- 右侧留言板 -->
-      <aside class="lg:col-span-3 space-y-6">
-        <!-- 搜索框（移动端隐藏，桌面端在右侧显示） -->
-        <div class="bg-white rounded-xl shadow-sm p-6 lg:hidden fade-in">
-          <div class="relative">
-            <input type="text" placeholder="搜索文章..." class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors">
-            <i class="fa fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-          </div>
-        </div>
-        
-        <!-- 留言板 -->
-        <div class="bg-white rounded-xl shadow-sm p-6 fade-in" style="animation-delay: 0.1s">
-          <h3 class="text-lg font-bold mb-4 flex items-center">
-            <i class="fa fa-comments text-primary mr-2"></i> 留言板
-          </h3>
-          
-          <!-- 留言输入框 -->
-          <form class="mb-6">
-            <textarea placeholder="分享你的想法..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors resize-none" rows="3"></textarea>
-            <div class="flex justify-between mt-3">
-              <div class="text-sm text-gray-500">
-                <i class="fa fa-info-circle mr-1"></i> 文明留言，理性讨论
-              </div>
-              <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary/90 transition-colors">
-                发表留言
-              </button>
-            </div>
-          </form>
-          
-          <!-- 留言列表 -->
-          <div class="space-y-6 max-h-[calc(100vh-36rem)] overflow-y-auto pr-2">
-            <!-- 留言1 -->
-            <div class="pb-6 border-b border-gray-100">
-              <div class="flex items-start">
-                <img src="https://picsum.photos/id/1012/100/100" alt="用户头像" class="w-10 h-10 rounded-full object-cover mr-3">
-                <div class="flex-1">
-                  <div class="flex justify-between items-center mb-1">
-                    <h4 class="font-medium">王小明</h4>
-                    <span class="text-gray-500 text-xs">2天前</span>
-                  </div>
-                  <p class="text-gray-600 text-sm mb-2">非常全面的前端开发指南！作为一名初学者，这篇文章帮我理清了学习路径，感谢作者的分享。</p>
-                  <div class="flex items-center text-xs text-gray-500">
-                    <button class="flex items-center hover:text-primary transition-colors mr-4">
-                      <i class="fa fa-thumbs-o-up mr-1"></i> 24
-                    </button>
-                    <button class="hover:text-primary transition-colors">
-                      回复
-                    </button>
-                  </div>
-                  
-                  <!-- 作者回复 -->
-                  <div class="mt-3 bg-gray-50 p-3 rounded-lg">
-                    <div class="flex items-start">
-                      <img src="https://picsum.photos/id/1005/100/100" alt="作者头像" class="w-8 h-8 rounded-full object-cover mr-2">
-                      <div>
-                        <div class="flex items-center mb-1">
-                          <h5 class="font-medium text-sm">李明 <span class="ml-2 px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full">作者</span></h5>
-                          <span class="text-gray-500 text-xs ml-2">1天前</span>
-                        </div>
-                        <p class="text-gray-600 text-sm">谢谢你的支持！学习前端最重要的是多实践，祝你学习顺利！</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- 留言2 -->
-            <div class="pb-6 border-b border-gray-100">
-              <div class="flex items-start">
-                <img src="https://picsum.photos/id/1027/100/100" alt="用户头像" class="w-10 h-10 rounded-full object-cover mr-3">
-                <div class="flex-1">
-                  <div class="flex justify-between items-center mb-1">
-                    <h4 class="font-medium">张雨晴</h4>
-                    <span class="text-gray-500 text-xs">3天前</span>
-                  </div>
-                  <p class="text-gray-600 text-sm mb-2">想请教一下作者，对于有一定基础的开发者，应该如何进一步提升前端技能呢？有没有推荐的进阶学习路径？</p>
-                  <div class="flex items-center text-xs text-gray-500">
-                    <button class="flex items-center hover:text-primary transition-colors mr-4">
-                      <i class="fa fa-thumbs-o-up mr-1"></i> 18
-                    </button>
-                    <button class="hover:text-primary transition-colors">
-                      回复
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- 留言3 -->
-            <div class="pb-6 border-b border-gray-100">
-              <div class="flex items-start">
-                <img src="https://picsum.photos/id/1074/100/100" alt="用户头像" class="w-10 h-10 rounded-full object-cover mr-3">
-                <div class="flex-1">
-                  <div class="flex justify-between items-center mb-1">
-                    <h4 class="font-medium">刘强</h4>
-                    <span class="text-gray-500 text-xs">5天前</span>
-                  </div>
-                  <p class="text-gray-600 text-sm mb-2">关于框架选择的部分写得很客观，我个人是从Vue入门，现在也在学习React，确实各有优势。建议初学者不要在框架选择上过于纠结，先打好JavaScript基础才是关键。</p>
-                  <div class="flex items-center text-xs text-gray-500">
-                    <button class="flex items-center hover:text-primary transition-colors mr-4">
-                      <i class="fa fa-thumbs-o-up mr-1"></i> 32
-                    </button>
-                    <button class="hover:text-primary transition-colors">
-                      回复
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- 留言4 -->
-            <div>
-              <div class="flex items-start">
-                <img src="https://picsum.photos/id/1066/100/100" alt="用户头像" class="w-10 h-10 rounded-full object-cover mr-3">
-                <div class="flex-1">
-                  <div class="flex justify-between items-center mb-1">
-                    <h4 class="font-medium">陈思思</h4>
-                    <span class="text-gray-500 text-xs">1周前</span>
-                  </div>
-                  <p class="text-gray-600 text-sm mb-2">文章中推荐的学习资源很实用，特别是开源项目部分，我最近也在尝试参与一些开源项目，确实学到了很多书本上没有的知识。</p>
-                  <div class="flex items-center text-xs text-gray-500">
-                    <button class="flex items-center hover:text-primary transition-colors mr-4">
-                      <i class="fa fa-thumbs-o-up mr-1"></i> 15
-                    </button>
-                    <button class="hover:text-primary transition-colors">
-                      回复
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <button class="w-full mt-6 py-2 text-center text-primary font-medium hover:underline transition-colors">
-            查看更多留言
-          </button>
-        </div>
-        
-        <!-- 热门文章 -->
-        <div class="bg-white rounded-xl shadow-sm p-6 fade-in" style="animation-delay: 0.2s">
-          <h3 class="text-lg font-bold mb-4 flex items-center">
-            <i class="fa fa-fire text-primary mr-2"></i> 热门文章
-          </h3>
-          <div class="space-y-4">
-            <a href="#" class="flex items-center gap-3 group">
-              <div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary font-bold flex-shrink-0">1</div>
-              <div>
-                <h4 class="font-medium text-sm group-hover:text-primary transition-colors line-clamp-2">2023年前端开发趋势预测：这些技术值得关注</h4>
-                <p class="text-gray-500 text-xs mt-1">5.2k 阅读</p>
-              </div>
-            </a>
-            <a href="#" class="flex items-center gap-3 group">
-              <div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary font-bold flex-shrink-0">2</div>
-              <div>
-                <h4 class="font-medium text-sm group-hover:text-primary transition-colors line-clamp-2">从零开始搭建React项目：完整流程指南</h4>
-                <p class="text-gray-500 text-xs mt-1">4.8k 阅读</p>
-              </div>
-            </a>
-            <a href="#" class="flex items-center gap-3 group">
-              <div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary font-bold flex-shrink-0">3</div>
-              <div>
-                <h4 class="font-medium text-sm group-hover:text-primary transition-colors line-clamp-2">前端性能优化实战：让你的网站加载速度提升50%</h4>
-                <p class="text-gray-500 text-xs mt-1">4.1k 阅读</p>
-              </div>
-            </a>
-            <a href="#" class="flex items-center gap-3 group">
-              <div class="w-8 h-8 rounded bg-gray-100 flex items-center justify-center text-gray-600 font-bold flex-shrink-0">4</div>
-              <div>
-                <h4 class="font-medium text-sm group-hover:text-primary transition-colors line-clamp-2">CSS变量完全指南：提升样式复用性</h4>
-                <p class="text-gray-500 text-xs mt-1">3.7k 阅读</p>
-              </div>
-            </a>
-            <a href="#" class="flex items-center gap-3 group">
-              <div class="w-8 h-8 rounded bg-gray-100 flex items-center justify-center text-gray-600 font-bold flex-shrink-0">5</div>
-              <div>
-                <h4 class="font-medium text-sm group-hover:text-primary transition-colors line-clamp-2">JavaScript异步编程：从回调到Promise再到async/await</h4>
-                <p class="text-gray-500 text-xs mt-1">3.2k 阅读</p>
-              </div>
-            </a>
-          </div>
-        </div>
-      </aside>
+      <p><strong>25/11/1</strong></p>
+      <p>哈哈博客成立了。</p>
     </div>
   </main>
-
   <!-- 页脚 -->
   <footer class="bg-dark text-white py-12">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -465,9 +187,9 @@
             <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
               <i class="fa fa-pencil text-primary text-xl"></i>
             </div>
-            <span class="text-xl font-bold">我的博客</span>
+            <span class="text-xl font-bold">CheeseBlog</span>
           </div>
-          <p class="text-gray-400 mb-6">分享前端开发知识、技术教程和行业见解，与开发者共同成长。</p>
+          <p class="text-gray-400 mb-6">分</p>
           <div class="flex space-x-4">
             <a href="#" class="text-gray-400 hover:text-white transition-colors">
               <i class="fa fa-weixin"></i>
@@ -530,6 +252,7 @@
   </button>
 
   <!-- JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@4.2.3/marked.min.js"></script>
   <script>
     // 导航栏滚动效果
     const navbar = document.getElementById('navbar');
@@ -549,9 +272,6 @@
         backToTop.classList.add('opacity-0', 'invisible');
         backToTop.classList.remove('opacity-100', 'visible');
       }
-      
-      // 目录激活状态
-      updateTocActive();
     });
     
     // 返回顶部功能
@@ -562,48 +282,121 @@
       });
     });
     
-    // 更新目录激活状态
-    function updateTocActive() {
-      const sections = document.querySelectorAll('h2[id], h3[id]');
-      const tocLinks = document.querySelectorAll('.toc-container a');
+    // 编辑/预览切换
+    const editTab = document.getElementById('edit-tab');
+    const previewTab = document.getElementById('preview-tab');
+    const editorContainer = document.getElementById('editor-container');
+    const previewContainer = document.getElementById('preview-container');
+    const editor = document.getElementById('editor');
+    const wordCount = document.getElementById('word-count');
+    
+    editTab.addEventListener('click', function() {
+      editTab.classList.add('text-primary', 'border-b-2', 'border-primary');
+      editTab.classList.remove('text-gray-500');
+      previewTab.classList.remove('text-primary', 'border-b-2', 'border-primary');
+      previewTab.classList.add('text-gray-500');
+      editorContainer.classList.remove('hidden');
+      previewContainer.classList.add('hidden');
+    });
+    
+    previewTab.addEventListener('click', function() {
+      previewTab.classList.add('text-primary', 'border-b-2', 'border-primary');
+      previewTab.classList.remove('text-gray-500');
+      editTab.classList.remove('text-primary', 'border-b-2', 'border-primary');
+      editTab.classList.add('text-gray-500');
+      previewContainer.innerHTML = marked.parse(editor.value);
+      editorContainer.classList.add('hidden');
+      previewContainer.classList.remove('hidden');
+    });
+    
+    // 实时预览和字数统计
+    editor.addEventListener('input', function() {
+      // 更新字数统计
+      const count = editor.value.length;
+      wordCount.textContent = count;
       
-      let currentSectionId = '';
+      // 计算预计阅读时间 (假设每分钟阅读300字)
+      const readTimeElement = document.querySelector('.text-xl.font-bold.text-dark');
+      if (readTimeElement && readTimeElement.textContent.includes('预计阅读')) {
+        const minutes = Math.max(1, Math.floor(count / 300));
+        readTimeElement.textContent = `${minutes} 分钟`;
+      }
       
-      sections.forEach(section => {
-        const sectionTop = section.offsetTop - 100;
-        const sectionHeight = section.offsetHeight;
-        
-        if (window.scrollY >= sectionTop && window.scrollY < sectionTop + sectionHeight) {
-          currentSectionId = section.getAttribute('id');
-        }
+      // 如果在预览模式，实时更新预览
+      if (!previewContainer.classList.contains('hidden')) {
+        previewContainer.innerHTML = marked.parse(editor.value);
+      }
+    });
+    
+    // 标签添加功能
+    const tagInput = document.getElementById('tag-input');
+    const addTagBtn = document.getElementById('add-tag');
+    const tagsContainer = document.getElementById('tags-container');
+    
+    function addTag(tagText) {
+      if (!tagText || tagText.trim() === '' || tagsContainer.children.length >= 5) return;
+      
+      const tagElement = document.createElement('div');
+      tagElement.className = 'inline-flex items-center bg-primary/10 text-primary rounded-full px-3 py-1 text-sm';
+      tagElement.innerHTML = `
+        ${tagText.trim()}
+        <button class="ml-2 text-primary hover:text-secondary transition-colors">
+          <i class="fa fa-times-circle"></i>
+        </button>
+      `;
+      
+      // 移除标签功能
+      tagElement.querySelector('button').addEventListener('click', function() {
+        tagsContainer.removeChild(tagElement);
       });
       
-      tocLinks.forEach(link => {
-        link.classList.remove('toc-active');
-        if (link.getAttribute('href') === `#${currentSectionId}`) {
-          link.classList.add('toc-active');
-        }
-      });
+      tagsContainer.appendChild(tagElement);
+      tagInput.value = '';
     }
     
-    // 初始加载时执行
+    addTagBtn.addEventListener('click', function() {
+      addTag(tagInput.value);
+    });
+    
+    tagInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addTag(tagInput.value);
+      }
+    });
+    
+    // 定时发布选项
+    const schedulePublish = document.getElementById('schedule-publish');
+    const publishTime = document.getElementById('publish-time');
+    
+    schedulePublish.addEventListener('change', function() {
+      publishTime.disabled = !this.checked;
+      if (this.checked && !publishTime.value) {
+        // 设置默认时间为当前时间后30分钟
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + 30);
+        publishTime.value = now.toISOString().slice(0, 16);
+      }
+    });
+    
+    // 编辑器工具栏按钮效果
+    const editorButtons = document.querySelectorAll('.editor-button');
+    editorButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        // 简单模拟按钮激活状态切换
+        if (this.title !== '撤销' && this.title !== '重做') {
+          this.classList.toggle('active');
+        }
+      });
+    });
+    
+    // 初始化页面
     window.addEventListener('load', function() {
-      // 初始化目录激活状态
-      updateTocActive();
-      
-      // 图片懒加载效果
-      const images = document.querySelectorAll('img');
-      images.forEach(img => {
-        img.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-        img.onload = function() {
-          img.classList.remove('opacity-0');
-          img.classList.add('opacity-100');
-        }
-        // 如果图片已经加载完成
-        if (img.complete) {
-          img.classList.remove('opacity-0');
-          img.classList.add('opacity-100');
-        }
+      // 初始化标签删除功能
+      document.querySelectorAll('#tags-container button').forEach(button => {
+        button.addEventListener('click', function() {
+          this.closest('div').remove();
+        });
       });
     });
   </script>
