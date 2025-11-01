@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome - CheeseStudio</title>
+  <!-- 引入外部资源 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置Tailwind自定义主题 - 芝士深色主题 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#FFB74D', // 芝士黄
+            secondary: '#FFA726', // 深芝士色
+            accent: '#FFCC80', // 亮芝士色
+            dark: '#121212',
+            'dark-light': '#1E1E1E',
+            'dark-lighter': '#2D2D2D'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+      }
+    }
+  </style>
+  
+  <style>
+    /* 基础动画定义 */
+    .fade-in {
+      animation: fadeIn 0.8s ease forwards;
+      opacity: 0;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* 滚动进度条 - 芝士色 */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #2D2D2D;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #FFB74D;
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #FFA726;
+    }
+    
+    /* 平滑滚动 */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* 芝士图标样式 */
+    .cheese-icon::before {
+      content: "🧀";
+      display: inline-block;
+      margin-right: 8px;
+    }
+  </style>
+</head>
+
+<body class="bg-dark text-gray-200 antialiased">
+  <!-- 导航栏 -->
+  <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-dark/90 backdrop-blur-sm shadow-sm">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-4">
+        <div class="flex items-center space-x-2">
+          <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+            <span class="text-white text-xl">🧀</span>
+          </div>
+          <span class="text-xl font-bold text-white">CheeseStudio</span>
+        </div>
+        
+        <!-- 桌面导航 -->
+        <nav class="hidden md:flex space-x-8">
+          <a href="#about" class="font-medium hover:text-primary transition-colors">关于我们</a>
+          <a href="#team" class="font-medium hover:text-primary transition-colors">团队成员</a>
+          <a href="#skills" class="font-medium hover:text-primary transition-colors">专业技能</a>
+          <a href="#culture" class="font-medium hover:text-primary transition-colors">团队文化</a>
+          <a href="#contact" class="font-medium hover:text-primary transition-colors">联系我们</a>
+        </nav>
+        
+        <!-- 移动端菜单按钮 -->
+        <button id="menuBtn" class="md:hidden text-white hover:text-primary transition-colors">
+          <span class="text-2xl">🧀</span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- 移动端导航菜单 -->
+    <div id="mobileMenu" class="md:hidden hidden bg-dark-light border-t border-gray-800">
+      <div class="container mx-auto px-4 py-3 space-y-3">
+        <a href="#about" class="block py-2 font-medium hover:text-primary transition-colors">关于我们</a>
+        <a href="#team" class="block py-2 font-medium hover:text-primary transition-colors">团队成员</a>
+        <a href="#skills" class="block py-2 font-medium hover:text-primary transition-colors">专业技能</a>
+        <a href="#culture" class="block py-2 font-medium hover:text-primary transition-colors">团队文化</a>
+        <a href="#contact" class="block py-2 font-medium hover:text-primary transition-colors">联系我们</a>
+      </div>
+    </div>
+  </header>
+    <!-- 软件下载区域 -->
+  <section class="py-20 bg-dark">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16 reveal">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4 text-white cheese-icon">我的世界外挂下载。</h2>
+        <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
+        <p class="text-gray-400 max-w-2xl mx-auto">嗯。</p>
+      </div>
+      
+      <div class="grid md:grid-cols-3 gap-8">
+        <!-- 软件1 -->
+        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal">
+          <div class="p-6">
+            <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-6">
+              <span class="text-primary text-3xl">🧀</span>
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-white">Cheese Client（无害版本）</h3>
+            <p class="text-gray-400 mb-6">我的世界超强外挂，让你的电脑像芝士一样变成废土。详细请看BV193pfzbE8U</p>
+            <div class="flex flex-wrap gap-3 mb-6">
+              <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">客户端</span>
+              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">v?.?.?</span>
+              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">??MB</span>
+            </div>
+            <a href="https://www.123865.com/s/374yVv-ug0F3" class="block w-full py-3 bg-primary text-dark rounded-lg font-medium hover:bg-primary/90 transition-all text-center flex items-center justify-center">
+              <span class="mr-2">⬇️</span> 立即下载
+            </a>
+          </div>
+        </div>
+        
+        <!-- 软件2 -->
+        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal" style="animation-delay: 0.2s">
+          <div class="p-6">
+            <div class="w-16 h-16 bg-secondary/10 rounded-lg flex items-center justify-center mb-6">
+              <span class="text-secondary text-3xl">🧀</span>
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-white">FDP Client</h3>
+            <p class="text-gray-400 mb-6">嗯。还行吧。视觉挺好看</p>
+            <div class="flex flex-wrap gap-3 mb-6">
+              <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">模组</span>
+              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">Releases B15</span>
+              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">idk MB</span>
+            </div>
+            <a href="https://fdpinfo.github.io/download" class="block w-full py-3 bg-secondary text-dark rounded-lg font-medium hover:bg-secondary/90 transition-all text-center flex items-center justify-center">
+              <span class="mr-2">⬇️</span> 立即下载
+            </a>
+          </div>
+        </div>
+        
+        <!-- 软件3 -->
+        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal" style="animation-delay: 0.4s">
+          <div class="p-6">
+            <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
+              <span class="text-accent text-3xl">🧀</span>
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-white">Liquid Bounce Client(b100)</h3>
+            <p class="text-gray-400 mb-6">估计是免费里面最好的一个客户端了。可以绕过吉吉岛，最著名的版本是b100（1.8.9版本）</p>
+            <div class="flex flex-wrap gap-3 mb-6">
+              <span class="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">模组</span>
+              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">b100</span>
+              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">joahsdfijasdf MB</span>
+            </div>
+            <a href="https://fdpinfo.github.io/download" class="block w-full py-3 bg-accent text-dark rounded-lg font-medium hover:bg-accent/90 transition-all text-center flex items-center justify-center">
+              <span class="mr-2">⬇️</span> 立即下载
+            </a>
+          </div>
+        </div>
+      </div>
+            <!-- 软件4 -->
+        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal" style="animation-delay: 0.4s">
+          <div class="p-6">
+            <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
+              <span class="text-accent text-3xl">🧀</span>
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-white">Liquid Launcher</h3>
+            <p class="text-gray-400 mb-6">水影官方启动器，b站上有教程，自己搜。（第一个就是）</p>
+            <div class="flex flex-wrap gap-3 mb-6">
+              <span class="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">模组</span>
+              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">V?</span>
+              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">joahsdfijasdf MB</span>
+            </div>
+            <a href="https://liquidbounce.net/download" class="block w-full py-3 bg-accent text-dark rounded-lg font-medium hover:bg-accent/90 transition-all text-center flex items-center justify-center">
+              <span class="mr-2">⬇️</span> 立即下载
+            </a>
+          </div>
+        </div>
+      </div>
+            <!-- 软件4 -->
+        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal" style="animation-delay: 0.4s">
+          <div class="p-6">
+            <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
+              <span class="text-accent text-3xl">🧀</span>
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-white">Rice (Cracked)</h3>
+            <p class="text-gray-400 mb-6">宝宝嘟嘟打雷啦。这个逼里昂尼尔。被破解了咯咯哒。（报毒为误报awa）</p>
+            <div class="flex flex-wrap gap-3 mb-6">
+              <span class="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">客户端</span>
+              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">V?</span>
+              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">joahsdfijasdf MB</span>
+            </div>
+            <a href="https://www.bjd-mc.cfd/" class="block w-full py-3 bg-accent text-dark rounded-lg font-medium hover:bg-accent/90 transition-all text-center flex items-center justify-center">
+              <span class="mr-2">⬇️</span> 立即下载
+            </a>
+          </div>
+        </div>
+      </div>
+                 <!-- 软件4 -->
+        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal" style="animation-delay: 0.4s">
+          <div class="p-6">
+            <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
+              <span class="text-accent text-3xl">🧀</span>
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-white">Opai (Free)</h3>
+            <p class="text-gray-400 mb-6">哈哈由于宝马岛人员报警了把玩风格的人给抓了于是cubk跑路顺便留下了免费opai。（骗你的，早就复活了。（但是免费Opai还是在的。））</p>
+            <div class="flex flex-wrap gap-3 mb-6">
+              <span class="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">客户端</span>
+              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">Free</span>
+              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">joahsdfijasdf MB</span>
+            </div>
+            <a href="https://cloud.cgoi.cc/Opai.zip" class="block w-full py-3 bg-accent text-dark rounded-lg font-medium hover:bg-accent/90 transition-all text-center flex items-center justify-center">
+              <span class="mr-2">⬇️</span> 立即下载
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+                     <!-- 软件4 -->
+        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal" style="animation-delay: 0.4s">
+          <div class="p-6">
+            <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
+              <span class="text-accent text-3xl">🧀</span>
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-white">GoldBounce</h3>
+            <p class="text-gray-400 mb-6">杂牌人用杂牌水，但是这是金振口服液。自己找Release。</p>
+            <div class="flex flex-wrap gap-3 mb-6">
+              <span class="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">客户端</span>
+              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">Release b11</span>
+              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">joahsdfijasdf MB</span>
+            </div>
+            <a href="https://github.com/bzym2/GoldBounce" class="block w-full py-3 bg-accent text-dark rounded-lg font-medium hover:bg-accent/90 transition-all text-center flex items-center justify-center">
+              <span class="mr-2">⬇️</span> 立即下载
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal" style="animation-delay: 0.4s">
+          <div class="p-6">
+            <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
+              <span class="text-accent text-3xl">🧀</span>
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-white">SilenceFix</h3>
+            <p class="text-gray-400 mb-6">嗯。自己加qq1055680656下载。安装教程在b站。</p>
+            <div class="flex flex-wrap gap-3 mb-6">
+              <span class="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">客户端</span>
+              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">V47.50</span>
+              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">joahsdfijasdf MB</span>
+            </div>
+            <a href="" class="block w-full py-3 bg-accent text-dark rounded-lg font-medium hover:bg-accent/90 transition-all text-center flex items-center justify-center">
+              <span class="mr-2">⬇️</span> 无法下载。
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="bg-dark text-gray-400 py-12 border-t border-gray-800">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid md:grid-cols-4 gap-8 mb-8">
+        <div>
+          <div class="flex items-center space-x-2 mb-6">
+            <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+              <span class="text-dark text-xl">🧀</span>
+            </div>
+            <span class="text-xl font-bold text-white">CheeseStudio</span>
+          </div>
+          <p class="mb-6">我们致力于通过芝士般的创意和协作精神，为客户创造价值，解决行业难题。</p>
+          <div class="flex space-x-4">
+            <a href="#" class="hover:text-primary transition-colors">
+              <span>🧀</span>
+            </a>
+            <a href="#" class="hover:text-primary transition-colors">
+              <span>🧀</span>
+            </a>
+            <a href="#" class="hover:text-primary transition-colors">
+              <span>🧀</span>
+            </a>
+            <a href="#" class="hover:text-primary transition-colors">
+              <span>🧀</span>
+            </a>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-white">快速链接</h4>
+          <ul class="space-y-3">
+            <li><a href="#about" class="hover:text-primary transition-colors">关于我们</a></li>
+            <li><a href="#team" class="hover:text-primary transition-colors">团队成员</a></li>
+            <li><a href="#skills" class="hover:text-primary transition-colors">专业技能</a></li>
+            <li><a href="#culture" class="hover:text-primary transition-colors">团队文化</a></li>
+            <li><a href="#contact" class="hover:text-primary transition-colors">联系我们</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-white">服务</h4>
+          <ul class="space-y-3">
+            <li><a href="#" class="hover:text-primary transition-colors">软件开发</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">UI/UX 设计</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">创意策划</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">品牌推广</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">芝士品鉴</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-white">订阅我们</h4>
+          <p class="mb-4">订阅我们的 newsletter，获取最新动态和芝士资讯。</p>
+          <form class="flex">
+            <input type="email" placeholder="您的邮箱地址" class="px-4 py-2 rounded-l-lg w-full focus:outline-none bg-dark-lighter border border-gray-700 text-white">
+            <button type="submit" class="bg-primary px-4 py-2 rounded-r-lg hover:bg-primary/90 transition-colors text-dark">
+              <span>🧀</span>
+            </button>
+          </form>
+        </div>
+      </div>
+      
+      <div class="border-t border-gray-800 pt-8 text-center text-sm">
+        <p>&copy; 2023 CheeseStudio. 保留所有权利. 用芝士般的热情创造美好。</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 返回顶部按钮 -->
+  <button id="backToTop" class="fixed bottom-8 right-8 w-12 h-12 bg-primary text-dark rounded-full shadow-lg flex items-center justify-center opacity-0 invisible transition-all duration-300 hover:bg-primary/90">
+    <span>🧀</span>
+  </button>
+
+  <!-- JavaScript -->
+  <script>
+    // 导航栏滚动效果
+    const navbar = document.getElementById('navbar');
+    const backToTop = document.getElementById('backToTop');
+    
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 100) {
+        navbar.classList.add('py-2', 'shadow-md');
+        navbar.classList.remove('py-4', 'shadow-sm');
+        
+        backToTop.classList.remove('opacity-0', 'invisible');
+        backToTop.classList.add('opacity-100', 'visible');
+      } else {
+        navbar.classList.add('py-4', 'shadow-sm');
+        navbar.classList.remove('py-2', 'shadow-md');
+        
+        backToTop.classList.add('opacity-0', 'invisible');
+        backToTop.classList.remove('opacity-100', 'visible');
+      }
+      
+      // 滚动动画
+      revealElements();
+    });
+    
+    // 移动端菜单切换
+    const menuBtn = document.getElementById('menuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    
+    menuBtn.addEventListener('click', function() {
+      mobileMenu.classList.toggle('hidden');
+    });
+    
+    // 返回顶部功能
+    backToTop.addEventListener('click', function() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+    
+    // 滚动显示动画
+    function revealElements() {
+      const reveals = document.querySelectorAll('.reveal');
+      
+      for (let i = 0; i < reveals.length; i++) {
+        const windowHeight = window.innerHeight;
+        const elementTop = reveals[i].getBoundingClientRect().top;
+        const elementVisible = 150;
+        
+        if (elementTop < windowHeight - elementVisible) {
+          reveals[i].classList.add('fade-in');
+        }
+      }
+    }
+    
+    // 初始加载时执行一次
+    window.addEventListener('load', function() {
+      revealElements();
+    });
+  </script>
+</body>
+</html>
