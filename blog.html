@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CheeseStudio Blog - Oh Yeah!</title>
+  <!-- 引入外部资源 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置Tailwind自定义主题 - 黄色主题 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#F59E0B', // 主黄色
+            secondary: '#D97706', // 深黄色
+            accent: '#FBBF24', // 亮黄色
+            dark: '#1E293B',
+            light: '#F8FAFC'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['Georgia', 'Cambria', 'serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-3px);
+      }
+      .toc-active {
+        @apply text-primary border-l-4 border-primary pl-3 -ml-4 font-medium;
+      }
+    }
+  </style>
+  
+  <style>
+    /* 基础动画定义 */
+    .fade-in {
+      animation: fadeIn 0.6s ease forwards;
+      opacity: 0;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* 滚动进度条 - 黄色主题 */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #F59E0B;
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #D97706;
+    }
+    
+    /* 平滑滚动 */
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    /* 文章段落样式 */
+    .blog-content p {
+      margin-bottom: 1.5rem;
+      line-height: 1.8;
+    }
+    
+    .blog-content h2 {
+      font-size: 1.75rem;
+      font-weight: bold;
+      margin: 2rem 0 1rem;
+      color: #1E293B;
+    }
+    
+    .blog-content h3 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin: 1.5rem 0 0.75rem;
+      color: #1E293B;
+    }
+    
+    .blog-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 0.5rem;
+      margin: 1.5rem 0;
+    }
+    
+    .blog-content blockquote {
+      border-left: 4px solid #F59E0B;
+      padding-left: 1rem;
+      margin: 1.5rem 0;
+      color: #64748B;
+      font-style: italic;
+    }
+    
+    /* 目录滚动 */
+    .toc-container {
+      max-height: calc(100vh - 8rem);
+      overflow-y: auto;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 text-dark antialiased">
+  <!-- 导航栏 -->
+  <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-sm shadow-sm">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-4">
+        <div class="flex items-center space-x-2">
+          <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+            <i class="fa fa-pencil text-white text-xl"></i>
+          </div>
+          <span class="text-xl font-bold text-dark">CheeseStudio Blog</span>
+        </div>
+        
+        <!-- 搜索框 -->
+        <div class="hidden md:flex relative max-w-md w-full mx-8">
+          <input type="text" placeholder="Search or ask Copilot（（（" class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors">
+          <i class="fa fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        </div>
+        
+        <!-- 导航链接 -->
+        <nav class="flex items-center space-x-6">
+          <a href="https://xiezao1225.github.io/" class="font-medium hover:text-primary transition-colors hidden sm:block">首页</a>
+          <a href="#" class="font-medium text-primary border-b-2 border-primary pb-1">文章</a>
+          <div class="relative">
+            <button class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors">
+              <i class="fa fa-user text-gray-600"></i>
+            </button>
+          </div>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="container mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      
+      <!-- 左侧目录 -->
+      <aside class="lg:col-span-3 space-y-6">
+        <!-- 目录卡片 -->
+        <div class="bg-white rounded-xl shadow-sm p-6 sticky top-24 fade-in">
+          <h3 class="text-lg font-bold mb-4 flex items-center">
+            <i class="fa fa-list-ul text-primary mr-2"></i> 文章目录
+          </h3>
+          <div class="toc-container text-gray-700 text-sm">
+            <ul class="space-y-3">
+              <li><a href="#intro" class="block hover:text-primary transition-colors">引言</a></li>
+              <li><a href="#section1" class="block hover:text-primary transition-colors">什么是前端开发</a></li>
+              <li class="pl-4">
+                <a href="#subsection1-1" class="block hover:text-primary transition-colors">前端开发的重要性</a>
+              </li>
+              <li class="pl-4">
+                <a href="#subsection1-2" class="block hover:text-primary transition-colors">前端与后端的区别</a>
+              </li>
+              <li><a href="#section2" class="block hover:text-primary transition-colors">必备技术栈</a></li>
+              <li class="pl-4">
+                <a href="#subsection2-1" class="block hover:text-primary transition-colors">HTML基础</a>
+              </li>
+              <li class="pl-4">
+                <a href="#subsection2-2" class="block hover:text-primary transition-colors">CSS进阶</a>
+              </li>
+              <li class="pl-4">
+                <a href="#subsection2-3" class="block hover:text-primary transition-colors">JavaScript核心</a>
+              </li>
+              <li><a href="#section3" class="block hover:text-primary transition-colors">现代前端框架</a></li>
+              <li><a href="#section4" class="block hover:text-primary transition-colors">学习资源推荐</a></li>
+              <li><a href="#conclusion" class="block hover:text-primary transition-colors">结语</a></li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- 作者信息 -->
+        <div class="bg-white rounded-xl shadow-sm p-6 fade-in" style="animation-delay: 0.1s">
+          <div class="flex flex-col items-center text-center">
+            <img src="https://picsum.photos/id/1005/200/200" alt="作者头像" class="w-24 h-24 rounded-full object-cover mb-4 border-4 border-primary/20">
+            <h3 class="text-lg font-bold">屑躁</h3>
+            <p class="text-gray-500 text-sm mb-4">傻逼。</p>
+            <p class="text-gray-600 text-sm mb-4">嗯。</p>
+            <div class="flex space-x-3">
+              <a href="#" class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors">
+                <i class="fa fa-github"></i>
+              </a>
+              <a href="#" class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors">
+                <i class="fa fa-twitter"></i>
+              </a>
+              <a href="#" class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors">
+                <i class="fa fa-linkedin"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+      
+      <!-- 中间文章主体 -->
+      <article class="lg:col-span-6 space-y-6">
+        <!-- 文章标题区 -->
+        <div class="bg-white rounded-xl shadow-sm p-6 md:p-8 fade-in">
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">前端开发</span>
+            <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">技术教程</span>
+          </div>
+         
+        <!-- 文章底部操作区 -->
+        <div class="bg-white rounded-xl shadow-sm p-6 flex flex-wrap justify-between items-center fade-in" style="animation-delay: 0.2s">
+          <div class="flex space-x-4 mb-4 sm:mb-0">
+            <button class="flex items-center text-gray-600 hover:text-primary transition-colors">
+              <i class="fa fa-thumbs-o-up mr-2"></i> 点赞 (128)
+            </button>
+            <button class="flex items-center text-gray-600 hover:text-primary transition-colors">
+              <i class="fa fa-bookmark-o mr-2"></i> 收藏 (56)
+            </button>
+            <button class="flex items-center text-gray-600 hover:text-primary transition-colors">
+              <i class="fa fa-share-alt mr-2"></i> 分享
+            </button>
+          </div>
+          <div class="flex space-x-2">
+            <a href="#" class="text-gray-600 hover:text-primary transition-colors">
+              <i class="fa fa-weibo"></i>
+            </a>
+            <a href="#" class="text-gray-600 hover:text-primary transition-colors">
+              <i class="fa fa-weixin"></i>
+            </a>
+            <a href="#" class="text-gray-600 hover:text-primary transition-colors">
+              <i class="fa fa-twitter"></i>
+            </a>
+            <a href="#" class="text-gray-600 hover:text-primary transition-colors">
+              <i class="fa fa-linkedin"></i>
+            </a>
+          </div>
+        </div>
+        
+      
+      <!-- 右侧留言板 -->
+      <aside class="lg:col-span-3 space-y-6">
+        <!-- 搜索框（移动端隐藏，桌面端在右侧显示） -->
+        <div class="bg-white rounded-xl shadow-sm p-6 lg:hidden fade-in">
+          <div class="relative">
+            <input type="text" placeholder="搜索文章..." class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors">
+            <i class="fa fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+          </div>
+        </div>
+        
+        <!-- 留言板 -->
+        <div class="bg-white rounded-xl shadow-sm p-6 fade-in" style="animation-delay: 0.1s">
+          <h3 class="text-lg font-bold mb-4 flex items-center">
+            <i class="fa fa-comments text-primary mr-2"></i> 留言板
+          </h3>
+          
+          <!-- 留言输入框 -->
+          <form class="mb-6">
+            <textarea placeholder="分享你的想法..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors resize-none" rows="3"></textarea>
+            <div class="flex justify-between mt-3">
+              <div class="text-sm text-gray-500">
+                <i class="fa fa-info-circle mr-1"></i> 文明留言，理性讨论
+              </div>
+              <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary/90 transition-colors">
+                发表留言
+              </button>
+            </div>
+          </form>
+          
+          <!-- 留言列表 -->
+          <div class="space-y-6 max-h-[calc(100vh-36rem)] overflow-y-auto pr-2">
+          </div>
+
+  <!-- 页脚 -->
+  <footer class="bg-dark text-white py-12">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid md:grid-cols-4 gap-8 mb-8">
+        <div>
+          <div class="flex items-center space-x-2 mb-6">
+            <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
+              <i class="fa fa-pencil text-primary text-xl"></i>
+            </div>
+            <span class="text-xl font-bold">CheeseStudio Blog</span>
+          </div>
+          <p class="text-gray-400 mb-6">嗯。</p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+              <i class="fa fa-weixin"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+              <i class="fa fa-weibo"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+              <i class="fa fa-github"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </div>
+        </div>
+      
+      <div class="border-t border-gray-800 pt-8 text-center text-gray-500 text-sm">
+        <p>&copy; ojayhdilfhjalkdsjgyrkuw</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 返回顶部按钮 -->
+  <button id="backToTop" class="fixed bottom-8 right-8 w-12 h-12 bg-primary text-white rounded-full shadow-lg flex items-center justify-center opacity-0 invisible transition-all duration-300 hover:bg-primary/90 z-50">
+    <i class="fa fa-arrow-up"></i>
+  </button>
+
+  <!-- JavaScript -->
+  <script>
+    // 导航栏滚动效果
+    const navbar = document.getElementById('navbar');
+    const backToTop = document.getElementById('backToTop');
+    
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 100) {
+        navbar.classList.add('py-2', 'shadow-md');
+        navbar.classList.remove('py-4', 'shadow-sm');
+        
+        backToTop.classList.remove('opacity-0', 'invisible');
+        backToTop.classList.add('opacity-100', 'visible');
+      } else {
+        navbar.classList.add('py-4', 'shadow-sm');
+        navbar.classList.remove('py-2', 'shadow-md');
+        
+        backToTop.classList.add('opacity-0', 'invisible');
+        backToTop.classList.remove('opacity-100', 'visible');
+      }
+      
+      // 目录激活状态
+      updateTocActive();
+    });
+    
+    // 返回顶部功能
+    backToTop.addEventListener('click', function() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+    
+    // 更新目录激活状态
+    function updateTocActive() {
+      const sections = document.querySelectorAll('h2[id], h3[id]');
+      const tocLinks = document.querySelectorAll('.toc-container a');
+      
+      let currentSectionId = '';
+      
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop - 100;
+        const sectionHeight = section.offsetHeight;
+        
+        if (window.scrollY >= sectionTop && window.scrollY < sectionTop + sectionHeight) {
+          currentSectionId = section.getAttribute('id');
+        }
+      });
+      
+      tocLinks.forEach(link => {
+        link.classList.remove('toc-active');
+        if (link.getAttribute('href') === `#${currentSectionId}`) {
+          link.classList.add('toc-active');
+        }
+      });
+    }
+    
+    // 初始加载时执行
+    window.addEventListener('load', function() {
+      // 初始化目录激活状态
+      updateTocActive();
+      
+      // 图片懒加载效果
+      const images = document.querySelectorAll('img');
+      images.forEach(img => {
+        img.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+        img.onload = function() {
+          img.classList.remove('opacity-0');
+          img.classList.add('opacity-100');
+        }
+        // 如果图片已经加载完成
+        if (img.complete) {
+          img.classList.remove('opacity-0');
+          img.classList.add('opacity-100');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
