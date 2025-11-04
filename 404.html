@@ -1,6 +1,290 @@
-<html>
-  <h1>
-    404了！
-    好了没了别看了
-  </h1>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - 页面找不到 | CheeseStudio</title>
+  <!-- 引入外部资源 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置Tailwind自定义主题 - 芝士深色主题 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#FFB74D', // 芝士黄
+            secondary: '#FFA726', // 深芝士色
+            accent: '#FFCC80', // 亮芝士色
+            dark: '#121212',
+            'dark-light': '#1E1E1E',
+            'dark-lighter': '#2D2D2D'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      }
+      .cheese-bounce {
+        animation: cheeseBounce 2s infinite ease-in-out;
+      }
+    }
+  </style>
+  
+  <style>
+    /* 平滑滚动 */
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    /* 芝士弹跳动画 */
+    @keyframes cheeseBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+    
+    /* 滚动进度条 - 芝士色 */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #2D2D2D;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #FFB74D;
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #FFA726;
+    }
+    
+    /* 渐入动画 */
+    .fade-in {
+      animation: fadeIn 0.8s ease forwards;
+      opacity: 0;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body class="bg-dark text-gray-200 antialiased min-h-screen flex flex-col">
+  <!-- 导航栏 -->
+  <header class="fixed w-full top-0 z-50 bg-dark/90 backdrop-blur-sm shadow-sm py-4">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+            <span class="text-white text-xl">🧀</span>
+          </div>
+          <span class="text-xl font-bold text-white">CheeseStudio</span>
+        </div>
+        
+        <nav class="hidden md:flex space-x-8">
+          <a href="index.html#about" class="font-medium hover:text-primary transition-colors">关于我们</a>
+          <a href="index.html#team" class="font-medium hover:text-primary transition-colors">团队成员</a>
+          <a href="index.html#skills" class="font-medium hover:text-primary transition-colors">专业技能</a>
+          <a href="index.html#culture" class="font-medium hover:text-primary transition-colors">团队文化</a>
+          <a href="index.html#download" class="font-medium hover:text-primary transition-colors">软件下载</a>
+          <a href="index.html#contact" class="font-medium hover:text-primary transition-colors">联系我们</a>
+        </nav>
+        
+        <button class="md:hidden text-white hover:text-primary transition-colors">
+          <span class="text-2xl">🧀</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 404 主内容区 -->
+  <main class="flex-grow pt-32 pb-20 flex flex-col items-center justify-center">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <!-- 芝士图标 -->
+      <div class="cheese-bounce mb-8 fade-in" style="animation-delay: 0.1s">
+        <span class="text-[10rem] md:text-[12rem]">🧀</span>
+      </div>
+      
+      <!-- 404 标题 -->
+      <h1 class="text-[clamp(3rem,10vw,5rem)] font-bold text-white mb-6 fade-in" style="animation-delay: 0.3s">
+        (1+1)*4*51-4！
+      </h1>
+      
+      <!-- 错误信息 -->
+      <p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto fade-in" style="animation-delay: 0.5s">
+        哎呀！你寻找的页面像融化的芝士一样不见了～
+      </p>
+      
+      <!-- 可能的原因 -->
+      <div class="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto mb-12 fade-in" style="animation-delay: 0.7s">
+        <div class="bg-dark-light p-6 rounded-xl border border-gray-800 hover:shadow-md transition-shadow">
+          <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-primary text-xl">🧀</span>
+          </div>
+          <h3 class="font-bold mb-2 text-white">链接错误</h3>
+          <p class="text-sm text-gray-400">可能是链接输入错误或已过期</p>
+        </div>
+        
+        <div class="bg-dark-light p-6 rounded-xl border border-gray-800 hover:shadow-md transition-shadow">
+          <div class="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-secondary text-xl">🧀</span>
+          </div>
+          <h3 class="font-bold mb-2 text-white">页面已迁移</h3>
+          <p class="text-sm text-gray-400">该页面可能已被移动到新位置</p>
+        </div>
+        
+        <div class="bg-dark-light p-6 rounded-xl border border-gray-800 hover:shadow-md transition-shadow">
+          <div class="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-accent text-xl">🧀</span>
+          </div>
+          <h3 class="font-bold mb-2 text-white">芝士融化了</h3>
+          <p class="text-sm text-gray-400">或者只是单纯的技术小故障</p>
+        </div>
+      </div>
+      
+      <!-- 操作按钮 -->
+      <div class="flex flex-wrap justify-center gap-4 fade-in" style="animation-delay: 0.9s">
+        <a href="index.html" class="px-8 py-3 bg-primary text-dark rounded-lg font-medium hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/20 text-lg">
+          返回首页 <span class="ml-2">🧀</span>
+        </a>
+        <a href="index.html#contact" class="px-8 py-3 bg-dark-lighter text-primary border border-primary/30 rounded-lg font-medium hover:bg-dark-lighter/80 transition-all text-lg">
+          联系我们 <span class="ml-2">🧀</span>
+        </a>
+      </div>
+      
+      <!-- 热门推荐 -->
+      <div class="mt-16 fade-in" style="animation-delay: 1.1s">
+        <h3 class="text-xl font-bold mb-6 text-white cheese-icon">热门推荐</h3>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <a href="index.html#download" class="bg-dark-light p-4 rounded-xl border border-gray-800 hover:bg-dark-lighter transition-colors">
+            <span class="text-primary text-2xl mb-2 block">🧀</span>
+            <h4 class="font-medium text-white mb-1">软件下载</h4>
+            <p class="text-sm text-gray-400">探索我们的芝士系列软件</p>
+          </a>
+          <a href="index.html#about" class="bg-dark-light p-4 rounded-xl border border-gray-800 hover:bg-dark-lighter transition-colors">
+            <span class="text-primary text-2xl mb-2 block">🧀</span>
+            <h4 class="font-medium text-white mb-1">关于我们</h4>
+            <p class="text-sm text-gray-400">了解CheeseStudio的故事</p>
+          </a>
+          <a href="index.html#culture" class="bg-dark-light p-4 rounded-xl border border-gray-800 hover:bg-dark-lighter transition-colors">
+            <span class="text-primary text-2xl mb-2 block">🧀</span>
+            <h4 class="font-medium text-white mb-1">团队文化</h4>
+            <p class="text-sm text-gray-400">感受芝士般温暖的团队氛围</p>
+          </a>
+          <a href="index.html#contact" class="bg-dark-light p-4 rounded-xl border border-gray-800 hover:bg-dark-lighter transition-colors">
+            <span class="text-primary text-2xl mb-2 block">🧀</span>
+            <h4 class="font-medium text-white mb-1">反馈问题</h4>
+            <p class="text-sm text-gray-400">告诉我们你遇到的问题</p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="bg-dark text-gray-400 py-12 border-t border-gray-800">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid md:grid-cols-4 gap-8 mb-8">
+        <div>
+          <div class="flex items-center space-x-2 mb-6">
+            <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+              <span class="text-dark text-xl">🧀</span>
+            </div>
+            <span class="text-xl font-bold text-white">CheeseStudio</span>
+          </div>
+          <p class="mb-6">我们致力于通过芝士般的创意和协作精神，为客户创造价值，解决行业难题。</p>
+          <div class="flex space-x-4">
+            <a href="#" class="hover:text-primary transition-colors">
+              <span>🧀</span>
+            </a>
+            <a href="#" class="hover:text-primary transition-colors">
+              <span>🧀</span>
+            </a>
+            <a href="#" class="hover:text-primary transition-colors">
+              <span>🧀</span>
+            </a>
+            <a href="#" class="hover:text-primary transition-colors">
+              <span>🧀</span>
+            </a>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-white">快速链接</h4>
+          <ul class="space-y-3">
+            <li><a href="index.html#about" class="hover:text-primary transition-colors">关于我们</a></li>
+            <li><a href="index.html#team" class="hover:text-primary transition-colors">团队成员</a></li>
+            <li><a href="index.html#skills" class="hover:text-primary transition-colors">专业技能</a></li>
+            <li><a href="index.html#culture" class="hover:text-primary transition-colors">团队文化</a></li>
+            <li><a href="index.html#download" class="hover:text-primary transition-colors">软件下载</a></li>
+            <li><a href="index.html#contact" class="hover:text-primary transition-colors">联系我们</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-white">服务</h4>
+          <ul class="space-y-3">
+            <li><a href="#" class="hover:text-primary transition-colors">软件开发</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">UI/UX 设计</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">创意策划</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">品牌推广</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">芝士品鉴</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-bold mb-6 text-white">联系我们</h4>
+          <ul class="space-y-3">
+            <li class="flex items-center">
+              <span class="text-primary mr-2">🧀</span>
+              <span>QQ: 3355673688</span>
+            </li>
+            <li class="flex items-center">
+              <span class="text-primary mr-2">🧀</span>
+              <span>地址: 芝士王国奶酪省</span>
+            </li>
+            <li class="flex items-center">
+              <span class="text-primary mr-2">🧀</span>
+              <span>工作时间: 9:00-18:00</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="border-t border-gray-800 pt-8 text-center text-sm">
+        <p>&copy; 2023 CheeseStudio. 保留所有权利. 用芝士般的热情创造美好。</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    // 页面加载完成后执行
+    window.addEventListener('load', function() {
+      // 为所有带 fade-in 类的元素添加动画
+      const fadeElements = document.querySelectorAll('.fade-in');
+      fadeElements.forEach(element => {
+        element.style.opacity = '1';
+      });
+    });
+  </script>
+</body>
 </html>
