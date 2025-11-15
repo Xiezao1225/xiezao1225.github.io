@@ -1,0 +1,569 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeChat - 编程聊天平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.0.2/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.5.1/lib/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.5.1/styles/monokai.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#61dafb',
+                        secondary: '#22c55e',
+                        dark: '#121212',
+                        darker: '#0a0a0a',
+                        danger: '#ef4444',
+                    },
+                    fontFamily: {
+                        code: ['JetBrains Mono', 'Consolas', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-dark text-gray-200 font-code min-h-screen">
+    <!-- 登录页面 -->
+    <div id="login-page" class="min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-darker rounded-lg p-8 border border-gray-800">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-primary mb-2">CodeChat</h1>
+                <p class="text-gray-400">编程爱好者的聊天空间</p>
+            </div>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm text-gray-300 mb-1" for="login-username">用户名</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                            <i class="fa fa-user"></i>
+                        </span>
+                        <input type="text" id="login-username" 
+                               class="w-full pl-10 pr-4 py-2 bg-dark border border-gray-700 rounded 
+                                      focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                               placeholder="输入用户名">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm text-gray-300 mb-1" for="login-password">密码</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                            <i class="fa fa-lock"></i>
+                        </span>
+                        <input type="password" id="login-password" 
+                               class="w-full pl-10 pr-4 py-2 bg-dark border border-gray-700 rounded 
+                                      focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                               placeholder="输入密码">
+                    </div>
+                </div>
+                
+                <button id="do-login" 
+                        class="w-full bg-primary hover:bg-primary/90 text-darker font-medium py-2 px-4 rounded
+                               transition-all flex items-center justify-center gap-2">
+                    <i class="fa fa-sign-in"></i> 登录
+                </button>
+                
+                <div id="login-error" class="text-danger text-sm text-center hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 聊天页面 -->
+    <div id="chat-page" class="hidden h-screen flex flex-col">
+        <!-- 顶部导航 -->
+        <header class="bg-darker border-b border-gray-800 py-3 px-6 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <h1 class="text-2xl font-bold text-primary">CodeChat</h1>
+                <span class="text-xs bg-gray-800 px-2 py-0.5 rounded text-gray-400">v2.1</span>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <button id="show-ranking" class="text-gray-300 hover:text-primary transition-colors flex items-center gap-1">
+                    <i class="fa fa-trophy"></i> RT排行榜
+                </button>
+                
+                <div class="flex items-center gap-3">
+                    <img id="current-avatar" src="" alt="用户头像" class="w-9 h-9 rounded-full border border-primary">
+                    <span id="current-name" class="font-medium"></span>
+                    <button id="do-logout" class="text-gray-500 hover:text-danger transition-colors">
+                        <i class="fa fa-sign-out"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- 主内容区 -->
+        <div class="flex-1 flex overflow-hidden">
+            <!-- 左侧用户列表 -->
+            <div class="w-64 bg-darker border-r border-gray-800 flex flex-col">
+                <div class="p-3 border-b border-gray-800 flex items-center justify-between">
+                    <h2 class="font-medium">用户列表</h2>
+                    <span id="online-users-count" class="text-xs bg-gray-800 px-2 py-0.5 rounded-full">0 在线</span>
+                </div>
+                
+                <div id="users-list" class="flex-1 overflow-y-auto p-2 space-y-1">
+                    <!-- 用户列表动态生成 -->
+                </div>
+                
+                <div id="admin-actions" class="p-3 border-t border-gray-800 hidden">
+                    <h3 class="text-sm font-medium text-gray-300 mb-3">管理员功能</h3>
+                    <div class="space-y-2">
+                        <button id="open-ban-modal" class="w-full flex items-center justify-center gap-2 text-sm bg-danger/10 hover:bg-danger/20 text-danger py-2 rounded transition-all">
+                            <i class="fa fa-ban"></i> 封禁用户
+                        </button>
+                        <button id="open-unban-modal" class="w-full flex items-center justify-center gap-2 text-sm bg-secondary/10 hover:bg-secondary/20 text-secondary py-2 rounded transition-all">
+                            <i class="fa fa-check-circle"></i> 解除封禁
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧聊天区域 -->
+            <div class="flex-1 flex flex-col overflow-hidden">
+                <!-- 消息展示区 -->
+                <div id="messages-area" class="flex-1 overflow-y-auto p-6 space-y-6">
+                    <div class="text-center text-gray-500 text-sm italic">
+                        开始聊天吧，支持 Markdown 格式代码块
+                    </div>
+                </div>
+                
+                <!-- 消息输入区 -->
+                <div class="border-t border-gray-800 p-4 bg-darker">
+                    <div class="mb-3 text-xs text-gray-500">
+                        <i class="fa fa-lightbulb-o mr-1"></i> 提示：使用 ``` 包裹代码块，Shift+Enter 换行
+                    </div>
+                    <textarea id="message-input" 
+                              class="w-full bg-dark border border-gray-700 rounded p-3 h-24 resize-none
+                                     focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                              placeholder="输入消息内容..."></textarea>
+                    <div class="mt-3 flex justify-end">
+                        <button id="send-message" 
+                                class="bg-primary hover:bg-primary/90 text-darker font-medium py-2 px-6 rounded
+                                       transition-all flex items-center gap-2">
+                            <i class="fa fa-paper-plane"></i> 发送
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 排行榜模态框 -->
+    <div id="ranking-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+        <div class="bg-darker border border-gray-800 rounded-lg w-full max-w-md p-6">
+            <div class="flex items-center justify-between mb-5">
+                <h3 class="text-xl font-bold text-primary">RT 值排行榜</h3>
+                <button id="close-ranking" class="text-gray-500 hover:text-gray-300 transition-colors">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="ranking-list" class="space-y-2 max-h-96 overflow-y-auto pr-1">
+                <!-- 排行榜内容动态生成 -->
+            </div>
+            
+            <div class="mt-5 text-center">
+                <button id="close-ranking-2" class="bg-gray-800 hover:bg-gray-700 text-gray-200 py-2 px-6 rounded text-sm transition-all">
+                    关闭
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 封禁用户模态框 -->
+    <div id="ban-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+        <div class="bg-darker border border-gray-800 rounded-lg w-full max-w-md p-6">
+            <div class="flex items-center justify-between mb-5">
+                <h3 class="text-xl font-bold text-danger">封禁用户</h3>
+                <button id="close-ban" class="text-gray-500 hover:text-gray-300 transition-colors">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-gray-300 mb-1">选择用户</label>
+                    <select id="ban-user-select" 
+                            class="w-full bg-dark border border-gray-700 rounded p-2.5
+                                   focus:outline-none focus:border-danger focus:ring-1 focus:ring-danger">
+                        <!-- 可封禁用户选项 -->
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm text-gray-300 mb-1" for="ban-reason">封禁原因</label>
+                    <input type="text" id="ban-reason" 
+                           class="w-full bg-dark border border-gray-700 rounded p-2.5
+                                  focus:outline-none focus:border-danger focus:ring-1 focus:ring-danger"
+                           placeholder="请输入封禁原因">
+                </div>
+                
+                <div class="flex justify-end gap-3 mt-6">
+                    <button id="cancel-ban" 
+                            class="bg-gray-800 hover:bg-gray-700 text-gray-200 py-2 px-6 rounded text-sm transition-all">
+                        取消
+                    </button>
+                    <button id="confirm-ban" 
+                            class="bg-danger hover:bg-danger/90 text-white py-2 px-6 rounded text-sm transition-all">
+                        确认封禁
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 解除封禁模态框 -->
+    <div id="unban-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+        <div class="bg-darker border border-gray-800 rounded-lg w-full max-w-md p-6">
+            <div class="flex items-center justify-between mb-5">
+                <h3 class="text-xl font-bold text-secondary">解除封禁</h3>
+                <button id="close-unban" class="text-gray-500 hover:text-gray-300 transition-colors">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-gray-300 mb-1">选择被封禁用户</label>
+                    <select id="unban-user-select" 
+                            class="w-full bg-dark border border-gray-700 rounded p-2.5
+                                   focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary">
+                        <!-- 被封禁用户选项 -->
+                    </select>
+                </div>
+                
+                <div class="flex justify-end gap-3 mt-6">
+                    <button id="cancel-unban" 
+                            class="bg-gray-800 hover:bg-gray-700 text-gray-200 py-2 px-6 rounded text-sm transition-all">
+                        取消
+                    </button>
+                    <button id="confirm-unban" 
+                            class="bg-secondary hover:bg-secondary/90 text-white py-2 px-6 rounded text-sm transition-all">
+                        确认解除
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 确保页面完全加载后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 用户数据
+            const userDatabase = [
+                { id: 1, username: 'xxp', password: 'xxp20140814a', role: 'owner', avatar: 'https://cdn.luogu.com.cn/upload/usericon/1364455.png', rt: null, banned: false, banReason: '' },
+                { id: 2, username: 'gongzi', password: 'gongzidl2014', role: 'user', avatar: 'https://cdn.luogu.com.cn/upload/usericon/1360530.png', rt: 100, banned: false, banReason: '' },
+                { id: 3, username: 'lza', password: 'lza123456', role: 'user', avatar: 'https://cdn.luogu.com.cn/upload/usericon/1093636.png', rt: 100, banned: false, banReason: '' },
+                { id: 4, username: 'xcy', password: 'gaygay123', role: 'user', avatar: 'https://cdn.luogu.com.cn/upload/usericon/1028799.png', rt: 100, banned: false, banReason: '' },
+                { id: 5, username: 'zjx', password: 'zjx114514', role: 'user', avatar: 'https://cdn.luogu.com.cn/upload/usericon/1028861.png', rt: 100, banned: false, banReason: '' },
+                { id: 6, username: 'cxk', password: 'dwrg123', role: 'user', avatar: 'https://picsum.photos/seed/cxk/200', rt: 100, banned: false, banReason: '' },
+                { id: 7, username: 'cjy', password: 'czxczx123', role: 'user', avatar: 'https://cdn.luogu.com.cn/upload/usericon/806193.png', rt: 100, banned: false, banReason: '' },
+                { id: 8, username: 'lyf', password: 'paopao2024', role: 'user', avatar: 'https://cdn.luogu.com.cn/upload/usericon/1312720.png', rt: 100, banned: false, banReason: '' },
+                { id: 9, username: 'kevin', password: 'kevin114514', role: 'admin', avatar: 'https://cdn.luogu.com.cn/upload/usericon/1593193.png', rt: 100, banned: false, banReason: '' },
+                { id: 10, username: 'lzc', password: 'lzc12345', role: 'user', avatar: 'https://picsum.photos/seed/lzc/200', rt: 100, banned: false, banReason: '' },
+                { id: 11, username: 'drh', password: '20140313drh0032', role: 'admin', avatar: 'https://cdn.luogu.com.cn/upload/usericon/1028793.png', rt: 100, banned: false, banReason: '' }
+            ];
+
+            // 应用状态管理 - 使用更简单直接的方式
+            const chatApp = {
+                currentUser: null,
+                onlineUsers: [],
+                messages: [],
+                users: [...userDatabase],
+                
+                // 登录方法
+                login(username, password) {
+                    // 使用for循环确保匹配逻辑简单明确
+                    for (let i = 0; i < this.users.length; i++) {
+                        const user = this.users[i];
+                        if (user.username === username && user.password === password) {
+                            if (user.banned) {
+                                return { success: false, message: `账号已被封禁: ${user.banReason || '未说明原因'}` };
+                            }
+                            this.currentUser = user;
+                            if (!this.onlineUsers.includes(user.username)) {
+                                this.onlineUsers.push(user.username);
+                            }
+                            return { success: true };
+                        }
+                    }
+                    return { success: false, message: '用户名或密码不正确' };
+                },
+                
+                // 登出方法
+                logout() {
+                    if (this.currentUser) {
+                        this.onlineUsers = this.onlineUsers.filter(u => u !== this.currentUser.username);
+                        this.currentUser = null;
+                    }
+                },
+                
+                // 发送消息 - 简化实现，确保可靠
+                sendMessage(content) {
+                    // 验证当前用户是否存在且内容不为空
+                    if (!this.currentUser || !content.trim()) {
+                        return false;
+                    }
+                    
+                    // 创建新消息对象
+                    const newMessage = {
+                        id: Date.now(),
+                        sender: this.currentUser.username,
+                        avatar: this.currentUser.avatar,
+                        content: content,
+                        time: new Date().toISOString()
+                    };
+                    
+                    // 添加到消息列表
+                    this.messages.push(newMessage);
+                    return true;
+                }
+            };
+
+            // DOM 元素引用 - 确保每个元素都能正确获取
+            const dom = {
+                loginPage: document.getElementById('login-page'),
+                chatPage: document.getElementById('chat-page'),
+                loginUsername: document.getElementById('login-username'),
+                loginPassword: document.getElementById('login-password'),
+                doLogin: document.getElementById('do-login'),
+                loginError: document.getElementById('login-error'),
+                currentAvatar: document.getElementById('current-avatar'),
+                currentName: document.getElementById('current-name'),
+                doLogout: document.getElementById('do-logout'),
+                messagesArea: document.getElementById('messages-area'),
+                messageInput: document.getElementById('message-input'),
+                sendMessage: document.getElementById('send-message'),
+                usersList: document.getElementById('users-list'),
+                onlineUsersCount: document.getElementById('online-users-count'),
+                adminActions: document.getElementById('admin-actions')
+            };
+
+            // 工具函数
+            const helpers = {
+                formatTime(isoString) {
+                    const date = new Date(isoString);
+                    return date.toLocaleTimeString('zh-CN', { 
+                        hour: '2-digit', 
+                        minute: '2-digit', 
+                        second: '2-digit' 
+                    });
+                },
+                
+                renderMarkdown(text) {
+                    try {
+                        const html = marked.parse(text);
+                        setTimeout(() => hljs.highlightAll(), 0);
+                        return html;
+                    } catch (e) {
+                        // 处理Markdown渲染错误
+                        return text;
+                    }
+                },
+                
+                scrollToBottom() {
+                    dom.messagesArea.scrollTop = dom.messagesArea.scrollHeight;
+                }
+            };
+
+            // 渲染消息列表 - 核心修复点
+            function renderMessages() {
+                // 清空消息区域
+                dom.messagesArea.innerHTML = '';
+                
+                // 如果没有消息，显示提示
+                if (chatApp.messages.length === 0) {
+                    dom.messagesArea.innerHTML = `
+                        <div class="text-center text-gray-500 text-sm italic">
+                            开始聊天吧，支持 Markdown 格式代码块
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // 遍历所有消息并添加到DOM
+                chatApp.messages.forEach(msg => {
+                    const isCurrentUser = chatApp.currentUser && msg.sender === chatApp.currentUser.username;
+                    const messageEl = document.createElement('div');
+                    messageEl.className = `flex items-start gap-3 ${isCurrentUser ? 'justify-end' : ''}`;
+                    
+                    const messageClass = isCurrentUser 
+                        ? 'bg-primary/10 border border-primary/30' 
+                        : 'bg-gray-800/50 border border-gray-700';
+                    
+                    // 构建消息HTML
+                    messageEl.innerHTML = isCurrentUser ? `
+                        <div class="max-w-xl">
+                            <div class="flex justify-end gap-2 mb-1">
+                                <span class="text-xs text-gray-400">${helpers.formatTime(msg.time)}</span>
+                                <span class="font-medium">${msg.sender}</span>
+                            </div>
+                            <div class="p-3 rounded-lg ${messageClass}">
+                                ${helpers.renderMarkdown(msg.content)}
+                            </div>
+                        </div>
+                        <img src="${msg.avatar}" alt="${msg.sender}" class="w-8 h-8 rounded-full mt-1 flex-shrink-0">
+                    ` : `
+                        <img src="${msg.avatar}" alt="${msg.sender}" class="w-8 h-8 rounded-full mt-1 flex-shrink-0">
+                        <div class="max-w-xl">
+                            <div class="flex gap-2 mb-1">
+                                <span class="font-medium">${msg.sender}</span>
+                                <span class="text-xs text-gray-400">${helpers.formatTime(msg.time)}</span>
+                            </div>
+                            <div class="p-3 rounded-lg ${messageClass}">
+                                ${helpers.renderMarkdown(msg.content)}
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 直接添加到DOM
+                    dom.messagesArea.appendChild(messageEl);
+                });
+                
+                // 滚动到底部
+                helpers.scrollToBottom();
+            }
+
+            // 渲染用户列表
+            function renderUsersList() {
+                dom.usersList.innerHTML = '';
+                dom.onlineUsersCount.textContent = `${chatApp.onlineUsers.length} 在线`;
+                
+                chatApp.users.forEach(user => {
+                    const userEl = document.createElement('div');
+                    userEl.className = `flex items-center gap-2 p-2 rounded hover:bg-gray-800/30 transition-colors ${chatApp.onlineUsers.includes(user.username) ? '' : 'opacity-60'}`;
+                    
+                    let roleBadge = '';
+                    if (user.role === 'owner') {
+                        roleBadge = '<span class="text-xs bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded">所有者</span>';
+                    } else if (user.role === 'admin') {
+                        roleBadge = '<span class="text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded">管理员</span>';
+                    } else {
+                        roleBadge = `<span class="text-xs bg-gray-700 px-1.5 py-0.5 rounded">RT: ${user.rt}</span>`;
+                    }
+                    
+                    if (user.banned) {
+                        roleBadge += '<span class="text-xs bg-danger/20 text-danger px-1.5 py-0.5 rounded ml-1">封禁</span>';
+                    }
+                    
+                    userEl.innerHTML = `
+                        <img src="${user.avatar}" alt="${user.username}" class="w-6 h-6 rounded-full">
+                        <span class="flex-1 text-sm">${user.username}</span>
+                        <div class="flex items-center">
+                            ${roleBadge}
+                        </div>
+                    `;
+                    
+                    dom.usersList.appendChild(userEl);
+                });
+            }
+
+            // 绑定事件处理 - 确保事件正确触发
+            function bindEvents() {
+                // 登录处理
+                dom.doLogin.addEventListener('click', () => {
+                    const username = dom.loginUsername.value.trim();
+                    const password = dom.loginPassword.value.trim();
+                    
+                    dom.loginError.classList.add('hidden');
+                    
+                    if (!username || !password) {
+                        dom.loginError.textContent = '请输入用户名和密码';
+                        dom.loginError.classList.remove('hidden');
+                        return;
+                    }
+                    
+                    const result = chatApp.login(username, password);
+                    if (result.success) {
+                        dom.loginPage.classList.add('hidden');
+                        dom.chatPage.classList.remove('hidden');
+                        
+                        dom.currentAvatar.src = chatApp.currentUser.avatar;
+                        dom.currentName.textContent = chatApp.currentUser.username;
+                        
+                        if (['admin', 'owner'].includes(chatApp.currentUser.role)) {
+                            dom.adminActions.classList.remove('hidden');
+                        }
+                        
+                        renderMessages();
+                        renderUsersList();
+                        
+                        dom.loginUsername.value = '';
+                        dom.loginPassword.value = '';
+                    } else {
+                        dom.loginError.textContent = result.message;
+                        dom.loginError.classList.remove('hidden');
+                    }
+                });
+                
+                // 登出处理
+                dom.doLogout.addEventListener('click', () => {
+                    chatApp.logout();
+                    dom.chatPage.classList.add('hidden');
+                    dom.loginPage.classList.remove('hidden');
+                    dom.adminActions.classList.add('hidden');
+                    renderUsersList();
+                });
+                
+                // 发送消息 - 重点修复
+                function handleSendMessage() {
+                    // 1. 获取输入内容
+                    const content = dom.messageInput.value;
+                    
+                    // 2. 验证并发送消息
+                    if (chatApp.sendMessage(content)) {
+                        // 3. 清空输入框
+                        dom.messageInput.value = '';
+                        
+                        // 4. 立即渲染消息列表（关键修复点）
+                        renderMessages();
+                        
+                        // 5. 控制台输出调试信息（可选，用于验证）
+                        console.log('消息已发送:', content);
+                    } else {
+                        console.log('发送失败，可能没有登录或消息为空');
+                    }
+                }
+                
+                // 按钮点击发送
+                dom.sendMessage.addEventListener('click', handleSendMessage);
+                
+                // 回车键发送（不按shift）
+                dom.messageInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault(); // 阻止默认换行
+                        handleSendMessage();
+                    }
+                });
+                
+                // 简单的定时刷新（冗余保障）
+                setInterval(() => {
+                    if (chatApp.currentUser) {
+                        renderMessages();
+                        renderUsersList();
+                    }
+                }, 1000);
+            }
+
+            // 初始化应用
+            bindEvents();
+            
+            // 验证关键DOM元素是否存在（调试用）
+            console.log('关键元素状态:', {
+                messagesArea: !!dom.messagesArea,
+                messageInput: !!dom.messageInput,
+                sendButton: !!dom.sendMessage
+            });
+        });
+    </script>
+</body>
+</html>
