@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>状态 — CheeseStudio</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com" defer></script>
+
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .frosted {
+        background-color: rgba(255,255,255,0.02) !important;
+        background-image: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)) !important;
+        -webkit-backdrop-filter: blur(10px) saturate(120%);
+        backdrop-filter: blur(10px) saturate(120%);
+        border: 1px solid rgba(255,255,255,0.04);
+      }
+      .shadow-glass {
+        box-shadow: 0 10px 40px rgba(2,6,23,0.6);
+      }
+      .card-hover {
+        transition: transform .28s cubic-bezier(.2,.9,.2,1), box-shadow .28s;
+      }
+      .card-hover:hover { transform: translateY(-6px) scale(1.01); }
+      .cheese-icon::before { content: "🧀"; display:inline-block; margin-right:8px; }
+    }
+  </style>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body {
+      min-height:100vh;
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(135deg,#071426 0%,#0b1f2e 50%,#121212 100%);
+      color: #e6eef8;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* focus ring */
+    :focus { outline: 3px solid rgba(255,183,77,0.16); outline-offset: 2px; }
+
+    @media (prefers-reduced-motion:reduce) {
+      .card-hover { transition: none !important; }
+    }
+  </style>
+</head>
+<body class="antialiased">
+  <header class="fixed w-full top-4 left-0 z-40">
+    <div class="max-w-4xl mx-auto px-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-lg bg-yellow-300 flex items-center justify-center">
+            <span class="text-dark text-xl">🧀</span>
+          </div>
+          <div>
+            <div class="text-white font-semibold">CheeseStudio</div>
+            <div class="text-xs text-gray-300">状态页</div>
+          </div>
+        </div>
+
+        <nav class="hidden sm:flex items-center space-x-3 text-sm text-gray-300">
+          <span class="cheese-icon"></span>
+          <span class="text-gray-400">提示：别人进入网页的时候不算入我的状态</span>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="min-h-screen flex items-center justify-center px-4 pt-28 pb-12">
+    <div class="w-full max-w-3xl">
+      <section class="frosted shadow-glass rounded-2xl p-8 card-hover">
+        <div class="flex flex-col md:flex-row items-center gap-6">
+          <div class="flex-shrink-0">
+            <div class="w-28 h-28 rounded-xl bg-gradient-to-br from-yellow-300 to-yellow-400 flex items-center justify-center text-4xl">
+              🧀
+            </div>
+          </div>
+
+          <div class="flex-1 text-center md:text-left">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-2">我的在线状态</h1>
+            <p id="subtitle" class="text-sm text-gray-300 mb-6">页面会根据你本人是否在本机打开此页面来显示状态（仅限本机）。</p>
+
+            <div class="inline-flex items-center space-x-4">
+              <div id="statusCard" class="px-8 py-6 rounded-lg border border-gray-700 w-48 text-center">
+                <div id="statusText" class="text-4xl font-extrabold">私了</div>
+                <div id="statusHint" class="text-xs text-gray-400 mt-1">非本人访问</div>
+              </div>
+
+              <div class="flex flex-col space-y-2">
+                <button id="ownerToggle" class="px-4 py-2 bg-yellow-300 text-dark rounded-md font-medium hover:brightness-95 focus:ring-4 focus:ring-yellow-400/20">上线（本机）</button>
+                <button id="clearBtn" class="px-4 py-2 border border-gray-700 text-gray-200 rounded-md hover:border-gray-500">下线（本机）</button>
+              </div>
+            </div>
+
+            <p class="text-xs text-gray-400 mt-4">
+              使用说明：
+              <ul class="list-disc ml-5 mt-2 text-xs text-gray-400">
+                <li>若你本人在本机打开此页面并点击“上线（本机）”，页面会在本机显示“活着”。</li>
+                <li>其他人访问该页面时依然只会看到“私了”。</li>
+                <li>你也可以通过在地址栏添加 ?me=1 来临时上线（打开后地址栏会被清理）。</li>
+              </ul>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <footer class="mt-8 text-center text-xs text-gray-400">
+        注意：此功能基于本地会话（sessionStorage），无需后端。若希望跨设备显示，请告诉我，我可以改为使用后端或第三方存储。
+      </footer>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      // Owner flag is stored in sessionStorage so it only affects the current browser session/tab.
+      const KEY = 'cheese_owner_active_v1';
+      const params = new URLSearchParams(window.location.search);
+
+      // If URL contains ?me=1, set session flag and clean URL
+      if (params.get('me') === '1') {
+        try { sessionStorage.setItem(KEY, '1'); } catch (e) { /* ignore */ }
+        // remove query param without reloading
+        params.delete('me');
+        const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '') + window.location.hash;
+        history.replaceState({}, '', newUrl);
+      }
+
+      const statusTextEl = document.getElementById('statusText');
+      const statusHintEl = document.getElementById('statusHint');
+      const ownerToggle = document.getElementById('ownerToggle');
+      const clearBtn = document.getElementById('clearBtn');
+
+      function updateUI() {
+        const isOwner = sessionStorage.getItem(KEY) === '1';
+        if (isOwner) {
+          statusTextEl.textContent = '活着';
+          statusTextEl.classList.remove('text-red-400');
+          statusTextEl.classList.add('text-green-300');
+          statusHintEl.textContent = '本人在本机打开页面';
+          ownerToggle.textContent = '已上线（本机）';
+          ownerToggle.disabled = false;
+          clearBtn.disabled = false;
+        } else {
+          statusTextEl.textContent = '私了';
+          statusTextEl.classList.remove('text-green-300');
+          statusTextEl.classList.add('text-red-400');
+          statusHintEl.textContent = '非本人访问';
+          ownerToggle.textContent = '上线（本机）';
+          ownerToggle.disabled = false;
+          clearBtn.disabled = false;
+        }
+      }
+
+      // Toggle online for this session/tab
+      ownerToggle.addEventListener('click', () => {
+        const isOwner = sessionStorage.getItem(KEY) === '1';
+        if (!isOwner) {
+          try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
+        } else {
+          // already online — keep as-is or allow toggling off
+          try { sessionStorage.removeItem(KEY); } catch (e) {}
+        }
+        updateUI();
+      });
+
+      // Explicit clear
+      clearBtn.addEventListener('click', () => {
+        try { sessionStorage.removeItem(KEY); } catch (e) {}
+        updateUI();
+      });
+
+      // When the tab/window is closed/unloaded, remove the key so that reopening doesn't show stale state.
+      // (sessionStorage normally clears on tab close, but we also clear on unload to be explicit)
+      window.addEventListener('beforeunload', () => {
+        try { sessionStorage.removeItem(KEY); } catch (e) {}
+      });
+
+      // Initialize
+      updateUI();
+    })();
+  </script>
+</body>
+</html>
