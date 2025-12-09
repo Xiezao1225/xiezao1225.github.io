@@ -96,12 +96,31 @@
         margin-right: 8px;
       }
       .clickable-card { cursor: pointer; }
+
+      /* frosted glass utility for cards */
+      .frosted {
+        background-color: rgba(255,255,255,0.02) !important;
+        background-image: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.012)) !important;
+        -webkit-backdrop-filter: blur(8px) saturate(120%);
+        backdrop-filter: blur(8px) saturate(120%);
+        border: 1px solid rgba(255,255,255,0.04);
+      }
+
+      /* subtle glassy shadow to emphasize elevation */
+      .frosted.shadow-glass {
+        box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+      }
     }
   </style>
 
   <style>
     html { scroll-behavior: smooth; }
-    body { background-color: #121212; color: #e5e7eb; }
+    /* page background changed to a subtle dark gradient */
+    body {
+      background: linear-gradient(135deg, #071426 0%, #0b1f2e 50%, #121212 100%);
+      color: #e5e7eb;
+      background-attachment: fixed;
+    }
 
     /* hero gradient animation */
     .animated-gradient {
@@ -233,7 +252,7 @@
       <!-- quick cards -->
       <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
         <a href="download" class="block">
-          <div class="bg-dark-lighter rounded-xl p-6 shadow-md border border-gray-800 clickable-card card-hover">
+          <div class="bg-dark-lighter frosted rounded-xl p-6 shadow-md border border-gray-800 clickable-card card-hover shadow-glass">
             <div class="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
               <span class="text-primary text-2xl">🧀</span>
             </div>
@@ -246,7 +265,7 @@
         </a>
 
         <a href="https://github.com/Xiezao1225/xiezao1225.github.io" class="block">
-          <div class="bg-dark-lighter rounded-xl p-6 shadow-md border border-gray-800 clickable-card card-hover">
+          <div class="bg-dark-lighter frosted rounded-xl p-6 shadow-md border border-gray-800 clickable-card card-hover shadow-glass">
             <div class="w-14 h-14 bg-secondary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
               <span class="text-secondary text-2xl">🧀</span>
             </div>
@@ -259,7 +278,7 @@
         </a>
 
         <a href="https://space.bilibili.com/1186487925" class="block">
-          <div class="bg-dark-lighter rounded-xl p-6 shadow-md border border-gray-800 clickable-card card-hover">
+          <div class="bg-dark-lighter frosted rounded-xl p-6 shadow-md border border-gray-800 clickable-card card-hover shadow-glass">
             <div class="w-14 h-14 bg-accent/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
               <span class="text-accent text-2xl">🧀</span>
             </div>
@@ -272,7 +291,7 @@
         </a>
 
         <a href="404" class="block">
-          <div class="bg-dark-lighter rounded-xl p-6 shadow-md border border-gray-800 clickable-card card-hover">
+          <div class="bg-dark-lighter frosted rounded-xl p-6 shadow-md border border-gray-800 clickable-card card-hover shadow-glass">
             <div class="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
               <span class="text-primary text-2xl">🧀</span>
             </div>
@@ -296,7 +315,7 @@
       </div>
 
       <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-dark-lighter p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow card-hover">
+        <div class="bg-dark-lighter frosted p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow card-hover shadow-glass">
           <div class="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-6">
             <span class="text-primary text-2xl">🧀</span>
           </div>
@@ -304,7 +323,7 @@
           <p class="text-gray-400">用创意与技术，为玩家带来更友好、更安全的游戏辅助体验。</p>
         </div>
 
-        <div class="bg-dark-lighter p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow card-hover">
+        <div class="bg-dark-lighter frosted p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow card-hover shadow-glass">
           <div class="w-14 h-14 bg-secondary/10 rounded-lg flex items-center justify-center mb-6">
             <span class="text-secondary text-2xl">🧀</span>
           </div>
@@ -312,7 +331,7 @@
           <p class="text-gray-400">成为一个将创意与诚信并重的社区与团队。</p>
         </div>
 
-        <div class="bg-dark-lighter p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow card-hover">
+        <div class="bg-dark-lighter frosted p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow card-hover shadow-glass">
           <div class="w-14 h-14 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
             <span class="text-accent text-2xl">🧀</span>
           </div>
@@ -364,7 +383,7 @@
 
       <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
         <!-- Team member cards -->
-        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover">
+        <div class="bg-dark-light frosted rounded-xl overflow-hidden shadow-md card-hover shadow-glass">
           <div class="relative">
             <img loading="lazy" src="https://picsum.photos/id/1005/400/400" alt="张明 - 创始人 & CEO" class="w-full h-64 object-cover">
             <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
@@ -382,7 +401,7 @@
           </div>
         </div>
 
-        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover">
+        <div class="bg-dark-light frosted rounded-xl overflow-hidden shadow-md card-hover shadow-glass">
           <div class="relative">
             <img loading="lazy" src="https://picsum.photos/id/1011/400/400" alt="李华 - 技术总监" class="w-full h-64 object-cover">
             <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
@@ -400,7 +419,7 @@
           </div>
         </div>
 
-        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover">
+        <div class="bg-dark-light frosted rounded-xl overflow-hidden shadow-md card-hover shadow-glass">
           <div class="relative">
             <img loading="lazy" src="https://picsum.photos/id/1027/400/400" alt="王芳 - 设计主管" class="w-full h-64 object-cover">
             <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
@@ -418,7 +437,7 @@
           </div>
         </div>
 
-        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover">
+        <div class="bg-dark-light frosted rounded-xl overflow-hidden shadow-md card-hover shadow-glass">
           <div class="relative">
             <img loading="lazy" src="https://picsum.photos/id/1074/400/400" alt="赵强 - 市场总监" class="w-full h-64 object-cover">
             <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
@@ -484,7 +503,7 @@
 
         <div>
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-6">
-            <div class="bg-dark p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800">
+            <div class="bg-dark frosted p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800 shadow-glass">
               <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span class="text-primary text-2xl">🧀</span>
               </div>
@@ -492,7 +511,7 @@
               <p class="text-sm text-gray-400">高质量、可维护的代码</p>
             </div>
 
-            <div class="bg-dark p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800">
+            <div class="bg-dark frosted p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800 shadow-glass">
               <div class="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span class="text-secondary text-2xl">🧀</span>
               </div>
@@ -500,7 +519,7 @@
               <p class="text-sm text-gray-400">视觉与交互并重</p>
             </div>
 
-            <div class="bg-dark p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800">
+            <div class="bg-dark frosted p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800 shadow-glass">
               <div class="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span class="text-accent text-2xl">🧀</span>
               </div>
@@ -508,7 +527,7 @@
               <p class="text-sm text-gray-400">从用户出发的产品思路</p>
             </div>
 
-            <div class="bg-dark p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800">
+            <div class="bg-dark frosted p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800 shadow-glass">
               <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span class="text-primary text-2xl">🧀</span>
               </div>
@@ -516,7 +535,7 @@
               <p class="text-sm text-gray-400">传播与增长策略</p>
             </div>
 
-            <div class="bg-dark p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800">
+            <div class="bg-dark frosted p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800 shadow-glass">
               <div class="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span class="text-secondary text-2xl">🧀</span>
               </div>
@@ -524,7 +543,7 @@
               <p class="text-sm text-gray-400">稳健的项目交付与协作</p>
             </div>
 
-            <div class="bg-dark p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800">
+            <div class="bg-dark frosted p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800 shadow-glass">
               <div class="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span class="text-accent text-2xl">🧀</span>
               </div>
@@ -578,7 +597,7 @@
       </div>
 
       <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-dark-light p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+        <div class="bg-dark-light frosted p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow shadow-glass">
           <div class="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-6">
             <span class="text-primary text-2xl">🧀</span>
           </div>
@@ -586,7 +605,7 @@
           <p class="text-gray-400">鼓励终身学习与知识分享。</p>
         </div>
 
-        <div class="bg-dark-light p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+        <div class="bg-dark-light frosted p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow shadow-glass">
           <div class="w-14 h-14 bg-secondary/10 rounded-lg flex items-center justify-center mb-6">
             <span class="text-secondary text-2xl">🧀</span>
           </div>
@@ -594,7 +613,7 @@
           <p class="text-gray-400">组织休闲活动保持身心健康。</p>
         </div>
 
-        <div class="bg-dark-light p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+        <div class="bg-dark-light frosted p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow shadow-glass">
           <div class="w-14 h-14 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
             <span class="text-accent text-2xl">🧀</span>
           </div>
@@ -614,7 +633,7 @@
       </div>
 
       <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover p-6">
+        <div class="bg-dark-light frosted rounded-xl overflow-hidden shadow-md card-hover p-6 shadow-glass">
           <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
             <span class="text-primary text-3xl">🧀</span>
           </div>
@@ -628,7 +647,7 @@
           <a href="https://www.123865.com/s/374yVv-ug0F3" class="block py-3 bg-primary text-dark rounded-lg text-center hover:bg-primary/90 transition-colors">⬇️ 立即下载</a>
         </div>
 
-        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover p-6">
+        <div class="bg-dark-light frosted rounded-xl overflow-hidden shadow-md card-hover p-6 shadow-glass">
           <div class="w-16 h-16 bg-secondary/10 rounded-lg flex items-center justify-center mb-4">
             <span class="text-secondary text-3xl">🧀</span>
           </div>
@@ -642,7 +661,7 @@
           <a href="https://fdpinfo.github.io/download" class="block py-3 bg-secondary text-dark rounded-lg text-center hover:bg-secondary/90 transition-colors">⬇️ 立即下载</a>
         </div>
 
-        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover p-6">
+        <div class="bg-dark-light frosted rounded-xl overflow-hidden shadow-md card-hover p-6 shadow-glass">
           <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
             <span class="text-accent text-3xl">🧀</span>
           </div>
@@ -671,7 +690,7 @@
         <p class="text-gray-400 max-w-2xl mx-auto">合作、加盟或想交流想法？欢迎联系我们。</p>
       </div>
 
-      <div class="bg-dark p-8 rounded-xl border border-gray-800">
+      <div class="bg-dark frosted p-8 rounded-xl border border-gray-800 shadow-glass">
         <div class="grid md:grid-cols-2 gap-8">
           <div>
             <h3 class="text-2xl font-bold mb-4 text-white">联系方式</h3>
