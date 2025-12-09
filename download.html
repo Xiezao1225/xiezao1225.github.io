@@ -39,10 +39,27 @@
         text-shadow: 0 2px 4px rgba(0,0,0,0.3);
       }
       .card-hover {
-        transition: all 0.3s ease;
+        transition: all 0.28s cubic-bezier(.2,.9,.2,1);
       }
       .card-hover:hover {
-        transform: translateY(-5px);
+        transform: translateY(-6px) scale(1.01);
+      }
+
+      /* 毛玻璃卡片 */
+      .frosted {
+        background-color: rgba(255,255,255,0.02) !important;
+        background-image: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)) !important;
+        -webkit-backdrop-filter: blur(8px) saturate(120%);
+        backdrop-filter: blur(8px) saturate(120%);
+        border: 1px solid rgba(255,255,255,0.04);
+      }
+      .shadow-glass {
+        box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+      }
+
+      /* small helper for consistent card padding on small screens */
+      .card-inner {
+        padding: 1.25rem;
       }
     }
   </style>
@@ -50,15 +67,25 @@
   <style>
     /* 基础动画定义 */
     .fade-in {
-      animation: fadeIn 0.8s ease forwards;
+      animation: fadeIn 0.7s ease forwards;
       opacity: 0;
+      transform: translateY(12px);
     }
     
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
+      from { opacity: 0; transform: translateY(12px); }
       to { opacity: 1; transform: translateY(0); }
     }
     
+    /* 页面整体背景：深色渐变 */
+    body {
+      background: linear-gradient(135deg, #071426 0%, #0b1f2e 50%, #121212 100%);
+      background-attachment: fixed;
+      color: #e5e7eb;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
     /* 滚动进度条 - 芝士色 */
     ::-webkit-scrollbar {
       width: 8px;
@@ -88,14 +115,34 @@
       display: inline-block;
       margin-right: 8px;
     }
+
+    /* Navbar backdrop tweak */
+    header#navbar { background: linear-gradient(180deg, rgba(18,18,18,0.72), rgba(18,18,18,0.56)); backdrop-filter: blur(6px); }
+
+    /* Back to top */
+    #backToTop {
+      transition: transform .28s, opacity .28s;
+      transform: translateY(8px);
+      opacity: 0;
+      pointer-events: none;
+    }
+    #backToTop.show {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .card-hover, .fade-in { transition: none !important; animation: none !important; transform: none !important; }
+    }
   </style>
 </head>
 
-<body class="bg-dark text-gray-200 antialiased">
+<body class="antialiased">
   <!-- 导航栏 -->
-  <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-dark/90 backdrop-blur-sm shadow-sm">
+  <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 py-4 shadow-sm">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center py-4">
+      <div class="flex justify-between items-center">
         <div class="flex items-center space-x-2">
           <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
             <span class="text-white text-xl">🧀</span>
@@ -104,7 +151,7 @@
         </div>
         
         <!-- 桌面导航 -->
-        <nav class="hidden md:flex space-x-8">
+        <nav class="hidden md:flex space-x-8" aria-label="主导航">
           <a href="#about" class="font-medium hover:text-primary transition-colors">关于我们</a>
           <a href="#team" class="font-medium hover:text-primary transition-colors">团队成员</a>
           <a href="#skills" class="font-medium hover:text-primary transition-colors">专业技能</a>
@@ -113,8 +160,8 @@
         </nav>
         
         <!-- 移动端菜单按钮 -->
-        <button id="menuBtn" class="md:hidden text-white hover:text-primary transition-colors">
-          <span class="text-2xl">🧀</span>
+        <button id="menuBtn" class="md:hidden text-white hover:text-primary transition-colors p-2 rounded" aria-expanded="false" aria-controls="mobileMenu" aria-label="打开菜单">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
         </button>
       </div>
     </div>
@@ -130,162 +177,174 @@
       </div>
     </div>
   </header>
-    <!-- 软件下载区域 -->
-  <section class="py-20 bg-dark">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-16 reveal">
-        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4 text-white cheese-icon">我的世界外挂下载。</h2>
-        <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
-        <p class="text-gray-400 max-w-2xl mx-auto">嗯。</p>
-      </div>
-      
-      <div class="grid md:grid-cols-3 gap-6">
-        <!-- 软件1 -->
-        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal">
-          <div class="p-6">
-            <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-6">
-              <span class="text-primary text-3xl">🧀</span>
-            </div>
-            <h3 class="text-xl font-bold mb-3 text-white">Cheese Client（无害版本）</h3>
-            <p class="text-gray-400 mb-6">我的世界超强外挂，让你的电脑像芝士一样变成废土。详细请看BV193pfzbE8U</p>
-            <div class="flex flex-wrap gap-3 mb-6">
-              <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">客户端</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">v?.?.?</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">??MB</span>
-            </div>
-            <a href="https://www.123865.com/s/374yVv-ug0F3" class="block w-full py-3 bg-primary text-dark rounded-lg font-medium hover:bg-primary/90 transition-all text-center flex items-center justify-center">
-              <span class="mr-2">⬇️</span> 立即下载
-            </a>
-          </div>
+
+  <!-- 软件下载区域 -->
+  <main class="pt-28">
+    <section class="py-20">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16 reveal">
+          <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4 text-white cheese-icon">我的世界外挂下载。</h2>
+          <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
+          <p class="text-gray-400 max-w-2xl mx-auto">嗯。</p>
         </div>
         
-        <!-- 软件2 -->
-        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal" style="animation-delay: 0.2s">
-          <div class="p-6">
-            <div class="w-16 h-16 bg-secondary/10 rounded-lg flex items-center justify-center mb-6">
-              <span class="text-secondary text-3xl">🧀</span>
+        <div class="grid md:grid-cols-3 gap-6">
+          <!-- 软件1 -->
+          <article class="bg-dark-light frosted rounded-xl overflow-hidden card-hover reveal shadow-glass">
+            <div class="card-inner">
+              <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                <span class="text-primary text-3xl">🧀</span>
+              </div>
+              <h3 class="text-xl font-bold mb-3 text-white">Cheese Client（无害版本）</h3>
+              <p class="text-gray-400 mb-6">我的世界超强外挂，让你的电脑像芝士一样变成废土。详细请看BV193pfzbE8U</p>
+              <div class="flex flex-wrap gap-3 mb-6">
+                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">客户端</span>
+                <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">v?.?.?</span>
+                <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">??MB</span>
+              </div>
+              <a href="https://www.123865.com/s/374yVv-ug0F3" aria-label="Cheese Client 下载" class="block w-full py-3 bg-primary text-dark rounded-lg font-medium hover:bg-primary/90 transition-all text-center flex items-center justify-center">
+                <span class="mr-2">⬇️</span> 立即下载
+              </a>
             </div>
-            <h3 class="text-xl font-bold mb-3 text-white">FDP Client</h3>
-            <p class="text-gray-400 mb-6">嗯。还行吧。视觉挺好看</p>
-            <div class="flex flex-wrap gap-3 mb-6">
-              <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">模组</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">Releases B15</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">idk MB</span>
+          </article>
+          
+          <!-- 软件2 -->
+          <article class="bg-dark-light frosted rounded-xl overflow-hidden card-hover reveal shadow-glass" style="animation-delay:0.06s;">
+            <div class="card-inner">
+              <div class="w-16 h-16 bg-secondary/10 rounded-lg flex items-center justify-center mb-4">
+                <span class="text-secondary text-3xl">🧀</span>
+              </div>
+              <h3 class="text-xl font-bold mb-3 text-white">FDP Client</h3>
+              <p class="text-gray-400 mb-6">嗯。还行吧。视觉挺好看</p>
+              <div class="flex flex-wrap gap-3 mb-6">
+                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">模组</span>
+                <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">Releases B15</span>
+                <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">idk MB</span>
+              </div>
+              <a href="https://fdpinfo.github.io/download" aria-label="FDP Client 下载" class="block w-full py-3 bg-secondary text-dark rounded-lg font-medium hover:bg-secondary/90 transition-all text-center flex items-center justify-center">
+                <span class="mr-2">⬇️</span> 立即下载
+              </a>
             </div>
-            <a href="https://fdpinfo.github.io/download" class="block w-full py-3 bg-secondary text-dark rounded-lg font-medium hover:bg-secondary/90 transition-all text-center flex items-center justify-center">
-              <span class="mr-2">⬇️</span> 立即下载
-            </a>
-          </div>
-        </div>
-        
-        <!-- 软件3 -->
-        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal" style="animation-delay: 0.4s">
-          <div class="p-6">
-            <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
-              <span class="text-accent text-3xl">🧀</span>
+          </article>
+          
+          <!-- 软件3 -->
+          <article class="bg-dark-light frosted rounded-xl overflow-hidden card-hover reveal shadow-glass" style="animation-delay:0.12s;">
+            <div class="card-inner">
+              <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
+                <span class="text-accent text-3xl">🧀</span>
+              </div>
+              <h3 class="text-xl font-bold mb-3 text-white">Liquid Bounce Client(b100)</h3>
+              <p class="text-gray-400 mb-6">估计是免费里面最好的一个客户端了。可以绕过吉吉岛，最著名的版本是b100（1.8.9版本）</p>
+              <div class="flex flex-wrap gap-3 mb-6">
+                <span class="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">模组</span>
+                <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">b100</span>
+                <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">joahsdfijasdf MB</span>
+              </div>
+              <a href="https://fdpinfo.github.io/download" aria-label="Liquid Bounce 下载" class="block w-full py-3 bg-accent text-dark rounded-lg font-medium hover:bg-accent/90 transition-all text-center flex items-center justify-center">
+                <span class="mr-2">⬇️</span> 立即下载
+              </a>
             </div>
-            <h3 class="text-xl font-bold mb-3 text-white">Liquid Bounce Client(b100)</h3>
-            <p class="text-gray-400 mb-6">估计是免费里面最好的一个客户端了。可以绕过吉吉岛，最著名的版本是b100（1.8.9版本）</p>
-            <div class="flex flex-wrap gap-3 mb-6">
-              <span class="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">模组</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">b100</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">joahsdfijasdf MB</span>
+          </article>
+
+          <!-- 软件4 Liquid Launcher -->
+          <article class="bg-dark-light frosted rounded-xl overflow-hidden card-hover reveal shadow-glass" style="animation-delay:0.18s;">
+            <div class="card-inner">
+              <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
+                <span class="text-accent text-3xl">🧀</span>
+              </div>
+              <h3 class="text-xl font-bold mb-3 text-white">Liquid Launcher</h3>
+              <p class="text-gray-400 mb-6">水影官方启动器，b站上有教程，自己搜。（第一个就是）</p>
+              <div class="flex flex-wrap gap-3 mb-6">
+                <span class="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">模组</span>
+                <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">V?</span>
+                <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">joahsdfijasdf MB</span>
+              </div>
+              <a href="https://liquidbounce.net/download" aria-label="Liquid Launcher 下载" class="block w-full py-3 bg-accent text-dark rounded-lg font-medium hover:bg-accent/90 transition-all text-center flex items-center justify-center">
+                <span class="mr-2">⬇️</span> 立即下载
+              </a>
             </div>
-            <a href="https://fdpinfo.github.io/download" class="block w-full py-3 bg-accent text-dark rounded-lg font-medium hover:bg-accent/90 transition-all text-center flex items-center justify-center">
-              <span class="mr-2">⬇️</span> 立即下载
-            </a>
-          </div>
-        </div>
-            <!-- 软件4 -->
-        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal" style="animation-delay: 0.4s">
-          <div class="p-6">
-            <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
-              <span class="text-accent text-3xl">🧀</span>
+          </article>
+
+          <!-- 软件5 Rice (Cracked) -->
+          <article class="bg-dark-light frosted rounded-xl overflow-hidden card-hover reveal shadow-glass" style="animation-delay:0.24s;">
+            <div class="card-inner">
+              <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
+                <span class="text-accent text-3xl">🧀</span>
+              </div>
+              <h3 class="text-xl font-bold mb-3 text-white">Rice (Cracked)</h3>
+              <p class="text-gray-400 mb-6">宝宝嘟嘟打雷啦。这个逼里昂尼尔。被破解了咯咯哒。（报毒为误报awa）</p>
+              <div class="flex flex-wrap gap-3 mb-6">
+                <span class="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">客户端</span>
+                <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">V?</span>
+                <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">joahsdfijasdf MB</span>
+              </div>
+              <a href="https://www.bjd-mc.cfd/" aria-label="Rice (Cracked) 下载" class="block w-full py-3 bg-accent text-dark rounded-lg font-medium hover:bg-accent/90 transition-all text-center flex items-center justify-center">
+                <span class="mr-2">⬇️</span> 立即下载
+              </a>
             </div>
-            <h3 class="text-xl font-bold mb-3 text-white">Liquid Launcher</h3>
-            <p class="text-gray-400 mb-6">水影官方启动器，b站上有教程，自己搜。（第一个就是）</p>
-            <div class="flex flex-wrap gap-3 mb-6">
-              <span class="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">模组</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">V?</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">joahsdfijasdf MB</span>
+          </article>
+
+          <!-- 软件6 Opai (Free) -->
+          <article class="bg-dark-light frosted rounded-xl overflow-hidden card-hover reveal shadow-glass" style="animation-delay:0.30s;">
+            <div class="card-inner">
+              <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
+                <span class="text-accent text-3xl">🧀</span>
+              </div>
+              <h3 class="text-xl font-bold mb-3 text-white">Opai (Free)</h3>
+              <p class="text-gray-400 mb-6">哈哈由于宝马岛人员报警了把玩风格的人给抓了于是cubk跑路顺便留下了免费opai。（骗你的，早就复活了。（但是免费Opa[...]
+              </p>
+              <div class="flex flex-wrap gap-3 mb-6">
+                <span class="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">客户端</span>
+                <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">Free</span>
+                <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">joahsdfijasdf MB</span>
+              </div>
+              <a href="https://cloud.cgoi.cc/Opai.zip" aria-label="Opai 下载" class="block w-full py-3 bg-accent text-dark rounded-lg font-medium hover:bg-accent/90 transition-all text-center flex items-center justify-center">
+                <span class="mr-2">⬇️</span> 立即下载
+              </a>
             </div>
-            <a href="https://liquidbounce.net/download" class="block w-full py-3 bg-accent text-dark rounded-lg font-medium hover:bg-accent/90 transition-all text-center flex items-center justify-center">
-              <span class="mr-2">⬇️</span> 立即下载
-            </a>
-          </div>
-            <!-- 软件4 -->
-        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal" style="animation-delay: 0.4s">
-          <div class="p-6">
-            <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
-              <span class="text-accent text-3xl">🧀</span>
+          </article>
+
+          <!-- 软件7 GoldBounce -->
+          <article class="bg-dark-light frosted rounded-xl overflow-hidden card-hover reveal shadow-glass" style="animation-delay:0.36s;">
+            <div class="card-inner">
+              <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
+                <span class="text-accent text-3xl">🧀</span>
+              </div>
+              <h3 class="text-xl font-bold mb-3 text-white">GoldBounce</h3>
+              <p class="text-gray-400 mb-6">杂牌人用杂牌水，但是这是金振口服液。自己找Release。</p>
+              <div class="flex flex-wrap gap-3 mb-6">
+                <span class="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">客户端</span>
+                <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">Release b11</span>
+                <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">joahsdfijasdf MB</span>
+              </div>
+              <a href="https://github.com/bzym2/GoldBounce" aria-label="GoldBounce 下载" class="block w-full py-3 bg-accent text-dark rounded-lg font-medium hover:bg-accent/90 transition-all text-center flex items-center justify-center">
+                <span class="mr-2">⬇️</span> 立即下载
+              </a>
             </div>
-            <h3 class="text-xl font-bold mb-3 text-white">Rice (Cracked)</h3>
-            <p class="text-gray-400 mb-6">宝宝嘟嘟打雷啦。这个逼里昂尼尔。被破解了咯咯哒。（报毒为误报awa）</p>
-            <div class="flex flex-wrap gap-3 mb-6">
-              <span class="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">客户端</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">V?</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">joahsdfijasdf MB</span>
+          </article>
+
+          <!-- 软件8 SilenceFix -->
+          <article class="bg-dark-light frosted rounded-xl overflow-hidden card-hover reveal shadow-glass" style="animation-delay:0.42s;">
+            <div class="card-inner">
+              <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
+                <span class="text-accent text-3xl">🧀</span>
+              </div>
+              <h3 class="text-xl font-bold mb-3 text-white">SilenceFix</h3>
+              <p class="text-gray-400 mb-6">嗯。自己加qq1055680656下载。安装教程在b站。</p>
+              <div class="flex flex-wrap gap-3 mb-6">
+                <span class="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">客户端</span>
+                <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">V47.50</span>
+                <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">joahsdfijasdf MB</span>
+              </div>
+              <a href="" aria-label="SilenceFix 下载" class="block w-full py-3 bg-accent text-dark rounded-lg font-medium hover:bg-accent/90 transition-all text-center flex items-center justify-center">
+                <span class="mr-2">⬇️</span> 无法下载。
+              </a>
             </div>
-            <a href="https://www.bjd-mc.cfd/" class="block w-full py-3 bg-accent text-dark rounded-lg font-medium hover:bg-accent/90 transition-all text-center flex items-center justify-center">
-              <span class="mr-2">⬇️</span> 立即下载
-            </a>
-          </div>
-        </div>
-                 <!-- 软件4 -->
-        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal" style="animation-delay: 0.4s">
-          <div class="p-6">
-            <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
-              <span class="text-accent text-3xl">🧀</span>
-            </div>
-            <h3 class="text-xl font-bold mb-3 text-white">Opai (Free)</h3>
-            <p class="text-gray-400 mb-6">哈哈由于宝马岛人员报警了把玩风格的人给抓了于是cubk跑路顺便留下了免费opai。（骗你的，早就复活了。（但是免费Opai还是在的。））</p>
-            <div class="flex flex-wrap gap-3 mb-6">
-              <span class="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">客户端</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">Free</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">joahsdfijasdf MB</span>
-            </div>
-            <a href="https://cloud.cgoi.cc/Opai.zip" class="block w-full py-3 bg-accent text-dark rounded-lg font-medium hover:bg-accent/90 transition-all text-center flex items-center justify-center">
-              <span class="mr-2">⬇️</span> 立即下载
-            </a>
-          </div>
+          </article>
         </div>
       </div>
-                     <!-- 软件4 -->
-        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal" style="animation-delay: 0.4s">
-          <div class="p-6">
-            <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
-              <span class="text-accent text-3xl">🧀</span>
-            </div>
-            <h3 class="text-xl font-bold mb-3 text-white">GoldBounce</h3>
-            <p class="text-gray-400 mb-6">杂牌人用杂牌水，但是这是金振口服液。自己找Release。</p>
-            <div class="flex flex-wrap gap-3 mb-6">
-              <span class="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">客户端</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">Release b11</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">joahsdfijasdf MB</span>
-            </div>
-            <a href="https://github.com/bzym2/GoldBounce" class="block w-full py-3 bg-accent text-dark rounded-lg font-medium hover:bg-accent/90 transition-all text-center flex items-center justify-center">
-              <span class="mr-2">⬇️</span> 立即下载
-            </a>
-          </div>
-        </div>
-<div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal" style="animation-delay: 0.4s">
-          <div class="p-6">
-            <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
-              <span class="text-accent text-3xl">🧀</span>
-            </div>
-            <h3 class="text-xl font-bold mb-3 text-white">SilenceFix</h3>
-            <p class="text-gray-400 mb-6">嗯。自己加qq1055680656下载。安装教程在b站。</p>
-            <div class="flex flex-wrap gap-3 mb-6">
-              <span class="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">客户端</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">V47.50</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">joahsdfijasdf MB</span>
-            </div>
-            <a href="" class="block w-full py-3 bg-accent text-dark rounded-lg font-medium hover:bg-accent/90 transition-all text-center flex items-center justify-center">
-              <span class="mr-2">⬇️</span> 无法下载。
-            </a>
-          </div>
-        </div>
-  </section>
+    </section>
+  </main>
 
   <!-- 页脚 -->
   <footer class="bg-dark text-gray-400 py-12 border-t border-gray-800">
@@ -356,69 +415,70 @@
   </footer>
 
   <!-- 返回顶部按钮 -->
-  <button id="backToTop" class="fixed bottom-8 right-8 w-12 h-12 bg-primary text-dark rounded-full shadow-lg flex items-center justify-center opacity-0 invisible transition-all duration-300 hover:bg-primary/90">
+  <button id="backToTop" class="fixed bottom-8 right-8 w-12 h-12 bg-primary text-dark rounded-full shadow-lg flex items-center justify-center" aria-label="返回顶部">
     <span>🧀</span>
   </button>
 
   <!-- JavaScript -->
   <script>
-    // 导航栏滚动效果
+    // DOM helpers
+    const menuBtn = document.getElementById('menuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
     const navbar = document.getElementById('navbar');
     const backToTop = document.getElementById('backToTop');
-    
+
+    // Mobile menu toggle (accessible)
+    menuBtn?.addEventListener('click', function() {
+      const expanded = menuBtn.getAttribute('aria-expanded') === 'true';
+      menuBtn.setAttribute('aria-expanded', String(!expanded));
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    // Show/hide navbar styles and backToTop on scroll
     window.addEventListener('scroll', function() {
       if (window.scrollY > 100) {
         navbar.classList.add('py-2', 'shadow-md');
         navbar.classList.remove('py-4', 'shadow-sm');
-        
-        backToTop.classList.remove('opacity-0', 'invisible');
-        backToTop.classList.add('opacity-100', 'visible');
+        backToTop.classList.add('show');
       } else {
         navbar.classList.add('py-4', 'shadow-sm');
         navbar.classList.remove('py-2', 'shadow-md');
-        
-        backToTop.classList.add('opacity-0', 'invisible');
-        backToTop.classList.remove('opacity-100', 'visible');
+        backToTop.classList.remove('show');
       }
-      
-      // 滚动动画
-      revealElements();
     });
-    
-    // 移动端菜单切换
-    const menuBtn = document.getElementById('menuBtn');
-    const mobileMenu = document.getElementById('mobileMenu');
-    
-    menuBtn.addEventListener('click', function() {
-      mobileMenu.classList.toggle('hidden');
+
+    backToTop?.addEventListener('click', function() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
-    
-    // 返回顶部功能
-    backToTop.addEventListener('click', function() {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-    });
-    
-    // 滚动显示动画
-    function revealElements() {
+
+    // Reveal animation using IntersectionObserver (more performant)
+    document.addEventListener('DOMContentLoaded', () => {
       const reveals = document.querySelectorAll('.reveal');
-      
-      for (let i = 0; i < reveals.length; i++) {
-        const windowHeight = window.innerHeight;
-        const elementTop = reveals[i].getBoundingClientRect().top;
-        const elementVisible = 150;
-        
-        if (elementTop < windowHeight - elementVisible) {
-          reveals[i].classList.add('fade-in');
-        }
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries, obs) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('fade-in');
+              obs.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.12 });
+        reveals.forEach((el, i) => {
+          if (el) {
+            // stagger slightly
+            el.style.animationDelay = `${i * 40}ms`;
+            io.observe(el);
+          }
+        });
+      } else {
+        // fallback
+        reveals.forEach(el => el.classList.add('fade-in'));
       }
-    }
-    
-    // 初始加载时执行一次
-    window.addEventListener('load', function() {
-      revealElements();
+    });
+
+    // small accessibility touch: ensure focus states are visible
+    document.addEventListener('keyup', (e) => {
+      if (e.key === 'Tab') document.body.classList.add('show-focus');
     });
   </script>
 </body>
