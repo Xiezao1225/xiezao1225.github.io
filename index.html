@@ -1,125 +1,198 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Welcome - CheeseStudio</title>
-  <!-- 引入外部资源 -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-  
-  <!-- 配置Tailwind自定义主题 - 芝士深色主题 -->
+
+  <!-- Performance hints -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin />
+
+  <!-- Tailwind (cdn) -->
+  <script src="https://cdn.tailwindcss.com" defer></script>
+
+  <!-- Icon font (kept minimal) -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+
+  <!-- tsparticles for subtle background particles -->
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.6.0/tsparticles.bundle.min.js" defer></script>
+
+  <!-- Simple typed effect (tiny) -->
+  <script defer>
+    // tiny typed effect (no external lib)
+    class TinyType {
+      constructor(el, words = [], speed = 80, pause = 1500) {
+        this.el = el;
+        this.words = words;
+        this.speed = speed;
+        this.pause = pause;
+        this.wordIndex = 0;
+        this.charIndex = 0;
+        this.deleting = false;
+        this.tick();
+      }
+      tick() {
+        const current = this.words[this.wordIndex % this.words.length];
+        const full = current;
+        if (this.deleting) {
+          this.charIndex--;
+        } else {
+          this.charIndex++;
+        }
+        this.el.textContent = full.slice(0, this.charIndex);
+        let delay = this.speed + Math.random() * 50;
+        if (!this.deleting && this.charIndex === full.length) {
+          delay = this.pause;
+          this.deleting = true;
+        } else if (this.deleting && this.charIndex === 0) {
+          this.deleting = false;
+          this.wordIndex++;
+          delay = 300;
+        }
+        setTimeout(() => this.tick(), delay);
+      }
+    }
+  </script>
+
+  <!-- Theme config for Tailwind and custom CSS -->
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            primary: '#FFB74D', // 芝士黄
-            secondary: '#FFA726', // 深芝士色
-            accent: '#FFCC80', // 亮芝士色
+            primary: '#FFB74D',
+            secondary: '#FFA726',
+            accent: '#FFCC80',
             dark: '#121212',
             'dark-light': '#1E1E1E',
             'dark-lighter': '#2D2D2D'
           },
           fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-          },
-        },
+            sans: ['Inter', 'system-ui', 'sans-serif']
+          }
+        }
       }
     }
   </script>
-  
-  <!-- 自定义工具类 -->
+
   <style type="text/tailwindcss">
     @layer utilities {
-      .content-auto {
-        content-visibility: auto;
-      }
       .text-shadow {
-        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        text-shadow: 0 6px 18px rgba(0,0,0,0.5);
       }
       .card-hover {
-        transition: all 0.3s ease;
+        transition: transform .36s cubic-bezier(.2,.9,.2,1), box-shadow .36s;
+        transform: translateZ(0);
+        backface-visibility: hidden;
       }
       .card-hover:hover {
-        transform: translateY(-5px);
+        transform: translateY(-8px) rotateX(2deg) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.45);
       }
+      .cheese-icon::before {
+        content: "🧀";
+        display: inline-block;
+        margin-right: 8px;
+      }
+      .clickable-card { cursor: pointer; }
     }
   </style>
-  
+
   <style>
-    /* 基础动画定义 */
-    .fade-in {
-      animation: fadeIn 0.8s ease forwards;
-      opacity: 0;
+    html { scroll-behavior: smooth; }
+    body { background-color: #121212; color: #e5e7eb; }
+
+    /* hero gradient animation */
+    .animated-gradient {
+      background: linear-gradient(120deg, rgba(255,183,77,0.06), rgba(255,204,128,0.03));
+      position: relative;
+      overflow: hidden;
     }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    .hero-glow {
+      position: absolute;
+      inset: -30% -20% auto -20%;
+      height: 260px;
+      background: radial-gradient(closest-side, rgba(255,183,77,0.12), transparent 40%);
+      filter: blur(50px);
+      transform: translateY(-10%);
+      pointer-events: none;
+      animation: float 8s ease-in-out infinite;
     }
-    
-    /* 滚动进度条 - 芝士色 */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    
-    ::-webkit-scrollbar-track {
-      background: #2D2D2D;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-      background: #FFB74D;
-      border-radius: 4px;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-      background: #FFA726;
-    }
-    
-    /* 平滑滚动 */
-    html {
-      scroll-behavior: smooth;
+    @keyframes float {
+      0% { transform: translateY(-8%) translateX(0); }
+      50% { transform: translateY(-12%) translateX(6%); }
+      100% { transform: translateY(-8%) translateX(0); }
     }
 
-    /* 芝士图标样式 */
-    .cheese-icon::before {
-      content: "🧀";
-      display: inline-block;
-      margin-right: 8px;
+    /* top scroll progress */
+    #topProgress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--tw-gradient-stops));
+      --tw-gradient-from: #FFB74D;
+      --tw-gradient-to: #FFCC80;
+      width: 0%;
+      z-index: 60;
+      transition: width .15s linear;
+    }
+
+    /* back to top */
+    #backToTop {
+      transition: transform .28s, opacity .28s;
+      will-change: transform, opacity;
+      transform: translateY(10px);
+      opacity: 0;
+    }
+    #backToTop.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* subtle focus ring for accessibility */
+    a:focus, button:focus, input:focus { outline: 3px solid rgba(255,183,77,0.18); outline-offset: 2px; }
+
+    /* reduced motion preference */
+    @media (prefers-reduced-motion: reduce) {
+      .card-hover, .fade-in { transition: none !important; animation: none !important; }
     }
   </style>
 </head>
 
-<body class="bg-dark text-gray-200 antialiased">
-  <!-- 导航栏 -->
-  <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-dark/90 backdrop-blur-sm shadow-sm">
+<body class="antialiased">
+  <!-- top progress bar -->
+  <div id="topProgress" aria-hidden="true"></div>
+
+  <!-- Navigation -->
+  <header id="navbar" class="fixed w-full top-0 z-50 bg-dark/70 backdrop-blur-sm">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center py-4">
-        <div class="flex items-center space-x-2">
+      <div class="flex items-center justify-between py-4 md:py-3">
+        <div class="flex items-center space-x-3">
           <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-            <span class="text-white text-xl">🧀</span>
+            <span class="text-dark text-xl">🧀</span>
           </div>
           <span class="text-xl font-bold text-white">CheeseStudio</span>
         </div>
-        
-        <!-- 桌面导航 -->
-        <nav class="hidden md:flex space-x-8">
-          <a href="#about" class="font-medium hover:text-primary transition-colors">关于我们</a>
-          <a href="#team" class="font-medium hover:text-primary transition-colors">团队成员</a>
-          <a href="#skills" class="font-medium hover:text-primary transition-colors">专业技能</a>
-          <a href="#culture" class="font-medium hover:text-primary transition-colors">团队文化</a>
-          <a href="#contact" class="font-medium hover:text-primary transition-colors">联系我们</a>
+
+        <nav class="hidden md:flex items-center space-x-6" aria-label="主导航">
+          <a href="#about" class="text-gray-200 hover:text-primary transition-colors">关于我们</a>
+          <a href="#team" class="text-gray-200 hover:text-primary transition-colors">团队成员</a>
+          <a href="#skills" class="text-gray-200 hover:text-primary transition-colors">专业技能</a>
+          <a href="#culture" class="text-gray-200 hover:text-primary transition-colors">团队文化</a>
+          <a href="#contact" class="text-gray-200 hover:text-primary transition-colors">联系我们</a>
         </nav>
-        
-        <!-- 移动端菜单按钮 -->
-        <button id="menuBtn" class="md:hidden text-white hover:text-primary transition-colors">
-          <span class="text-2xl">🧀</span>
-        </button>
+
+        <div class="flex items-center space-x-3">
+          <button id="menuBtn" aria-expanded="false" aria-controls="mobileMenu" class="md:hidden p-2 rounded-md text-white hover:text-primary transition-colors" aria-label="打开菜单">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+          </button>
+        </div>
       </div>
     </div>
-    
-    <!-- 移动端导航菜单 -->
+
+    <!-- mobile menu -->
     <div id="mobileMenu" class="md:hidden hidden bg-dark-light border-t border-gray-800">
       <div class="container mx-auto px-4 py-3 space-y-3">
         <a href="#about" class="block py-2 font-medium hover:text-primary transition-colors">关于我们</a>
@@ -131,23 +204,36 @@
     </div>
   </header>
 
-  <section class="pt-32 pb-20 md:pt-40 md:pb-32 bg-gradient-to-br from-dark-light to-dark">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- 居中大标题区域 -->
-      <div class="text-center mb-16 fade-in" style="animation-delay: 0.1s">
-        <h1 class="text-[clamp(2.5rem,8vw,4rem)] font-bold leading-tight text-white mb-6 text-shadow">
+  <!-- Hero -->
+  <section class="pt-28 pb-24 md:pt-36 md:pb-32 animated-gradient relative overflow-hidden">
+    <!-- particles container -->
+    <div id="tsparticles" class="absolute inset-0 -z-10 opacity-40"></div>
+    <div class="hero-glow"></div>
+
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="text-center max-w-3xl mx-auto">
+        <h1 class="text-[clamp(2.5rem,8vw,4rem)] font-extrabold leading-tight text-white mb-4 text-shadow">
           We are <span class="text-primary">CheeseStudio</span>
         </h1>
-        <p class="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto">
+        <p class="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-6">
           一群热爱芝士的创作者，用创意和技术打造独特体验，专注我的世界辅助工具开发
         </p>
+
+        <div class="flex items-center justify-center space-x-4">
+          <a href="#download" class="px-6 py-3 bg-primary text-dark rounded-lg font-medium hover:bg-primary/90 transition-all shadow-lg">下载辅助工具</a>
+          <a href="#about" class="px-6 py-3 border border-gray-700 rounded-lg text-gray-200 hover:text-primary transition-colors">了解更多</a>
+        </div>
+
+        <div class="mt-8 text-gray-300">
+          <span class="mr-2 text-sm">我们是</span>
+          <span id="tinyType" class="font-medium text-white text-sm"></span>
+        </div>
       </div>
 
-      <!-- 下方四个可点击卡片区域 -->
-      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- 卡片1：点击跳转至安全辅助说明 -->
+      <!-- quick cards -->
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
         <a href="download" class="block">
-          <div class="bg-dark-lighter rounded-xl p-6 shadow-md border border-gray-800 clickable-card fade-in" style="animation-delay: 0.3s">
+          <div class="bg-dark-lighter rounded-xl p-6 shadow-md border border-gray-800 clickable-card card-hover">
             <div class="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
               <span class="text-primary text-2xl">🧀</span>
             </div>
@@ -159,118 +245,107 @@
           </div>
         </a>
 
-        <!-- 卡片2：点击跳转至视觉优化说明 -->
         <a href="https://github.com/Xiezao1225/xiezao1225.github.io" class="block">
-          <div class="bg-dark-lighter rounded-xl p-6 shadow-md border border-gray-800 clickable-card fade-in" style="animation-delay: 0.4s">
+          <div class="bg-dark-lighter rounded-xl p-6 shadow-md border border-gray-800 clickable-card card-hover">
             <div class="w-14 h-14 bg-secondary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
               <span class="text-secondary text-2xl">🧀</span>
             </div>
             <h3 class="text-xl font-bold mb-3 text-white text-center">查看仓库</h3>
-            <p class="text-gray-400 text-center">嗯。查看这个网页的饭桶大厅仓库。</p>
+            <p class="text-gray-400 text-center">查看这个网页的源码与更新记录。</p>
             <div class="mt-4 text-center">
               <span class="text-xs text-primary/70 hover:text-primary transition-colors">查看详情 →</span>
             </div>
           </div>
         </a>
 
-        <!-- 卡片3：点击跳转至功能介绍 -->
-        <a href="https://space.bilibili.com/1186487925?spm_id_from=333.1007.0.0" class="block">
-          <div class="bg-dark-lighter rounded-xl p-6 shadow-md border border-gray-800 clickable-card fade-in" style="animation-delay: 0.5s">
+        <a href="https://space.bilibili.com/1186487925" class="block">
+          <div class="bg-dark-lighter rounded-xl p-6 shadow-md border border-gray-800 clickable-card card-hover">
             <div class="w-14 h-14 bg-accent/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
               <span class="text-accent text-2xl">🧀</span>
             </div>
             <h3 class="text-xl font-bold mb-3 text-white text-center">臂展主页</h3>
-            <p class="text-gray-400 text-center">快关注我。</p>
+            <p class="text-gray-400 text-center">欢迎关注我们的个人主页。</p>
             <div class="mt-4 text-center">
               <span class="text-xs text-primary/70 hover:text-primary transition-colors">查看详情 →</span>
             </div>
           </div>
         </a>
 
-        <!-- 卡片4：点击跳转至更新日志 -->
         <a href="404" class="block">
-          <div class="bg-dark-lighter rounded-xl p-6 shadow-md border border-gray-800 clickable-card fade-in" style="animation-delay: 0.6s">
+          <div class="bg-dark-lighter rounded-xl p-6 shadow-md border border-gray-800 clickable-card card-hover">
             <div class="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
               <span class="text-primary text-2xl">🧀</span>
             </div>
-            <h3 class="text-xl font-bold mb-3 text-white text-center">滚木。</h3>
-            <p class="text-gray-400 text-center">滚木。滚木。滚木。滚木。滚木。滚木。滚木。</p>
+            <h3 class="text-xl font-bold mb-3 text-white text-center">日志</h3>
+            <p class="text-gray-400 text-center">查看更新与公告。</p>
             <div class="mt-4 text-center">
               <span class="text-xs text-primary/70 hover:text-primary transition-colors">查看详情 →</span>
             </div>
           </div>
-        </a>
-      </div>
-
-      <!-- 底部操作按钮 -->
-      <div class="flex flex-wrap justify-center gap-4 mt-12 fade-in" style="animation-delay: 0.7s">
-        <a href="download" class="px-8 py-3 bg-primary text-dark rounded-lg font-medium hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/20">
-          下载辅助工具
         </a>
       </div>
     </div>
   </section>
 
-  <!-- 关于我们 -->
+  <!-- About -->
   <section id="about" class="py-20 bg-dark-light">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-16 reveal">
-        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4 text-white cheese-icon">关于我们</h2>
-        <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4 text-white cheese-icon">关于我们</h2>
         <p class="text-gray-400 max-w-2xl mx-auto">CheeseStudio 是一个充满创意的团队，专注于打造有趣且实用的产品。有意加入者请联系 QQ: 3355673688</p>
       </div>
-      
+
       <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-dark-lighter p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow reveal">
+        <div class="bg-dark-lighter p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow card-hover">
           <div class="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-6">
             <span class="text-primary text-2xl">🧀</span>
           </div>
           <h3 class="text-xl font-bold mb-3 text-white">我们的使命</h3>
-          <p class="text-gray-400">用芝士。</p>
+          <p class="text-gray-400">用创意与技术，为玩家带来更友好、更安全的游戏辅助体验。</p>
         </div>
-        
-        <div class="bg-dark-lighter p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow reveal" style="animation-delay: 0.2s">
+
+        <div class="bg-dark-lighter p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow card-hover">
           <div class="w-14 h-14 bg-secondary/10 rounded-lg flex items-center justify-center mb-6">
             <span class="text-secondary text-2xl">🧀</span>
           </div>
           <h3 class="text-xl font-bold mb-3 text-white">我们的愿景</h3>
-          <p class="text-gray-400">成为行业内最具创意的团队，用独特的"芝士。</p>
+          <p class="text-gray-400">成为一个将创意与诚信并重的社区与团队。</p>
         </div>
-        
-        <div class="bg-dark-lighter p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow reveal" style="animation-delay: 0.4s">
+
+        <div class="bg-dark-lighter p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow card-hover">
           <div class="w-14 h-14 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
             <span class="text-accent text-2xl">🧀</span>
           </div>
           <h3 class="text-xl font-bold mb-3 text-white">我们的价值观</h3>
-          <p class="text-gray-400">创新、品质、协作、乐趣 — 就像一块完美的芝士。</p>
+          <p class="text-gray-400">创新、品质、协作、乐趣 — 我们重视每一个细节与用户安全。</p>
         </div>
       </div>
-      
-      <div class="mt-20 bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl p-8 md:p-12 reveal">
-        <div class="flex flex-col md:flex-row items-center gap-10">
+
+      <div class="mt-12 bg-gradient-to-r from-primary/6 to-accent/6 rounded-2xl p-8 md:p-12">
+        <div class="flex flex-col md:flex-row items-center gap-8">
           <div class="md:w-1/3">
-            <img src="https://picsum.photos/id/292/400/500" alt="团队历程" class="w-full h-auto rounded-xl shadow-md border border-gray-700">
+            <img loading="lazy" src="https://picsum.photos/id/292/400/500" alt="团队历程" class="w-full h-auto rounded-xl shadow-md border border-gray-700">
           </div>
           <div class="md:w-2/3">
             <h3 class="text-2xl font-bold mb-4 text-white cheese-icon">我们的历程</h3>
-            <p class="text-gray-400 mb-6">2025-10-31 我们的芝士工作室正式成立，专注于创造有温度的数字产品（100% AI打造！）</p>
-            
+            <p class="text-gray-400 mb-6">2025-10-31 CheeseStudio 成立，目标是用技术和匠心让产品有趣且可靠。</p>
+
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
               <div>
-                <div class="text-4xl font-bold text-primary mb-2">91+</div>
+                <div class="text-4xl font-bold text-primary mb-2 counter" data-target="91">0</div>
                 <p class="text-gray-400">芝士</p>
               </div>
               <div>
-                <div class="text-4xl font-bold text-primary mb-2">0+</div>
-                <p class="text-gray-400">专业人才</p>
+                <div class="text-4xl font-bold text-primary mb-2 counter" data-target="12">0</div>
+                <p class="text-gray-400">成员</p>
               </div>
               <div>
-                <div class="text-4xl font-bold text-primary mb-2">0+</div>
-                <p class="text-gray-400">成功项目</p>
+                <div class="text-4xl font-bold text-primary mb-2 counter" data-target="24">0</div>
+                <p class="text-gray-400">项目</p>
               </div>
               <div>
-                <div class="text-4xl font-bold text-primary mb-2">0+</div>
-                <p class="text-gray-400">芝士奖项</p>
+                <div class="text-4xl font-bold text-primary mb-2 counter" data-target="6">0</div>
+                <p class="text-gray-400">奖项</p>
               </div>
             </div>
           </div>
@@ -279,249 +354,182 @@
     </div>
   </section>
 
-  <!-- 团队成员 -->
+  <!-- Team -->
   <section id="team" class="py-20 bg-dark">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-16 reveal">
-        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4 text-white cheese-icon">核心团队成员</h2>
-        <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
-        <p class="text-gray-400 max-w-2xl mx-auto">我们的团队就像不同种类的芝士，各有特色却能完美融合。（持续招募中awa）</p>
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4 text-white cheese-icon">核心团队成员</h2>
+        <p class="text-gray-400 max-w-2xl mx-auto">我们的团队就像不同种类的芝士，各有特色却能完美融合。</p>
       </div>
-      
+
       <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        <!-- 团队成员1 -->
-        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal">
+        <!-- Team member cards -->
+        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover">
           <div class="relative">
-            <img src="https://picsum.photos/id/1005/400/400" alt="张明 - 创始人 & CEO" class="w-full h-64 object-cover">
-            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+            <img loading="lazy" src="https://picsum.photos/id/1005/400/400" alt="张明 - 创始人 & CEO" class="w-full h-64 object-cover">
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
               <h3 class="text-white font-bold text-xl">张明</h3>
               <p class="text-white/80">创始人 & CEO</p>
             </div>
           </div>
           <div class="p-6">
-            <p class="text-gray-400 mb-4">芝士爱好者，拥有15年行业经验，负责公司战略与发展方向。</p>
+            <p class="text-gray-400 mb-4">芝士爱好者，负责公司战略与发展方向。</p>
             <div class="flex space-x-3">
-              <a href="#" class="text-gray-500 hover:text-primary transition-colors">
-                <span>🧀</span>
-              </a>
-              <a href="#" class="text-gray-500 hover:text-primary transition-colors">
-                <span>🧀</span>
-              </a>
-              <a href="#" class="text-gray-500 hover:text-primary transition-colors">
-                <span>🧀</span>
-              </a>
+              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
+              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
+              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
             </div>
           </div>
         </div>
-        
-        <!-- 团队成员2 -->
-        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal" style="animation-delay: 0.1s">
+
+        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover">
           <div class="relative">
-            <img src="https://picsum.photos/id/1011/400/400" alt="李华 - 技术总监" class="w-full h-64 object-cover">
-            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+            <img loading="lazy" src="https://picsum.photos/id/1011/400/400" alt="李华 - 技术总监" class="w-full h-64 object-cover">
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
               <h3 class="text-white font-bold text-xl">李华</h3>
               <p class="text-white/80">技术总监</p>
             </div>
           </div>
           <div class="p-6">
-            <p class="text-gray-400 mb-4">技术专家，精通多种编程语言，像制作拉丝芝士一样构建流畅的代码。</p>
+            <p class="text-gray-400 mb-4">技术专家，精通多种编程语言。</p>
             <div class="flex space-x-3">
-              <a href="#" class="text-gray-500 hover:text-primary transition-colors">
-                <span>🧀</span>
-              </a>
-              <a href="#" class="text-gray-500 hover:text-primary transition-colors">
-                <span>🧀</span>
-              </a>
-              <a href="#" class="text-gray-500 hover:text-primary transition-colors">
-                <span>🧀</span>
-              </a>
+              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
+              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
+              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
             </div>
           </div>
         </div>
-        
-        <!-- 团队成员3 -->
-        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal" style="animation-delay: 0.2s">
+
+        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover">
           <div class="relative">
-            <img src="https://picsum.photos/id/1027/400/400" alt="王芳 - 设计主管" class="w-full h-64 object-cover">
-            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+            <img loading="lazy" src="https://picsum.photos/id/1027/400/400" alt="王芳 - 设计主管" class="w-full h-64 object-cover">
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
               <h3 class="text-white font-bold text-xl">王芳</h3>
               <p class="text-white/80">设计主管</p>
             </div>
           </div>
           <div class="p-6">
-            <p class="text-gray-400 mb-4">资深设计师，曾获国际设计大奖，擅长打造如芝士般诱人的视觉体验。</p>
+            <p class="text-gray-400 mb-4">资深设计师，擅长打造诱人视觉体验。</p>
             <div class="flex space-x-3">
-              <a href="#" class="text-gray-500 hover:text-primary transition-colors">
-                <span>🧀</span>
-              </a>
-              <a href="#" class="text-gray-500 hover:text-primary transition-colors">
-                <span>🧀</span>
-              </a>
-              <a href="#" class="text-gray-500 hover:text-primary transition-colors">
-                <span>🧀</span>
-              </a>
+              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
+              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
+              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
             </div>
           </div>
         </div>
-        
-        <!-- 团队成员4 -->
-        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal" style="animation-delay: 0.3s">
+
+        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover">
           <div class="relative">
-            <img src="https://picsum.photos/id/1074/400/400" alt="赵强 - 市场总监" class="w-full h-64 object-cover">
-            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+            <img loading="lazy" src="https://picsum.photos/id/1074/400/400" alt="赵强 - 市场总监" class="w-full h-64 object-cover">
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
               <h3 class="text-white font-bold text-xl">赵强</h3>
               <p class="text-white/80">市场总监</p>
             </div>
           </div>
           <div class="p-6">
-            <p class="text-gray-400 mb-4">市场营销专家，擅长将产品的魅力像芝士香气一样传播到每个角落。</p>
+            <p class="text-gray-400 mb-4">市场营销专家，负责传播策略。</p>
             <div class="flex space-x-3">
-              <a href="#" class="text-gray-500 hover:text-primary transition-colors">
-                <span>🧀</span>
-              </a>
-              <a href="#" class="text-gray-500 hover:text-primary transition-colors">
-                <span>🧀</span>
-              </a>
-              <a href="#" class="text-gray-500 hover:text-primary transition-colors">
-                <span>🧀</span>
-              </a>
+              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
+              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
+              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
             </div>
           </div>
         </div>
       </div>
-      
-      <div class="mt-12 text-center reveal">
-        <p class="text-gray-400 mb-6">我们还有更多优秀的"芝士块"，共同为目标奋斗</p>
-        <a href="#" class="inline-flex items-center text-primary font-medium hover:underline">
-          查看全部团队成员 <span class="ml-2">🧀</span>
-        </a>
-      </div>
     </div>
   </section>
 
-  <!-- 专业技能 -->
+  <!-- Skills -->
   <section id="skills" class="py-20 bg-dark-light">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-16 reveal">
-        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4 text-white cheese-icon">我们的专业技能</h2>
-        <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
-        <p class="text-gray-400 max-w-2xl mx-auto">我们的技能就像芝士的种类一样丰富多样，各有所长</p>
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4 text-white cheese-icon">我们的专业技能</h2>
+        <p class="text-gray-400 max-w-2xl mx-auto">技能如芝士种类，丰富且各有特色。</p>
       </div>
-      
+
       <div class="grid md:grid-cols-2 gap-12 items-center">
-        <div class="reveal">
-          <div class="space-y-8">
-            <!-- 技能1 -->
+        <div>
+          <div class="space-y-6">
             <div>
               <div class="flex justify-between mb-2">
                 <span class="font-medium text-white">芝士创意</span>
                 <span class="text-primary">95%</span>
               </div>
               <div class="w-full bg-dark-lighter rounded-full h-3">
-                <div class="bg-primary h-3 rounded-full" style="width: 95%"></div>
+                <div class="bg-primary h-3 rounded-full transition-all" style="width: 95%"></div>
               </div>
             </div>
-            
-            <!-- 技能2 -->
+
             <div>
               <div class="flex justify-between mb-2">
                 <span class="font-medium text-white">产品开发</span>
                 <span class="text-secondary">90%</span>
               </div>
               <div class="w-full bg-dark-lighter rounded-full h-3">
-                <div class="bg-secondary h-3 rounded-full" style="width: 90%"></div>
+                <div class="bg-secondary h-3 rounded-full transition-all" style="width: 90%"></div>
               </div>
             </div>
-            
-            <!-- 技能3 -->
+
             <div>
               <div class="flex justify-between mb-2">
                 <span class="font-medium text-white">用户体验</span>
                 <span class="text-accent">85%</span>
               </div>
               <div class="w-full bg-dark-lighter rounded-full h-3">
-                <div class="bg-accent h-3 rounded-full" style="width: 85%"></div>
-              </div>
-            </div>
-            
-            <!-- 技能4 -->
-            <div>
-              <div class="flex justify-between mb-2">
-                <span class="font-medium text-white">芝士品鉴</span>
-                <span class="text-primary">99%</span>
-              </div>
-              <div class="w-full bg-dark-lighter rounded-full h-3">
-                <div class="bg-primary h-3 rounded-full" style="width: 99%"></div>
-              </div>
-            </div>
-            
-            <!-- 技能5 -->
-            <div>
-              <div class="flex justify-between mb-2">
-                <span class="font-medium text-white">团队协作</span>
-                <span class="text-secondary">92%</span>
-              </div>
-              <div class="w-full bg-dark-lighter rounded-full h-3">
-                <div class="bg-secondary h-3 rounded-full" style="width: 92%"></div>
+                <div class="bg-accent h-3 rounded-full transition-all" style="width: 85%"></div>
               </div>
             </div>
           </div>
         </div>
-        
-        <div class="reveal" style="animation-delay: 0.2s">
+
+        <div>
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-6">
-            <!-- 技能类别1 -->
             <div class="bg-dark p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800">
               <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span class="text-primary text-2xl">🧀</span>
               </div>
               <h3 class="font-bold mb-2 text-white">开发</h3>
-              <p class="text-sm text-gray-400">像制作拉丝芝士一样构建流畅代码</p>
+              <p class="text-sm text-gray-400">高质量、可维护的代码</p>
             </div>
-            
-            <!-- 技能类别2 -->
+
             <div class="bg-dark p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800">
               <div class="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span class="text-secondary text-2xl">🧀</span>
               </div>
               <h3 class="font-bold mb-2 text-white">设计</h3>
-              <p class="text-sm text-gray-400">打造如芝士般诱人的视觉体验</p>
+              <p class="text-sm text-gray-400">视觉与交互并重</p>
             </div>
-            
-            <!-- 技能类别3 -->
+
             <div class="bg-dark p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800">
               <div class="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span class="text-accent text-2xl">🧀</span>
               </div>
               <h3 class="font-bold mb-2 text-white">策划</h3>
-              <p class="text-sm text-gray-400">酝酿创意如同发酵美味芝士</p>
+              <p class="text-sm text-gray-400">从用户出发的产品思路</p>
             </div>
-            
-            <!-- 技能类别4 -->
+
             <div class="bg-dark p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800">
               <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span class="text-primary text-2xl">🧀</span>
               </div>
               <h3 class="font-bold mb-2 text-white">市场</h3>
-              <p class="text-sm text-gray-400">传播产品魅力如同芝士香气</p>
+              <p class="text-sm text-gray-400">传播与增长策略</p>
             </div>
-            
-            <!-- 技能类别5 -->
+
             <div class="bg-dark p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800">
               <div class="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span class="text-secondary text-2xl">🧀</span>
               </div>
               <h3 class="font-bold mb-2 text-white">管理</h3>
-              <p class="text-sm text-gray-400">协调团队如同调配芝士拼盘</p>
+              <p class="text-sm text-gray-400">稳健的项目交付与协作</p>
             </div>
-            
-            <!-- 技能类别6 -->
+
             <div class="bg-dark p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800">
               <div class="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span class="text-accent text-2xl">🧀</span>
               </div>
               <h3 class="font-bold mb-2 text-white">测试</h3>
-              <p class="text-sm text-gray-400">确保品质如同品鉴顶级芝士</p>
+              <p class="text-sm text-gray-400">持续保障产品质量</p>
             </div>
           </div>
         </div>
@@ -529,387 +537,372 @@
     </div>
   </section>
 
-  <!-- 团队文化 -->
+  <!-- Culture -->
   <section id="culture" class="py-20 bg-gradient-to-br from-dark to-dark-light">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-16 reveal">
-        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4 text-white cheese-icon">我们的团队文化</h2>
-        <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
-        <p class="text-gray-400 max-w-2xl mx-auto">我们的团队文化就像一块优质芝士，需要时间沉淀和大家共同酝酿</p>
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4 text-white cheese-icon">我们的团队文化</h2>
+        <p class="text-gray-400 max-w-2xl mx-auto">团队文化需要时间沉淀，与大家共同酝酿成一块优秀的芝士。</p>
       </div>
-      
-      <div class="grid md:grid-cols-2 gap-10 items-center mb-20">
-        <div class="reveal">
-          <h3 class="text-2xl font-bold mb-6 text-white cheese-icon">协作与创新</h3>
-          <p class="text-gray-400 mb-6">我们相信团队的力量大于个体之和。在开放、包容的环境中，每个人都能自由表达想法，通过协作创造出更有价值的成果。</p>
-          
+
+      <div class="grid md:grid-cols-2 gap-10 items-center mb-16">
+        <div>
+          <h3 class="text-2xl font-bold mb-4 text-white cheese-icon">协作与创新</h3>
+          <p class="text-gray-400 mb-6">我们鼓励开放交流、跨职能协作，并从失败中学习，不断改进产品和流程。</p>
+
           <ul class="space-y-4">
             <li class="flex items-start">
-              <div class="mt-1 mr-4 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <div class="mt-1 mr-4 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
                 <span class="text-primary text-sm">🧀</span>
               </div>
-              <p class="text-gray-400">开放式办公环境，促进信息共享与即时沟通</p>
+              <p class="text-gray-400">开放式办公与信息共享</p>
             </li>
             <li class="flex items-start">
-              <div class="mt-1 mr-4 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <div class="mt-1 mr-4 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
                 <span class="text-primary text-sm">🧀</span>
               </div>
-              <p class="text-gray-400">定期创新工作坊，鼓励跨部门协作与头脑风暴</p>
+              <p class="text-gray-400">定期创新工作坊与头脑风暴</p>
             </li>
             <li class="flex items-start">
-              <div class="mt-1 mr-4 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <div class="mt-1 mr-4 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
                 <span class="text-primary text-sm">🧀</span>
               </div>
-              <p class="text-gray-400">扁平化管理，让每个声音都能被听到和重视</p>
-            </li>
-            <li class="flex items-start">
-              <div class="mt-1 mr-4 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <span class="text-primary text-sm">🧀</span>
-              </div>
-              <p class="text-gray-400">鼓励试错文化，从失败中学习，不断改进</p>
+              <p class="text-gray-400">扁平化管理与鼓励试错</p>
             </li>
           </ul>
         </div>
-        
-        <div class="relative reveal" style="animation-delay: 0.2s">
-          <div class="absolute -top-6 -left-6 w-32 h-32 bg-primary/10 rounded-full"></div>
-          <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-accent/10 rounded-full"></div>
-          <img src="https://picsum.photos/id/488/600/400" alt="团队协作" class="w-full h-auto rounded-xl shadow-lg relative z-10 border border-gray-700">
+
+        <div>
+          <img loading="lazy" src="https://picsum.photos/id/488/600/400" alt="团队协作" class="w-full h-auto rounded-xl shadow-lg border border-gray-700">
         </div>
       </div>
-      
+
       <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-dark-light p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-800 reveal">
+        <div class="bg-dark-light p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <div class="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-6">
             <span class="text-primary text-2xl">🧀</span>
           </div>
           <h3 class="text-xl font-bold mb-3 text-white">持续学习</h3>
-          <p class="text-gray-400">我们鼓励终身学习，像芝士的发酵过程一样，不断积累知识，提升专业技能。</p>
+          <p class="text-gray-400">鼓励终身学习与知识分享。</p>
         </div>
-        
-        <div class="bg-dark-light p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-800 reveal" style="animation-delay: 0.2s">
+
+        <div class="bg-dark-light p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <div class="w-14 h-14 bg-secondary/10 rounded-lg flex items-center justify-center mb-6">
             <span class="text-secondary text-2xl">🧀</span>
           </div>
           <h3 class="text-xl font-bold mb-3 text-white">工作生活平衡</h3>
-          <p class="text-gray-400">我们重视团队成员的身心健康，定期组织芝士品鉴会和休闲活动，保持工作与生活的平衡。</p>
+          <p class="text-gray-400">组织休闲活动保持身心健康。</p>
         </div>
-        
-        <div class="bg-dark-light p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-800 reveal" style="animation-delay: 0.4s">
+
+        <div class="bg-dark-light p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <div class="w-14 h-14 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
             <span class="text-accent text-2xl">🧀</span>
           </div>
           <h3 class="text-xl font-bold mb-3 text-white">社会责任</h3>
-          <p class="text-gray-400">我们积极参与公益活动，用芝士般的温暖回馈社会，传递正能量。</p>
-        </div>
-      </div>
-      
-      <!-- 团队活动照片墙 -->
-      <div class="mt-20 reveal">
-        <h3 class="text-2xl font-bold text-center mb-10 text-white cheese-icon">团队活动瞬间</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <img src="https://picsum.photos/id/429/300/300" alt="团队活动" class="w-full h-48 object-cover rounded-lg hover:opacity-90 transition-opacity border border-gray-800">
-          <img src="https://picsum.photos/id/430/300/300" alt="团队活动" class="w-full h-48 object-cover rounded-lg hover:opacity-90 transition-opacity border border-gray-800">
-          <img src="https://picsum.photos/id/431/300/300" alt="团队活动" class="w-full h-48 object-cover rounded-lg hover:opacity-90 transition-opacity border border-gray-800">
-          <img src="https://picsum.photos/id/432/300/300" alt="团队活动" class="w-full h-48 object-cover rounded-lg hover:opacity-90 transition-opacity border border-gray-800">
-        </div>
-      </div>
-    </div>
-  </section>
-    <!-- 软件下载区域 -->
-  <section class="py-20 bg-dark">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-16 reveal">
-        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4 text-white cheese-icon">我的世界外挂下载。</h2>
-        <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
-        <p class="text-gray-400 max-w-2xl mx-auto">嗯。</p>
-      </div>
-      
-      <div class="grid md:grid-cols-3 gap-8">
-        <!-- 软件1 -->
-        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal">
-          <div class="p-6">
-            <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-6">
-              <span class="text-primary text-3xl">🧀</span>
-            </div>
-            <h3 class="text-xl font-bold mb-3 text-white">Cheese Client（无害版本）</h3>
-            <p class="text-gray-400 mb-6">我的世界超强外挂，让你的电脑像芝士一样变成废土。详细请看BV193pfzbE8U</p>
-            <div class="flex flex-wrap gap-3 mb-6">
-              <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">客户端</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">v?.?.?</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">??MB</span>
-            </div>
-            <a href="https://www.123865.com/s/374yVv-ug0F3" class="block w-full py-3 bg-primary text-dark rounded-lg font-medium hover:bg-primary/90 transition-all text-center flex items-center justify-center">
-              <span class="mr-2">⬇️</span> 立即下载
-            </a>
-          </div>
-        </div>
-        
-        <!-- 软件2 -->
-        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal" style="animation-delay: 0.2s">
-          <div class="p-6">
-            <div class="w-16 h-16 bg-secondary/10 rounded-lg flex items-center justify-center mb-6">
-              <span class="text-secondary text-3xl">🧀</span>
-            </div>
-            <h3 class="text-xl font-bold mb-3 text-white">FDP Client</h3>
-            <p class="text-gray-400 mb-6">嗯。还行吧。视觉挺好看</p>
-            <div class="flex flex-wrap gap-3 mb-6">
-              <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">模组</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">Releases B15</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">idk MB</span>
-            </div>
-            <a href="https://fdpinfo.github.io/download" class="block w-full py-3 bg-secondary text-dark rounded-lg font-medium hover:bg-secondary/90 transition-all text-center flex items-center justify-center">
-              <span class="mr-2">⬇️</span> 立即下载
-            </a>
-          </div>
-        </div>
-        
-        <!-- 软件3 -->
-        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover reveal" style="animation-delay: 0.4s">
-          <div class="p-6">
-            <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
-              <span class="text-accent text-3xl">🧀</span>
-            </div>
-            <h3 class="text-xl font-bold mb-3 text-white">Liquid Bounce Client(b100)</h3>
-            <p class="text-gray-400 mb-6">估计是免费里面最好的一个客户端了。可以绕过吉吉岛，最著名的版本是b100（1.8.9版本）</p>
-            <div class="flex flex-wrap gap-3 mb-6">
-              <span class="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">模组</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">b100</span>
-              <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">joahsdfijasdf MB</span>
-            </div>
-            <a href="https://fdpinfo.github.io/download" class="block w-full py-3 bg-accent text-dark rounded-lg font-medium hover:bg-accent/90 transition-all text-center flex items-center justify-center">
-              <span class="mr-2">⬇️</span> 立即下载
-            </a>
-          </div>
-        </div>
-      </div>
-      
-      <div class="mt-12 text-center reveal">
-        <p class="text-gray-400 mb-6">查看更多的"辅助"模组</p>
-        <a href="https://xiezao1225.github.io/download" class="inline-flex items-center text-primary font-medium hover:underline">
-          浏览全部产品 <span class="ml-2">🧀</span>
-        </a>
-      </div>
-    </div>
-  </section>
-  <!-- 联系我们 -->
-  <section id="contact" class="py-20 bg-dark-light">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-16 reveal">
-        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4 text-white cheese-icon">联系我们</h2>
-        <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
-        <p class="text-gray-400 max-w-2xl mx-auto">对我们的团队感兴趣？有合作意向？欢迎随时联系我们，一起品尝芝士的美味。</p>
-      </div>
-        
-        <div class="reveal" style="animation-delay: 0.2s">
-          <div class="bg-dark p-8 rounded-xl h-full border border-gray-800">
-            <h3 class="text-2xl font-bold mb-6 text-white cheese-icon">联系方式</h3>
-            
-            <div class="space-y-6">
-              <div class="flex items-start">
-                <div class="mt-1 mr-4 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <span class="text-primary">🧀</span>
-                </div>
-                <div>
-                  <h4 class="font-medium mb-1 text-white">工作室地址</h4>
-                  <p class="text-gray-400">芝士王国奶酪省芝士市 dairy 街道 123 号</p>
-                </div>
-              </div>
-              
-              <div class="flex items-start">
-                <div class="mt-1 mr-4 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <span class="text-primary">🧀</span>
-                </div>
-                <div>
-                  <h4 class="font-medium mb-1 text-white">联系电话</h4>
-                  <p class="text-gray-400">+86 123 4567 8910</p>
-                </div>
-              </div>
-              
-              <div class="flex items-start">
-                <div class="mt-1 mr-4 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <span class="text-primary">🧀</span>
-                </div>
-                <div>
-                  <h4 class="font-medium mb-1 text-white">QQ</h4>
-                  <p class="text-gray-400">3355673688</p>
-                </div>
-              </div>
-              
-              <div class="flex items-start">
-                <div class="mt-1 mr-4 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <span class="text-primary">🧀</span>
-                </div>
-                <div>
-                  <h4 class="font-medium mb-1 text-white">工作时间</h4>
-                  <p class="text-gray-400">周一至周日 9:00 - 18:00（随时欢迎芝士爱好者）</p>
-                </div>
-              </div>
-            </div>
-            
-            <div class="mt-10">
-              <h4 class="font-medium mb-4 text-white">关注我们</h4>
-              <div class="flex space-x-3">
-                <a href="#" class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-dark transition-colors">
-                  <span>🧀</span>
-                </a>
-                <a href="#" class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-dark transition-colors">
-                  <span>🧀</span>
-                </a>
-                <a href="#" class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-dark transition-colors">
-                  <span>🧀</span>
-                </a>
-                <a href="#" class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-dark transition-colors">
-                  <span>🧀</span>
-                </a>
-              </div>
-            </div>
-            
-            <div class="mt-10">
-              <h4 class="font-medium mb-4 text-white">我们的位置</h4>
-              <div class="rounded-lg overflow-hidden h-64 bg-dark-lighter border border-gray-800">
-                <!-- 这里可以嵌入地图 -->
-                <img src="https://picsum.photos/id/433/600/400" alt="工作室位置地图" class="w-full h-full object-cover">
-              </div>
-            </div>
-          </div>
+          <p class="text-gray-400">参与公益、传递正能量。</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 页脚 -->
-  <footer class="bg-dark text-gray-400 py-12 border-t border-gray-800">
+  <!-- Download / Plugins (anchor for hero button) -->
+  <section id="download" class="py-20 bg-dark">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4 text-white cheese-icon">我的世界辅助下载</h2>
+        <p class="text-gray-400 max-w-2xl mx-auto">我们提供多个版本，尽量保持安全与稳定。请根据说明与风险自担。</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover p-6">
+          <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+            <span class="text-primary text-3xl">🧀</span>
+          </div>
+          <h3 class="text-xl font-bold mb-2 text-white">Cheese Client（无害版本）</h3>
+          <p class="text-gray-400 mb-4">精简无害版本，注重兼容与账号安全。</p>
+          <div class="flex gap-3 mb-4">
+            <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">客户端</span>
+            <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">v1.0</span>
+            <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">12MB</span>
+          </div>
+          <a href="https://www.123865.com/s/374yVv-ug0F3" class="block py-3 bg-primary text-dark rounded-lg text-center hover:bg-primary/90 transition-colors">⬇️ 立即下载</a>
+        </div>
+
+        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover p-6">
+          <div class="w-16 h-16 bg-secondary/10 rounded-lg flex items-center justify-center mb-4">
+            <span class="text-secondary text-3xl">🧀</span>
+          </div>
+          <h3 class="text-xl font-bold mb-2 text-white">FDP Client</h3>
+          <p class="text-gray-400 mb-4">视觉效果优良的自由客户端版本。</p>
+          <div class="flex gap-3 mb-4">
+            <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">模组</span>
+            <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">Releases B15</span>
+            <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">8MB</span>
+          </div>
+          <a href="https://fdpinfo.github.io/download" class="block py-3 bg-secondary text-dark rounded-lg text-center hover:bg-secondary/90 transition-colors">⬇️ 立即下载</a>
+        </div>
+
+        <div class="bg-dark-light rounded-xl overflow-hidden shadow-md card-hover p-6">
+          <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
+            <span class="text-accent text-3xl">🧀</span>
+          </div>
+          <h3 class="text-xl font-bold mb-2 text-white">Liquid Bounce Client (b100)</h3>
+          <p class="text-gray-400 mb-4">一个较受欢迎的免费客户端版本（1.8.9）。</p>
+          <div class="flex gap-3 mb-4">
+            <span class="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">模组</span>
+            <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">b100</span>
+            <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">15MB</span>
+          </div>
+          <a href="https://fdpinfo.github.io/download" class="block py-3 bg-accent text-dark rounded-lg text-center hover:bg-accent/90 transition-colors">⬇️ 立即下载</a>
+        </div>
+      </div>
+
+      <div class="mt-10 text-center">
+        <a href="https://xiezao1225.github.io/download" class="inline-flex items-center text-primary font-medium hover:underline">浏览全部产品 <span class="ml-2">🧀</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="py-20 bg-dark-light">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4 text-white cheese-icon">联系我们</h2>
+        <p class="text-gray-400 max-w-2xl mx-auto">合作、加盟或想交流想法？欢迎联系我们。</p>
+      </div>
+
+      <div class="bg-dark p-8 rounded-xl border border-gray-800">
+        <div class="grid md:grid-cols-2 gap-8">
+          <div>
+            <h3 class="text-2xl font-bold mb-4 text-white">联系方式</h3>
+            <div class="space-y-6">
+              <div>
+                <h4 class="font-medium text-white">工作室地址</h4>
+                <p class="text-gray-400">芝士王国奶酪省芝士市 dairy 街道 123 号</p>
+              </div>
+              <div>
+                <h4 class="font-medium text-white">联系电话</h4>
+                <p class="text-gray-400">+86 123 4567 8910</p>
+              </div>
+              <div>
+                <h4 class="font-medium text-white">QQ</h4>
+                <p class="text-gray-400">3355673688</p>
+              </div>
+              <div>
+                <h4 class="font-medium text-white">工作时间</h4>
+                <p class="text-gray-400">周一至周日 9:00 - 18:00</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-2xl font-bold mb-4 text-white">关注我们</h3>
+            <div class="flex space-x-3 mb-6">
+              <a href="#" class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-dark transition-colors">🧀</a>
+              <a href="#" class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-dark transition-colors">🧀</a>
+              <a href="#" class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-dark transition-colors">🧀</a>
+            </div>
+
+            <h4 class="font-medium mb-2 text-white">快速留言</h4>
+            <form id="contactForm" class="space-y-3" onsubmit="return false;">
+              <input type="text" id="name" required placeholder="您的姓名" class="w-full px-4 py-2 rounded-md bg-dark-lighter border border-gray-700 text-white" />
+              <input type="email" id="email" required placeholder="邮箱" class="w-full px-4 py-2 rounded-md bg-dark-lighter border border-gray-700 text-white" />
+              <textarea id="message" rows="4" required placeholder="留言内容" class="w-full px-4 py-2 rounded-md bg-dark-lighter border border-gray-700 text-white"></textarea>
+              <div class="flex justify-end">
+                <button id="sendBtn" class="px-4 py-2 bg-primary text-dark rounded-md hover:bg-primary/90">发送</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-gray-400 py-12 border-t border-gray-800">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-sm">
       <div class="grid md:grid-cols-4 gap-8 mb-8">
         <div>
-          <div class="flex items-center space-x-2 mb-6">
+          <div class="flex items-center space-x-2 mb-4">
             <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
               <span class="text-dark text-xl">🧀</span>
             </div>
             <span class="text-xl font-bold text-white">CheeseStudio</span>
           </div>
-          <p class="mb-6">我们致力于通过芝士般的创意和协作精神，为客户创造价值，解决行业难题。</p>
-          <div class="flex space-x-4">
-            <a href="#" class="hover:text-primary transition-colors">
-              <span>🧀</span>
-            </a>
-            <a href="#" class="hover:text-primary transition-colors">
-              <span>🧀</span>
-            </a>
-            <a href="#" class="hover:text-primary transition-colors">
-              <span>🧀</span>
-            </a>
-            <a href="#" class="hover:text-primary transition-colors">
-              <span>🧀</span>
-            </a>
+          <p class="mb-4">用芝士般的热情创造美好。</p>
+          <div class="flex space-x-3">
+            <a href="#" class="hover:text-primary">🧀</a>
+            <a href="#" class="hover:text-primary">🧀</a>
+            <a href="#" class="hover:text-primary">🧀</a>
           </div>
         </div>
-        
+
         <div>
-          <h4 class="text-lg font-bold mb-6 text-white">快速链接</h4>
-          <ul class="space-y-3">
-            <li><a href="#about" class="hover:text-primary transition-colors">关于我们</a></li>
-            <li><a href="#team" class="hover:text-primary transition-colors">团队成员</a></li>
-            <li><a href="#skills" class="hover:text-primary transition-colors">专业技能</a></li>
-            <li><a href="#culture" class="hover:text-primary transition-colors">团队文化</a></li>
-            <li><a href="#contact" class="hover:text-primary transition-colors">联系我们</a></li>
+          <h4 class="text-lg font-bold mb-4 text-white">快速链接</h4>
+          <ul class="space-y-2">
+            <li><a href="#about" class="hover:text-primary">关于我们</a></li>
+            <li><a href="#team" class="hover:text-primary">团队成员</a></li>
+            <li><a href="#skills" class="hover:text-primary">专业技能</a></li>
+            <li><a href="#culture" class="hover:text-primary">团队文化</a></li>
+            <li><a href="#contact" class="hover:text-primary">联系我们</a></li>
           </ul>
         </div>
-        
+
         <div>
-          <h4 class="text-lg font-bold mb-6 text-white">服务</h4>
-          <ul class="space-y-3">
-            <li><a href="#" class="hover:text-primary transition-colors">软件开发</a></li>
-            <li><a href="#" class="hover:text-primary transition-colors">UI/UX 设计</a></li>
-            <li><a href="#" class="hover:text-primary transition-colors">创意策划</a></li>
-            <li><a href="#" class="hover:text-primary transition-colors">品牌推广</a></li>
-            <li><a href="#" class="hover:text-primary transition-colors">芝士品鉴</a></li>
+          <h4 class="text-lg font-bold mb-4 text-white">服务</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="hover:text-primary">软件开发</a></li>
+            <li><a href="#" class="hover:text-primary">UI/UX 设计</a></li>
+            <li><a href="#" class="hover:text-primary">创意策划</a></li>
+            <li><a href="#" class="hover:text-primary">品牌推广</a></li>
           </ul>
         </div>
-        
+
         <div>
-          <h4 class="text-lg font-bold mb-6 text-white">订阅我们</h4>
-          <p class="mb-4">订阅我们的 newsletter，获取最新动态和芝士资讯。</p>
-          <form class="flex">
-            <input type="email" placeholder="您的邮箱地址" class="px-4 py-2 rounded-l-lg w-full focus:outline-none bg-dark-lighter border border-gray-700 text-white">
-            <button type="submit" class="bg-primary px-4 py-2 rounded-r-lg hover:bg-primary/90 transition-colors text-dark">
-              <span>🧀</span>
-            </button>
+          <h4 class="text-lg font-bold mb-4 text-white">订阅我们</h4>
+          <p class="mb-4">获取最新动态与公告。</p>
+          <form id="subscribeForm" class="flex">
+            <input type="email" placeholder="您的邮箱地址" class="px-4 py-2 rounded-l-lg w-full bg-dark-lighter border border-gray-700 text-white" />
+            <button type="submit" class="bg-primary px-4 py-2 rounded-r-lg hover:bg-primary/90 text-dark">🧀</button>
           </form>
         </div>
       </div>
-      
-      <div class="border-t border-gray-800 pt-8 text-center text-sm">
-        <p>&copy; 2023 CheeseStudio. 保留所有权利. 用芝士般的热情创造美好。</p>
+
+      <div class="border-t border-gray-800 pt-6 text-center">
+        <p>&copy; 2023 CheeseStudio. 保留所有权利。</p>
       </div>
     </div>
   </footer>
 
-  <!-- 返回顶部按钮 -->
-  <button id="backToTop" class="fixed bottom-8 right-8 w-12 h-12 bg-primary text-dark rounded-full shadow-lg flex items-center justify-center opacity-0 invisible transition-all duration-300 hover:bg-primary/90">
+  <!-- Back to top -->
+  <button id="backToTop" aria-label="返回顶部" class="fixed bottom-8 right-8 w-12 h-12 bg-primary text-dark rounded-full shadow-lg flex items-center justify-center">
     <span>🧀</span>
   </button>
 
-  <!-- JavaScript -->
+  <!-- Scripts: initialization and enhancements -->
   <script>
-    // 导航栏滚动效果
-    const navbar = document.getElementById('navbar');
-    const backToTop = document.getElementById('backToTop');
-    
-    window.addEventListener('scroll', function() {
-      if (window.scrollY > 100) {
-        navbar.classList.add('py-2', 'shadow-md');
-        navbar.classList.remove('py-4', 'shadow-sm');
-        
-        backToTop.classList.remove('opacity-0', 'invisible');
-        backToTop.classList.add('opacity-100', 'visible');
-      } else {
-        navbar.classList.add('py-4', 'shadow-sm');
-        navbar.classList.remove('py-2', 'shadow-md');
-        
-        backToTop.classList.add('opacity-0', 'invisible');
-        backToTop.classList.remove('opacity-100', 'visible');
+    // tiny startup sequence: particles, typed, reveal, counters, UI
+    document.addEventListener('DOMContentLoaded', function () {
+      // initialize particles (tsparticles)
+      if (window.tsParticles) {
+        tsParticles.load('tsparticles', {
+          fpsLimit: 30,
+          interactivity: { events: { onHover: { enable: false }, onClick: { enable: false } } },
+          particles: {
+            number: { value: 30 },
+            color: { value: '#FFB74D' },
+            opacity: { value: 0.08 },
+            size: { value: { min: 1, max: 3 } },
+            move: { enable: true, speed: 0.6, direction: 'none', outModes: { default: 'out' } },
+            links: { enable: true, distance: 120, color: '#FFB74D', opacity: 0.03, width: 1 }
+          }
+        }).catch(() => {});
       }
-      
-      // 滚动动画
-      revealElements();
-    });
-    
-    // 移动端菜单切换
-    const menuBtn = document.getElementById('menuBtn');
-    const mobileMenu = document.getElementById('mobileMenu');
-    
-    menuBtn.addEventListener('click', function() {
-      mobileMenu.classList.toggle('hidden');
-    });
-    
-    // 返回顶部功能
-    backToTop.addEventListener('click', function() {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
+
+      // typed effect
+      const tinyEl = document.getElementById('tinyType');
+      if (tinyEl) {
+        new TinyType(tinyEl, ['创意团队', '开发者', '热爱芝士的你'], 80, 1600);
+      }
+
+      // mobile menu toggle with accessible attributes
+      const menuBtn = document.getElementById('menuBtn');
+      const mobileMenu = document.getElementById('mobileMenu');
+      menuBtn?.addEventListener('click', () => {
+        const expanded = menuBtn.getAttribute('aria-expanded') === 'true';
+        menuBtn.setAttribute('aria-expanded', String(!expanded));
+        mobileMenu.classList.toggle('hidden');
       });
-    });
-    
-    // 滚动显示动画
-    function revealElements() {
-      const reveals = document.querySelectorAll('.reveal');
-      
-      for (let i = 0; i < reveals.length; i++) {
-        const windowHeight = window.innerHeight;
-        const elementTop = reveals[i].getBoundingClientRect().top;
-        const elementVisible = 150;
-        
-        if (elementTop < windowHeight - elementVisible) {
-          reveals[i].classList.add('fade-in');
-        }
+
+      // top progress bar
+      const topProgress = document.getElementById('topProgress');
+      window.addEventListener('scroll', () => {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const pct = docHeight ? (scrollTop / docHeight) * 100 : 0;
+        if (topProgress) topProgress.style.width = pct + '%';
+      });
+
+      // reveal on scroll via IntersectionObserver (more performant)
+      const reveals = document.querySelectorAll('.reveal, .clickable-card');
+      const ro = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('fade-in');
+            ro.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12 });
+      reveals.forEach(el => ro.observe(el));
+
+      // lazy loading built-in via loading="lazy" used for images; for older browsers can fallback if needed
+
+      // counters animation
+      const counters = document.querySelectorAll('.counter');
+      const startCounters = () => {
+        counters.forEach(c => {
+          const target = +c.getAttribute('data-target') || 0;
+          const duration = 1400;
+          let start = 0;
+          const step = (timestamp) => {
+            if (!c._startTime) c._startTime = timestamp;
+            const progress = Math.min((timestamp - c._startTime) / duration, 1);
+            c.textContent = Math.floor(progress * target);
+            if (progress < 1) {
+              requestAnimationFrame(step);
+            } else {
+              c.textContent = target;
+            }
+          };
+          requestAnimationFrame(step);
+        });
+      };
+      // observe when counters enter view
+      if (counters.length) {
+        const cObserver = new IntersectionObserver((entries) => {
+          entries.forEach(ent => {
+            if (ent.isIntersecting) {
+              startCounters();
+              cObserver.disconnect();
+            }
+          });
+        }, { threshold: 0.4 });
+        cObserver.observe(counters[0]);
       }
-    }
-    
-    // 初始加载时执行一次
-    window.addEventListener('load', function() {
-      revealElements();
+
+      // back to top button
+      const backToTop = document.getElementById('backToTop');
+      window.addEventListener('scroll', () => {
+        if ((window.scrollY || window.pageYOffset) > 240) backToTop?.classList.add('show');
+        else backToTop?.classList.remove('show');
+      });
+      backToTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+      // small contact form UX: show a quick toast (not sending)
+      const contactForm = document.getElementById('contactForm');
+      const sendBtn = document.getElementById('sendBtn');
+      sendBtn?.addEventListener('click', () => {
+        // very simple validation
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const message = document.getElementById('message').value.trim();
+        if (!name || !email || !message) {
+          alert('请填写完整的联系信息。');
+          return;
+        }
+        // simulate sending
+        sendBtn.disabled = true;
+        sendBtn.textContent = '发送中...';
+        setTimeout(() => {
+          sendBtn.disabled = false;
+          sendBtn.textContent = '发送';
+          alert('感谢你的留言！我们会尽快联系你。');
+          contactForm.reset();
+        }, 900);
+      });
+
+      // small accessibility: ensure focusable elements order is sensible
     });
   </script>
 </body>
