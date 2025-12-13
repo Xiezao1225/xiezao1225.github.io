@@ -1,4 +1,5 @@
-/* Cyberpunk theme — assets/css/cyberpunk.css */
+/* Cyberpunk theme — assets/css/cyberpunk.css
+   包含：背景、扫描线、card/button、HUD overlay、霓虹角样式、prefers-reduced-motion 支持 */
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Audiowide&display=swap');
 
 :root{
@@ -9,9 +10,10 @@
   --neon-yellow: #ffd400;
   --card-bg: rgba(255,255,255,0.03);
   --glass-border: rgba(255,255,255,0.06);
+  --hud-opacity: 0.14;
 }
 
-/* Page background with animated gradient and scanlines */
+/* Base page */
 html,body{
   height:100%;
   margin:0;
@@ -25,7 +27,17 @@ html,body{
   position:relative;
 }
 
-/* subtle animated scanline overlay */
+/* Particles canvas sits below content but above base bg */
+#particles-canvas{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:1;
+  pointer-events:none;
+}
+
+/* subtle animated scanline overlay (above particles for effect) */
 body::before{
   content:"";
   position:fixed;
@@ -40,7 +52,7 @@ body::before{
   );
   mix-blend-mode: overlay;
   animation: scan 10s linear infinite;
-  z-index:1;
+  z-index:2;
   opacity:0.6;
 }
 @keyframes scan{
@@ -48,10 +60,25 @@ body::before{
   100%{transform:translateY(10%);}
 }
 
+/* HUD overlay (topmost decorative grid/neon corners) */
+.hud{
+  position:fixed;
+  inset:0;
+  z-index:4;
+  pointer-events:none;
+  background-image: url('/assets/svg/hud.svg');
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: cover;
+  opacity: var(--hud-opacity);
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 12px rgba(0,240,255,0.12)) saturate(140%);
+}
+
 /* container and card styles */
 .container, .wrap{
   position:relative;
-  z-index:2;
+  z-index:3;
 }
 
 .card{
@@ -81,6 +108,25 @@ h1,h2,h3{
   text-shadow: 0 0 6px rgba(255,0,208,0.9), 0 0 18px rgba(255,0,208,0.5);
   font-weight:700;
   font-size:1.2rem;
+}
+
+/* neon corners via pseudo (fallback if SVG blocked) */
+.neon-corners::before{
+  content:"";
+  position:fixed;
+  inset:auto;
+  top:10px;
+  left:10px;
+  width:120px;
+  height:120px;
+  background:
+    linear-gradient(90deg, rgba(0,240,255,0.06), transparent),
+    linear-gradient(180deg, rgba(255,0,208,0.06), transparent);
+  border-top:2px solid rgba(0,240,255,0.14);
+  border-left:2px solid rgba(255,0,208,0.10);
+  pointer-events:none;
+  z-index:4;
+  mix-blend-mode: screen;
 }
 
 /* links */
@@ -130,12 +176,7 @@ pre,code{
 .center{display:flex;align-items:center;justify-content:center;}
 .mt-8{margin-top:2rem}
 
-/* responsive adjustments */
-@media (max-width:800px){
-  h1{font-size:1.6rem;}
-}
-
-/* optional small neon flicker class (JS may toggle) */
+/* neon flicker hook */
 .neon-flicker{
   text-shadow:
     0 0 8px rgba(0,240,255,1),
@@ -147,4 +188,18 @@ pre,code{
   0%{filter:brightness(1); text-shadow:0 0 6px rgba(0,240,255,0.95)}
   50%{filter:brightness(0.9); text-shadow:0 0 18px rgba(255,0,208,0.6)}
   100%{filter:brightness(1); text-shadow:0 0 6px rgba(0,240,255,0.95)}
+}
+
+/* reduced-motion users: disable heavy visuals */
+@media (prefers-reduced-motion: reduce), (max-width:600px){
+  body::before{ display:none; }
+  #particles-canvas{ display:none; }
+  .hud{ opacity:0.06; }
+  .neon-flicker, .btn, a{ transition:none; animation:none; }
+}
+
+/* small flicker visual class triggered by JS */
+.flicker{
+  filter:brightness(0.95) saturate(130%);
+  text-shadow: 0 0 20px rgba(255,0,208,0.9);
 }
