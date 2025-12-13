@@ -1,5 +1,6 @@
 /* Cyberpunk theme — assets/css/cyberpunk.css
-   包含：背景、扫描线、card/button、HUD overlay、霓虹角样式、prefers-reduced-motion 支持 */
+   已更新：背景改为“滚动十字条纹”（交叉条纹）动画
+   包含：滚动十字条纹覆盖层、原有 HUD/particles 降级支持、prefers-reduced-motion 兼容 */
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Audiowide&display=swap');
 
 :root{
@@ -11,6 +12,13 @@
   --card-bg: rgba(255,255,255,0.03);
   --glass-border: rgba(255,255,255,0.06);
   --hud-opacity: 0.14;
+
+  /* Crosshatch tuning */
+  --cross-opacity: 0.16;     /* 覆盖层整体透明度 */
+  --cross-line-color: rgba(255,255,255,0.03); /* 交叉条纹颜色（可改为偏色） */
+  --cross-thickness: 2px;    /* 条纹厚度 */
+  --cross-gap: 12px;         /* 条纹间距（不含厚度） */
+  --cross-speed: 14s;        /* 动画一圈时间，数值越小越快 */
 }
 
 /* Base page */
@@ -37,27 +45,43 @@ html,body{
   pointer-events:none;
 }
 
-/* subtle animated scanline overlay (above particles for effect) */
-body::before{
+/* ---------- 滚动十字条纹覆盖层（替代原 scanline） ----------
+   使用 ::after 作为覆盖层，包含两组重复线性渐变（45deg 与 -45deg）。
+   通过同时改变两个背景图层的 background-position 制造对角滚动的“十字”效果。
+   可通过 :root 变量调整厚度、间距、速度、颜色与不透明度。
+*/
+body::after{
   content:"";
   position:fixed;
   inset:0;
   pointer-events:none;
-  background-image: repeating-linear-gradient(
-    180deg,
-    rgba(255,255,255,0.02) 0px,
-    rgba(255,255,255,0.02) 1px,
-    transparent 1px,
-    transparent 3px
-  );
-  mix-blend-mode: overlay;
-  animation: scan 10s linear infinite;
   z-index:2;
-  opacity:0.6;
+  /* 两层交叉条纹：第一层 45deg，第二层 -45deg */
+  background-image:
+    repeating-linear-gradient(45deg,
+      var(--cross-line-color) 0 var(--cross-thickness),
+      transparent var(--cross-thickness) calc(var(--cross-thickness) + var(--cross-gap))
+    ),
+    repeating-linear-gradient(-45deg,
+      var(--cross-line-color) 0 var(--cross-thickness),
+      transparent var(--cross-thickness) calc(var(--cross-thickness) + var(--cross-gap))
+    );
+  /* 初始背景偏移、比例可以影响视觉密度 */
+  background-position: 0 0, 0 0;
+  background-size: auto auto;
+  mix-blend-mode: overlay;
+  opacity: var(--cross-opacity);
+  animation: crossScroll var(--cross-speed) linear infinite;
 }
-@keyframes scan{
-  0%{transform:translateY(-10%);}
-  100%{transform:translateY(10%);}
+
+/* 动画：第一层和第二层分别沿相反方向移动，形成滚动十字纹 */
+@keyframes crossScroll{
+  0% {
+    background-position: 0 0, 0 0;
+  }
+  100% {
+    background-position: 160px 160px, -160px -160px;
+  }
 }
 
 /* HUD overlay (topmost decorative grid/neon corners) */
@@ -108,25 +132,6 @@ h1,h2,h3{
   text-shadow: 0 0 6px rgba(255,0,208,0.9), 0 0 18px rgba(255,0,208,0.5);
   font-weight:700;
   font-size:1.2rem;
-}
-
-/* neon corners via pseudo (fallback if SVG blocked) */
-.neon-corners::before{
-  content:"";
-  position:fixed;
-  inset:auto;
-  top:10px;
-  left:10px;
-  width:120px;
-  height:120px;
-  background:
-    linear-gradient(90deg, rgba(0,240,255,0.06), transparent),
-    linear-gradient(180deg, rgba(255,0,208,0.06), transparent);
-  border-top:2px solid rgba(0,240,255,0.14);
-  border-left:2px solid rgba(255,0,208,0.10);
-  pointer-events:none;
-  z-index:4;
-  mix-blend-mode: screen;
 }
 
 /* links */
@@ -190,16 +195,17 @@ pre,code{
   100%{filter:brightness(1); text-shadow:0 0 6px rgba(0,240,255,0.95)}
 }
 
-/* reduced-motion users: disable heavy visuals */
+/* reduced-motion users: disable heavy visuals and animations */
 @media (prefers-reduced-motion: reduce), (max-width:600px){
-  body::before{ display:none; }
+  body::after{ 
+    /* 将动画替换为静态交叉条纹或隐藏（按需选择） */
+    animation: none;
+    opacity: calc(var(--cross-opacity) * 0.35);
+    background-position: 0 0, 0 0;
+  }
   #particles-canvas{ display:none; }
   .hud{ opacity:0.06; }
   .neon-flicker, .btn, a{ transition:none; animation:none; }
 }
 
-/* small flicker visual class triggered by JS */
-.flicker{
-  filter:brightness(0.95) saturate(130%);
-  text-shadow: 0 0 20px rgba(255,0,208,0.9);
-}
+/* End of file */
