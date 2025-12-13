@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- assets/svg/hud.svg — 简单 HUD / 网格与霓虹角（可作为背景 overlay） -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <linearGradient id="g1" x1="0" x2="1">
+      <stop offset="0" stop-color="#00f0ff" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#ff00d0" stop-opacity="0.9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- faint center radial grid -->
+  <g opacity="0.18" stroke="url(#g1)" stroke-width="0.6" filter="url(#glow)">
+    <path d="M0,220 L1600,220 M0,320 L1600,320 M0,420 L1600,420 M0,520 L1600,520 M0,620 L1600,620"/>
+    <path d="M200,0 L200,900 M400,0 L400,900 M600,0 L600,900 M800,0 L800,900 M1000,0 L1000,900 M1200,0 L1200,900 M1400,0 L1400,900"/>
+  </g>
+
+  <!-- top HUD arcs -->
+  <g fill="none" stroke="#00f0ff" stroke-opacity="0.26" stroke-width="1" filter="url(#glow)">
+    <path d="M400,40 C650,10 950,10 1200,40"/>
+    <path d="M360,70 C640,40 960,40 1240,70" stroke-opacity="0.14"/>
+  </g>
+
+  <!-- neon corner accents -->
+  <g stroke="url(#g1)" stroke-width="2" filter="url(#glow)">
+    <path d="M18,18 L120,18 L120,32" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M1582,18 L1480,18 L1480,32" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M18,882 L120,882 L120,868" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M1582,882 L1480,882 L1480,868" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- center badge / grid flare -->
+  <g transform="translate(800,120)" opacity="0.08" filter="url(#glow)">
+    <rect x="-420" y="-40" width="840" height="80" rx="6" fill="url(#g1)"/>
+  </g>
+</svg>
