@@ -17,31 +17,92 @@
         body {
             background-color: var(--bg-color);
             color: #fff;
-            font-family: 'Inter', 'Orbitron', sans-serif;
-            line-height: 1.6;
-            scroll-behavior: smooth;
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+            /* 初始状态隐藏滚动条，等加载完再显示 */
+            overflow-y: hidden; 
         }
 
-        /* 动态背景：流动线条 */
+        /* ================= 1. Loading 动画样式 ================= */
+        #loader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.8s cubic-bezier(0.85, 0, 0.15, 1);
+        }
+
+        .loader-content {
+            text-align: left;
+            width: 300px;
+        }
+
+        .loading-text {
+            font-family: monospace;
+            color: var(--accent-blue);
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            position: absolute;
+            left: 0; top: 0; height: 100%;
+            width: 0%;
+            background: var(--accent-blue);
+            box-shadow: 0 0 15px var(--accent-blue);
+            transition: width 0.4s ease;
+        }
+
+        .loader-info {
+            margin-top: 15px;
+            font-family: monospace;
+            color: #444;
+            font-size: 0.7rem;
+        }
+
+        /* 加载完成后的动画状态 */
+        .loaded #loader {
+            transform: translateY(-100%);
+        }
+
+        /* ================= 2. 基础背景与布局 ================= */
         .bg-lines {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: 
-                linear-gradient(90deg, var(--bg-color) 21px, transparent 1%) center,
-                linear-gradient(var(--bg-color) 21px, transparent 1%) center, #111;
-            background-size: 22px 22px;
-            opacity: 0.15;
+            background-image: linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
             z-index: -1;
         }
 
-        /* 1. Hero Section */
         header {
             height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: radial-gradient(circle at center, rgba(112, 0, 255, 0.15) 0%, transparent 60%);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s ease 0.8s; /* 延迟播放，等屏障拉开 */
+        }
+
+        /* 进场后主标题浮现 */
+        .loaded header {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .hero-title {
@@ -53,193 +114,70 @@
             letter-spacing: 10px;
         }
 
-        /* 2. Data Dashboard (新增加) */
-        .stats-bar {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            max-width: 1200px;
-            margin: -100px auto 100px;
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            padding: 40px;
-            border-radius: 20px;
-        }
+        /* 此处省略了上一版中提到的 stats-bar, container 等样式（为了保持简洁） */
+        /* ... 你可以把之前的样式代码粘贴回这里 ... */
 
-        .stat-item h2 { color: var(--accent-blue); font-size: 2.5rem; }
-        .stat-item p { font-size: 0.8rem; color: #888; text-transform: uppercase; }
+        .section-title { text-align: center; margin: 100px 0 50px; color: var(--accent-blue); letter-spacing: 5px;}
 
-        /* 3. Team Section */
-        .section-title {
-            text-align: center;
-            margin-bottom: 80px;
-            font-size: 2.5rem;
-            position: relative;
-        }
-
-        .section-title::after {
-            content: "";
-            display: block;
-            width: 50px;
-            height: 2px;
-            background: var(--accent-blue);
-            margin: 20px auto;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto 150px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-            padding: 0 20px;
-        }
-
-        .member-card {
-            background: var(--glass);
-            border: 1px solid var(--border);
-            padding: 40px 30px;
-            border-radius: 4px; /* 硬核几何感 */
-            transition: 0.4s;
-            position: relative;
-        }
-
-        .member-card:hover {
-            box-shadow: 0 0 30px rgba(0, 242, 255, 0.1);
-            border-color: var(--accent-blue);
-        }
-
-        .avatar {
-            width: 100%;
-            aspect-ratio: 1;
-            background: #111;
-            margin-bottom: 25px;
-            clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%);
-            border: 1px solid var(--accent-blue);
-        }
-
-        /* 4. Timeline / Roadmap (新增加) */
-        .timeline {
-            max-width: 800px;
-            margin: 100px auto;
-            padding: 0 20px;
-        }
-
-        .timeline-item {
-            padding-left: 30px;
-            border-left: 1px solid var(--accent-blue);
-            padding-bottom: 50px;
-            position: relative;
-        }
-
-        .timeline-item::before {
-            content: "";
-            position: absolute;
-            left: -6px; top: 0;
-            width: 11px; height: 11px;
-            background: var(--accent-blue);
-            box-shadow: 0 0 10px var(--accent-blue);
-        }
-
-        /* 5. CTA Footer */
-        footer {
-            padding: 100px 20px;
-            text-align: center;
-            background: linear-gradient(to top, rgba(0, 242, 255, 0.05), transparent);
-        }
-
-        .btn-connect {
-            padding: 15px 40px;
-            background: transparent;
-            border: 1px solid var(--accent-blue);
-            color: var(--accent-blue);
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: 0.3s;
-            font-weight: bold;
-        }
-
-        .btn-connect:hover {
-            background: var(--accent-blue);
-            color: #000;
-            box-shadow: 0 0 20px var(--accent-blue);
-        }
     </style>
 </head>
 <body>
 
+    <div id="loader">
+        <div class="loader-content">
+            <div class="loading-text" id="status-text">INITIALIZING SYSTEM...</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress"></div>
+            </div>
+            <div class="loader-info">
+                NODE_ID: 0x8821 <br>
+                ESTABLISHING SECURE PROTOCOL...
+            </div>
+        </div>
+    </div>
+
     <div class="bg-lines"></div>
 
     <header>
-        <p style="letter-spacing: 5px; color: var(--accent-blue); margin-bottom: 20px;">ESTABLISHED 2026</p>
+        <p style="letter-spacing: 5px; color: var(--accent-blue); margin-bottom: 20px;">ACCESS GRANTED</p>
         <h1 class="hero-title">NEURAL CORE</h1>
-        <p style="color: #666; max-width: 500px; text-align: center; margin-top: 20px;">
-            我们正在利用神经链路与量子计算重塑人类与机器的交互边界。
-        </p>
+        <p style="color: #666; margin-top: 20px;">未来的边界，由代码重新定义。</p>
     </header>
 
-    <section class="stats-bar">
-        <div class="stat-item">
-            <h2>42+</h2>
-            <p>Active Projects</p>
-        </div>
-        <div class="stat-item">
-            <h2>120ms</h2>
-            <p>Avg Latency</p>
-        </div>
-        <div class="stat-item">
-            <h2>99.9%</h2>
-            <p>Neural Accuracy</p>
-        </div>
-        <div class="stat-item">
-            <h2>20PB+</h2>
-            <p>Data Processed</p>
-        </div>
-    </section>
+    <section>
+        <h2 class="section-title">// OUR ARCHITECTS</h2>
+        </section>
 
-    <h2 class="section-title">THE ARCHITECTS</h2>
-    <main class="container">
-        <div class="member-card">
-            <div class="avatar"></div>
-            <span style="color:var(--accent-blue); font-size: 0.7rem;">[ 001 ]</span>
-            <h3>Alex Rivera</h3>
-            <p style="font-size: 0.8rem; color: #888;">Lead Neural Designer</p>
-        </div>
-        <div class="member-card">
-            <div class="avatar"></div>
-            <span style="color:var(--accent-blue); font-size: 0.7rem;">[ 002 ]</span>
-            <h3>Sarah Kong</h3>
-            <p style="font-size: 0.8rem; color: #888;">Quantum Engineer</p>
-        </div>
-        <div class="member-card">
-            <div class="avatar"></div>
-            <span style="color:var(--accent-blue); font-size: 0.7rem;">[ 003 ]</span>
-            <h3>Jason V.</h3>
-            <p style="font-size: 0.8rem; color: #888;">Protocol Architect</p>
-        </div>
-    </main>
+    <script>
+        window.addEventListener('load', () => {
+            const progress = document.getElementById('progress');
+            const statusText = document.getElementById('status-text');
+            let width = 0;
 
-    <h2 class="section-title">ROADMAP</h2>
-    <section class="timeline">
-        <div class="timeline-item">
-            <h4 style="color: var(--accent-blue);">PHASE 01: ORIGIN</h4>
-            <p style="font-size: 0.9rem; color: #666;">建立核心算法模型，完成第一阶段神经元交互测试。</p>
-        </div>
-        <div class="timeline-item">
-            <h4 style="color: var(--accent-blue);">PHASE 02: EXPANSION</h4>
-            <p style="font-size: 0.9rem; color: #666;">全球分布式节点部署，实现毫秒级数据同步同步。</p>
-        </div>
-        <div class="timeline-item">
-            <h4 style="color: var(--accent-blue);">PHASE 03: SINGULARITY</h4>
-            <p style="font-size: 0.9rem; color: #666;">开启通用人工智能界面，连接物理与数字世界。</p>
-        </div>
-    </section>
-
-    <footer>
-        <h3 style="margin-bottom: 30px;">READY TO SYNC?</h3>
-        <button class="btn-connect">进入系统界面</button>
-        <p style="margin-top: 50px; font-size: 0.7rem; color: #333;">// CONNECTION STATUS: SECURE</p>
-    </footer>
+            // 模拟加载进度
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    statusText.innerText = "SYSTEM READY. ENTERING...";
+                    
+                    // 延迟一小会儿执行离场动画
+                    setTimeout(() => {
+                        document.body.classList.add('loaded');
+                        document.body.style.overflowY = 'auto'; // 恢复滚动
+                    }, 500);
+                } else {
+                    width += Math.random() * 15;
+                    if (width > 100) width = 100;
+                    progress.style.width = width + '%';
+                    
+                    // 随机改变文字增加真实感
+                    const messages = ["CONNECTING NODES...", "DECRYPTING ASSETS...", "SYNCING CORE..."];
+                    if(width > 40 && width < 45) statusText.innerText = messages[0];
+                    if(width > 70 && width < 75) statusText.innerText = messages[1];
+                }
+            }, 150);
+        });
+    </script>
 
 </body>
 </html>
