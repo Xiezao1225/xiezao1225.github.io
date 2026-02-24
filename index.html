@@ -1,936 +1,240 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<!-- Cyberpunk theme head snippet: 放入每个页面的 <head> 内 -->
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Audiowide&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/cyberpunk.css">
-<script src="/assets/js/particles.js" defer></script>
-<script src="/assets/js/neon.js" defer></script>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Welcome - CheeseStudio</title>
-
-  <!-- Performance hints -->
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-  <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin />
-
-  <!-- Tailwind (cdn) -->
-  <script src="https://cdn.tailwindcss.com" defer></script>
-
-  <!-- Icon font (kept minimal) -->
-  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet" />
-
-  <!-- tsparticles for subtle background particles -->
-  <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.6.0/tsparticles.bundle.min.js" defer></script>
-
-  <!-- Simple typed effect (tiny) -->
-  <script defer>
-    // tiny typed effect (no external lib)
-    class TinyType {
-      constructor(el, words = [], speed = 80, pause = 1500) {
-        this.el = el;
-        this.words = words;
-        this.speed = speed;
-        this.pause = pause;
-        this.wordIndex = 0;
-        this.charIndex = 0;
-        this.deleting = false;
-        this.tick();
-      }
-      tick() {
-        const current = this.words[this.wordIndex % this.words.length];
-        const full = current;
-        if (this.deleting) {
-          this.charIndex--;
-        } else {
-          this.charIndex++;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>未来实验室 | 核心团队</title>
+    <style>
+        :root {
+            --bg-color: #050507;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --accent-color: #00f2ff; /* 科技蓝 */
+            --accent-purple: #7000ff;
+            --text-main: #e0e0e0;
+            --text-dim: #888;
         }
-        this.el.textContent = full.slice(0, this.charIndex);
-        let delay = this.speed + Math.random() * 50;
-        if (!this.deleting && this.charIndex === full.length) {
-          delay = this.pause;
-          this.deleting = true;
-        } else if (this.deleting && this.charIndex === 0) {
-          this.deleting = false;
-          this.wordIndex++;
-          delay = 300;
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        setTimeout(() => this.tick(), delay);
-      }
-    }
-  </script>
 
-  <!-- Theme config for Tailwind and custom CSS -->
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#FFB74D',
-            secondary: '#FFA726',
-            accent: '#FFCC80',
-            dark: '#121212',
-            'dark-light': '#1E1E1E',
-            'dark-lighter': '#2D2D2D'
-          },
-          fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif']
-          }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            overflow-x: hidden;
         }
-      }
-    }
-  </script>
 
-  <style type="text/tailwindcss">
-    @layer utilities {
-      .text-shadow {
-        text-shadow: 0 6px 18px rgba(0,0,0,0.5);
-      }
-      .card-hover {
-        transition: transform .36s cubic-bezier(.2,.9,.2,1), box-shadow .36s;
-        transform: translateZ(0);
-        backface-visibility: hidden;
-      }
-      .card-hover:hover {
-        transform: translateY(-8px) rotateX(2deg) scale(1.02);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.45);
-      }
-      .cheese-icon::before {
-        content: "🧀";
-        display: inline-block;
-        margin-right: 8px;
-      }
-      .clickable-card { cursor: pointer; }
+        /* 科技感网格背景 */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+        }
 
-      /* frosted glass utility for cards */
-      .frosted {
-        background-color: rgba(255,255,255,0.02) !important;
-        background-image: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.012)) !important;
-        -webkit-backdrop-filter: blur(8px) saturate(120%);
-        backdrop-filter: blur(8px) saturate(120%);
-        border: 1px solid rgba(255,255,255,0.04);
-      }
+        /* 英雄视觉区 */
+        header {
+            height: 60vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: radial-gradient(circle at center, rgba(0, 242, 255, 0.1) 0%, transparent 70%);
+        }
 
-      /* subtle glassy shadow to emphasize elevation */
-      .frosted.shadow-glass {
-        box-shadow: 0 6px 18px rgba(2,6,23,0.6);
-      }
-    }
-  </style>
+        .glitch-title {
+            font-size: 4rem;
+            font-weight: 800;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            position: relative;
+            animation: glow 2s infinite alternate;
+        }
 
-  <style>
-    html { scroll-behavior: smooth; }
-    /* page background changed to a subtle dark gradient */
-    body {
-      background: linear-gradient(135deg, #071426 0%, #0b1f2e 50%, #121212 100%);
-      color: #e5e7eb;
-      background-attachment: fixed;
-    }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(0,242,255,0.5); }
+            to { text-shadow: 0 0 25px rgba(0,242,255,0.8), 0 0 40px rgba(112,0,255,0.5); }
+        }
 
-    /* hero gradient animation */
-    .animated-gradient {
-      background: linear-gradient(120deg, rgba(255,183,77,0.06), rgba(255,204,128,0.03));
-      position: relative;
-      overflow: hidden;
-    }
-    .hero-glow {
-      position: absolute;
-      inset: -30% -20% auto -20%;
-      height: 260px;
-      background: radial-gradient(closest-side, rgba(255,183,77,0.12), transparent 40%);
-      filter: blur(50px);
-      transform: translateY(-10%);
-      pointer-events: none;
-      animation: float 8s ease-in-out infinite;
-    }
-    @keyframes float {
-      0% { transform: translateY(-8%) translateX(0); }
-      50% { transform: translateY(-12%) translateX(6%); }
-      100% { transform: translateY(-8%) translateX(0); }
-    }
+        .subtitle {
+            color: var(--accent-color);
+            font-family: 'Courier New', monospace;
+            margin-top: 10px;
+        }
 
-    /* top scroll progress */
-    #topProgress {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--tw-gradient-stops));
-      --tw-gradient-from: #FFB74D;
-      --tw-gradient-to: #FFCC80;
-      width: 0%;
-      z-index: 60;
-      transition: width .15s linear;
-    }
+        /* 团队网格布局 */
+        .container {
+            max-width: 1200px;
+            margin: -50px auto 100px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
 
-    /* back to top */
-    #backToTop {
-      transition: transform .28s, opacity .28s;
-      will-change: transform, opacity;
-      transform: translateY(10px);
-      opacity: 0;
-    }
-    #backToTop.show {
-      transform: translateY(0);
-      opacity: 1;
-    }
+        /* 成员卡片设计 */
+        .member-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
 
-    /* subtle focus ring for accessibility */
-    a:focus, button:focus, input:focus { outline: 3px solid rgba(255,183,77,0.18); outline-offset: 2px; }
+        .member-card:hover {
+            transform: translateY(-15px);
+            border-color: var(--accent-color);
+            box-shadow: 0 10px 30px rgba(0, 242, 255, 0.2);
+        }
 
-    /* reduced motion preference */
-    @media (prefers-reduced-motion: reduce) {
-      .card-hover, .fade-in { transition: none !important; animation: none !important; }
-    }
-  </style>
+        .member-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 4px;
+            background: linear-gradient(90deg, var(--accent-color), var(--accent-purple));
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .member-card:hover::before {
+            opacity: 1;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            border: 2px solid var(--accent-color);
+            padding: 5px;
+            filter: grayscale(100%);
+            transition: 0.5s;
+        }
+
+        .member-card:hover .avatar {
+            filter: grayscale(0%);
+            transform: rotate(360deg);
+        }
+
+        .name {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .role {
+            color: var(--accent-color);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .bio {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        .tech-tags {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            background: rgba(0, 242, 255, 0.1);
+            color: var(--accent-color);
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 242, 255, 0.2);
+        }
+
+        /* 装饰性元素 */
+        .footer-line {
+            text-align: center;
+            padding: 50px;
+            font-size: 0.8rem;
+            color: #333;
+            letter-spacing: 2px;
+        }
+
+    </style>
 </head>
+<body>
 
-<body class="antialiased">
-  <!-- Cyberpunk body snippet: 放在 <body> 内（推荐放在最前或最后均可） -->
-<canvas id="particles-canvas" aria-hidden="true"></canvas>
-<div class="hud" aria-hidden="true"></div>
-<!-- 可选：在页面 logo 加上 .neon-flicker 类，例如 <span class="site-logo neon-flicker">站名</span> -->
-  <!-- top progress bar -->
-  <div id="topProgress" aria-hidden="true"></div>
+    <header>
+        <h1 class="glitch-title">THE SQUAD</h1>
+        <p class="subtitle">> system.init("innovation_mode");</p>
+    </header>
 
-  <!-- Navigation -->
-  <header id="navbar" class="fixed w-full top-0 z-50 bg-dark/70 backdrop-blur-sm">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between py-4 md:py-3">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-            <span class="text-dark text-xl">🧀</span>
-          </div>
-          <span class="text-xl font-bold text-white">CheeseStudio</span>
+    <main class="container">
+        <div class="member-card">
+            <img src="https://via.placeholder.com/150/00f2ff/ffffff?text=CEO" alt="CEO" class="avatar">
+            <span class="role">Founding Partner</span>
+            <h3 class="name">Aiden Pierce</h3>
+            <p class="bio">15年网络安全经验，致力于构建下一代去中心化安全协议。</p>
+            <div class="tech-tags">
+                <span class="tag">CyberSec</span>
+                <span class="tag">Blockchain</span>
+            </div>
         </div>
 
-        <nav class="hidden md:flex items-center space-x-6" aria-label="主导航">
-          <a href="#about" class="text-gray-200 hover:text-primary transition-colors">关于我们</a>
-          <a href="#team" class="text-gray-200 hover:text-primary transition-colors">团队成员</a>
-          <a href="#skills" class="text-gray-200 hover:text-primary transition-colors">专业技能</a>
-          <a href="#culture" class="text-gray-200 hover:text-primary transition-colors">团队文化</a>
-          <a href="#contact" class="text-gray-200 hover:text-primary transition-colors">联系我们</a>
-        </nav>
-
-        <div class="flex items-center space-x-3">
-          <button id="menuBtn" aria-expanded="false" aria-controls="mobileMenu" class="md:hidden p-2 rounded-md text-white hover:text-primary transition-colors" aria-label="打开菜单">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
-          </button>
+        <div class="member-card">
+            <img src="https://via.placeholder.com/150/7000ff/ffffff?text=AI" alt="AI Specialist" class="avatar">
+            <span class="role">Chief AI Architect</span>
+            <h3 class="name">Dr. Elena</h3>
+            <p class="bio">斯坦福计算机博士，主攻神经网络架构优化与多模态模型。</p>
+            <div class="tech-tags">
+                <span class="tag">PyTorch</span>
+                <span class="tag">NLP</span>
+                <span class="tag">CUDA</span>
+            </div>
         </div>
-      </div>
+
+        <div class="member-card">
+            <img src="https://via.placeholder.com/150/00ffaa/ffffff?text=DEV" alt="Lead Dev" class="avatar">
+            <span class="role">Fullstack Engineer</span>
+            <h3 class="name">Marco Rossi</h3>
+            <p class="bio">开源社区活跃贡献者，追求极致的代码性能与交互体验。</p>
+            <div class="tech-tags">
+                <span class="tag">Rust</span>
+                <span class="tag">WebAssembly</span>
+            </div>
+        </div>
+
+        <div class="member-card">
+            <img src="https://via.placeholder.com/150/ff0070/ffffff?text=UI" alt="Designer" class="avatar">
+            <span class="role">Visual Director</span>
+            <h3 class="name">Luna Chen</h3>
+            <p class="bio">将美学与逻辑融合，专注于数字孪生界面的视觉语言定义。</p>
+            <div class="tech-tags">
+                <span class="tag">UI/UX</span>
+                <span class="tag">Three.js</span>
+            </div>
+        </div>
+    </main>
+
+    <div class="footer-line">
+        © 2026 FUTURE LABS. ALL SYSTEMS OPERATIONAL.
     </div>
 
-    <!-- mobile menu -->
-    <div id="mobileMenu" class="md:hidden hidden bg-dark-light border-t border-gray-800">
-      <div class="container mx-auto px-4 py-3 space-y-3">
-        <a href="#about" class="block py-2 font-medium hover:text-primary transition-colors">关于我们</a>
-        <a href="#team" class="block py-2 font-medium hover:text-primary transition-colors">团队成员</a>
-        <a href="#skills" class="block py-2 font-medium hover:text-primary transition-colors">专业技能</a>
-        <a href="#culture" class="block py-2 font-medium hover:text-primary transition-colors">团队文化</a>
-        <a href="#contact" class="block py-2 font-medium hover:text-primary transition-colors">联系我们</a>
-      </div>
-    </div>
-  </header>
-
-  <!-- Hero -->
-  <section class="pt-28 pb-24 md:pt-36 md:pb-32 animated-gradient relative overflow-hidden">
-    <!-- particles container -->
-    <div id="tsparticles" class="absolute inset-0 -z-10 opacity-40"></div>
-    <div class="hero-glow"></div>
-
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-      <div class="text-center max-w-3xl mx-auto">
-        <h1 class="text-[clamp(2.5rem,8vw,4rem)] font-extrabold leading-tight text-white mb-4 text-shadow">
-          We are <span class="text-primary">CheeseStudio</span>
-        </h1>
-        <p class="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-6">
-          一群热爱芝士的创作者，用创意和技术打造独特体验，专注我的世界辅助工具开发
-        </p>
-
-        <div class="flex items-center justify-center space-x-4">
-          <a href="#download" class="px-6 py-3 bg-primary text-dark rounded-lg font-medium hover:bg-primary/90 transition-all shadow-lg">下载辅助工具</a>
-          <a href="#about" class="px-6 py-3 border border-gray-700 rounded-lg text-gray-200 hover:text-primary transition-colors">了解更多</a>
-        </div>
-
-        <div class="mt-8 text-gray-300">
-          <span class="mr-2 text-sm">我们是</span>
-          <span id="tinyType" class="font-medium text-white text-sm"></span>
-        </div>
-      </div>
-
-      <!-- quick cards -->
-      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
-        <a href="download" class="block">
-          <div class="bg-dark-lighter frosted rounded-xl p-6 shadow-md border border-gray-800 clickable-card card-hover shadow-glass">
-            <div class="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
-              <span class="text-primary text-2xl">🧀</span>
-            </div>
-            <h3 class="text-xl font-bold mb-3 text-white text-center">安全辅助</h3>
-            <p class="text-gray-400 text-center">提供低风险、稳定的我的世界辅助工具，保障账号安全</p>
-            <div class="mt-4 text-center">
-              <span class="text-xs text-primary/70 hover:text-primary transition-colors">查看详情 →</span>
-            </div>
-          </div>
-        </a>
-
-        <a href="https://github.com/Xiezao1225/xiezao1225.github.io" class="block">
-          <div class="bg-dark-lighter frosted rounded-xl p-6 shadow-md border border-gray-800 clickable-card card-hover shadow-glass">
-            <div class="w-14 h-14 bg-secondary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
-              <span class="text-secondary text-2xl">🧀</span>
-            </div>
-            <h3 class="text-xl font-bold mb-3 text-white text-center">查看仓库</h3>
-            <p class="text-gray-400 text-center">查看这个网页的源码与更新记录。</p>
-            <div class="mt-4 text-center">
-              <span class="text-xs text-primary/70 hover:text-primary transition-colors">查看详情 →</span>
-            </div>
-          </div>
-        </a>
-
-        <a href="https://space.bilibili.com/1186487925" class="block">
-          <div class="bg-dark-lighter frosted rounded-xl p-6 shadow-md border border-gray-800 clickable-card card-hover shadow-glass">
-            <div class="w-14 h-14 bg-accent/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
-              <span class="text-accent text-2xl">🧀</span>
-            </div>
-            <h3 class="text-xl font-bold mb-3 text-white text-center">臂展主页</h3>
-            <p class="text-gray-400 text-center">欢迎关注我们的个人主页。</p>
-            <div class="mt-4 text-center">
-              <span class="text-xs text-primary/70 hover:text-primary transition-colors">查看详情 →</span>
-            </div>
-          </div>
-        </a>
-
-        <a href="404" class="block">
-          <div class="bg-dark-lighter frosted rounded-xl p-6 shadow-md border border-gray-800 clickable-card card-hover shadow-glass">
-            <div class="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
-              <span class="text-primary text-2xl">🧀</span>
-            </div>
-            <h3 class="text-xl font-bold mb-3 text-white text-center">日志</h3>
-            <p class="text-gray-400 text-center">查看更新与公告。</p>
-            <div class="mt-4 text-center">
-              <span class="text-xs text-primary/70 hover:text-primary transition-colors">查看详情 →</span>
-            </div>
-          </div>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- About -->
-  <section id="about" class="py-20 bg-dark-light">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-12">
-        <h2 class="text-3xl font-bold mb-4 text-white cheese-icon">关于我们</h2>
-        <p class="text-gray-400 max-w-2xl mx-auto">CheeseStudio 是一个充满创意的团队，专注于打造有趣且实用的产品。有意加入者请联系 QQ: 3355673688</p>
-      </div>
-
-      <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-dark-lighter frosted p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow card-hover shadow-glass">
-          <div class="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-6">
-            <span class="text-primary text-2xl">🧀</span>
-          </div>
-          <h3 class="text-xl font-bold mb-3 text-white">我们的使命</h3>
-          <p class="text-gray-400">用创意与技术，为玩家带来更友好、更安全的游戏辅助体验。</p>
-        </div>
-
-        <div class="bg-dark-lighter frosted p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow card-hover shadow-glass">
-          <div class="w-14 h-14 bg-secondary/10 rounded-lg flex items-center justify-center mb-6">
-            <span class="text-secondary text-2xl">🧀</span>
-          </div>
-          <h3 class="text-xl font-bold mb-3 text-white">我们的愿景</h3>
-          <p class="text-gray-400">成为一个将创意与诚信并重的社区与团队。</p>
-        </div>
-
-        <div class="bg-dark-lighter frosted p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow card-hover shadow-glass">
-          <div class="w-14 h-14 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
-            <span class="text-accent text-2xl">🧀</span>
-          </div>
-          <h3 class="text-xl font-bold mb-3 text-white">我们的价值观</h3>
-          <p class="text-gray-400">创新、品质、协作、乐趣 — 我们重视每一个细节与用户安全。</p>
-        </div>
-      </div>
-
-      <div class="mt-12 bg-gradient-to-r from-primary/6 to-accent/6 rounded-2xl p-8 md:p-12">
-        <div class="flex flex-col md:flex-row items-center gap-8">
-          <div class="md:w-1/3">
-            <img loading="lazy" src="https://picsum.photos/id/292/400/500" alt="团队历程" class="w-full h-auto rounded-xl shadow-md border border-gray-700">
-          </div>
-          <div class="md:w-2/3">
-            <h3 class="text-2xl font-bold mb-4 text-white cheese-icon">我们的历程</h3>
-            <p class="text-gray-400 mb-6">2025-10-31 CheeseStudio 成立，目标是用技术和匠心让产品有趣且可靠。</p>
-
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-              <div>
-                <div class="text-4xl font-bold text-primary mb-2 counter" data-target="91">0</div>
-                <p class="text-gray-400">芝士</p>
-              </div>
-              <div>
-                <div class="text-4xl font-bold text-primary mb-2 counter" data-target="12">0</div>
-                <p class="text-gray-400">成员</p>
-              </div>
-              <div>
-                <div class="text-4xl font-bold text-primary mb-2 counter" data-target="24">0</div>
-                <p class="text-gray-400">项目</p>
-              </div>
-              <div>
-                <div class="text-4xl font-bold text-primary mb-2 counter" data-target="6">0</div>
-                <p class="text-gray-400">奖项</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Team -->
-  <section id="team" class="py-20 bg-dark">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-12">
-        <h2 class="text-3xl font-bold mb-4 text-white cheese-icon">核心团队成员</h2>
-        <p class="text-gray-400 max-w-2xl mx-auto">我们的团队就像不同种类的芝士，各有特色却能完美融合。</p>
-      </div>
-
-      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        <!-- Team member cards -->
-        <div class="bg-dark-light frosted rounded-xl overflow-hidden shadow-md card-hover shadow-glass">
-          <div class="relative">
-            <img loading="lazy" src="https://picsum.photos/id/1005/400/400" alt="张明 - 创始人 & CEO" class="w-full h-64 object-cover">
-            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-              <h3 class="text-white font-bold text-xl">张明</h3>
-              <p class="text-white/80">创始人 & CEO</p>
-            </div>
-          </div>
-          <div class="p-6">
-            <p class="text-gray-400 mb-4">芝士爱好者，负责公司战略与发展方向。</p>
-            <div class="flex space-x-3">
-              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
-              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
-              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-dark-light frosted rounded-xl overflow-hidden shadow-md card-hover shadow-glass">
-          <div class="relative">
-            <img loading="lazy" src="https://picsum.photos/id/1011/400/400" alt="李华 - 技术总监" class="w-full h-64 object-cover">
-            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-              <h3 class="text-white font-bold text-xl">李华</h3>
-              <p class="text-white/80">技术总监</p>
-            </div>
-          </div>
-          <div class="p-6">
-            <p class="text-gray-400 mb-4">技术专家，精通多种编程语言。</p>
-            <div class="flex space-x-3">
-              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
-              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
-              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-dark-light frosted rounded-xl overflow-hidden shadow-md card-hover shadow-glass">
-          <div class="relative">
-            <img loading="lazy" src="https://picsum.photos/id/1027/400/400" alt="王芳 - 设计主管" class="w-full h-64 object-cover">
-            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-              <h3 class="text-white font-bold text-xl">王芳</h3>
-              <p class="text-white/80">设计主管</p>
-            </div>
-          </div>
-          <div class="p-6">
-            <p class="text-gray-400 mb-4">资深设计师，擅长打造诱人视觉体验。</p>
-            <div class="flex space-x-3">
-              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
-              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
-              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-dark-light frosted rounded-xl overflow-hidden shadow-md card-hover shadow-glass">
-          <div class="relative">
-            <img loading="lazy" src="https://picsum.photos/id/1074/400/400" alt="赵强 - 市场总监" class="w-full h-64 object-cover">
-            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-              <h3 class="text-white font-bold text-xl">赵强</h3>
-              <p class="text-white/80">市场总监</p>
-            </div>
-          </div>
-          <div class="p-6">
-            <p class="text-gray-400 mb-4">市场营销专家，负责传播策略。</p>
-            <div class="flex space-x-3">
-              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
-              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
-              <a href="#" class="text-gray-500 hover:text-primary">🧀</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Skills -->
-  <section id="skills" class="py-20 bg-dark-light">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-12">
-        <h2 class="text-3xl font-bold mb-4 text-white cheese-icon">我们的专业技能</h2>
-        <p class="text-gray-400 max-w-2xl mx-auto">技能如芝士种类，丰富且各有特色。</p>
-      </div>
-
-      <div class="grid md:grid-cols-2 gap-12 items-center">
-        <div>
-          <div class="space-y-6">
-            <div>
-              <div class="flex justify-between mb-2">
-                <span class="font-medium text-white">芝士创意</span>
-                <span class="text-primary">95%</span>
-              </div>
-              <div class="w-full bg-dark-lighter rounded-full h-3">
-                <div class="bg-primary h-3 rounded-full transition-all" style="width: 95%"></div>
-              </div>
-            </div>
-
-            <div>
-              <div class="flex justify-between mb-2">
-                <span class="font-medium text-white">产品开发</span>
-                <span class="text-secondary">90%</span>
-              </div>
-              <div class="w-full bg-dark-lighter rounded-full h-3">
-                <div class="bg-secondary h-3 rounded-full transition-all" style="width: 90%"></div>
-              </div>
-            </div>
-
-            <div>
-              <div class="flex justify-between mb-2">
-                <span class="font-medium text-white">用户体验</span>
-                <span class="text-accent">85%</span>
-              </div>
-              <div class="w-full bg-dark-lighter rounded-full h-3">
-                <div class="bg-accent h-3 rounded-full transition-all" style="width: 85%"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-6">
-            <div class="bg-dark frosted p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800 shadow-glass">
-              <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span class="text-primary text-2xl">🧀</span>
-              </div>
-              <h3 class="font-bold mb-2 text-white">开发</h3>
-              <p class="text-sm text-gray-400">高质量、可维护的代码</p>
-            </div>
-
-            <div class="bg-dark frosted p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800 shadow-glass">
-              <div class="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span class="text-secondary text-2xl">🧀</span>
-              </div>
-              <h3 class="font-bold mb-2 text-white">设计</h3>
-              <p class="text-sm text-gray-400">视觉与交互并重</p>
-            </div>
-
-            <div class="bg-dark frosted p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800 shadow-glass">
-              <div class="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span class="text-accent text-2xl">🧀</span>
-              </div>
-              <h3 class="font-bold mb-2 text-white">策划</h3>
-              <p class="text-sm text-gray-400">从用户出发的产品思路</p>
-            </div>
-
-            <div class="bg-dark frosted p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800 shadow-glass">
-              <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span class="text-primary text-2xl">🧀</span>
-              </div>
-              <h3 class="font-bold mb-2 text-white">市场</h3>
-              <p class="text-sm text-gray-400">传播与增长策略</p>
-            </div>
-
-            <div class="bg-dark frosted p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800 shadow-glass">
-              <div class="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span class="text-secondary text-2xl">🧀</span>
-              </div>
-              <h3 class="font-bold mb-2 text-white">管理</h3>
-              <p class="text-sm text-gray-400">稳健的项目交付与协作</p>
-            </div>
-
-            <div class="bg-dark frosted p-6 rounded-xl text-center hover:shadow-md transition-shadow border border-gray-800 shadow-glass">
-              <div class="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span class="text-accent text-2xl">🧀</span>
-              </div>
-              <h3 class="font-bold mb-2 text-white">测试</h3>
-              <p class="text-sm text-gray-400">持续保障产品质量</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Culture -->
-  <section id="culture" class="py-20 bg-gradient-to-br from-dark to-dark-light">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-12">
-        <h2 class="text-3xl font-bold mb-4 text-white cheese-icon">我们的团队文化</h2>
-        <p class="text-gray-400 max-w-2xl mx-auto">团队文化需要时间沉淀，与大家共同酝酿成一块优秀的芝士。</p>
-      </div>
-
-      <div class="grid md:grid-cols-2 gap-10 items-center mb-16">
-        <div>
-          <h3 class="text-2xl font-bold mb-4 text-white cheese-icon">协作与创新</h3>
-          <p class="text-gray-400 mb-6">我们鼓励开放交流、跨职能协作，并从失败中学习，不断改进产品和流程。</p>
-
-          <ul class="space-y-4">
-            <li class="flex items-start">
-              <div class="mt-1 mr-4 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-                <span class="text-primary text-sm">🧀</span>
-              </div>
-              <p class="text-gray-400">开放式办公与信息共享</p>
-            </li>
-            <li class="flex items-start">
-              <div class="mt-1 mr-4 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-                <span class="text-primary text-sm">🧀</span>
-              </div>
-              <p class="text-gray-400">定期创新工作坊与头脑风暴</p>
-            </li>
-            <li class="flex items-start">
-              <div class="mt-1 mr-4 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-                <span class="text-primary text-sm">🧀</span>
-              </div>
-              <p class="text-gray-400">扁平化管理与鼓励试错</p>
-            </li>
-          </ul>
-        </div>
-
-        <div>
-          <img loading="lazy" src="https://picsum.photos/id/488/600/400" alt="团队协作" class="w-full h-auto rounded-xl shadow-lg border border-gray-700">
-        </div>
-      </div>
-
-      <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-dark-light frosted p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow shadow-glass">
-          <div class="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-6">
-            <span class="text-primary text-2xl">🧀</span>
-          </div>
-          <h3 class="text-xl font-bold mb-3 text-white">持续学习</h3>
-          <p class="text-gray-400">鼓励终身学习与知识分享。</p>
-        </div>
-
-        <div class="bg-dark-light frosted p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow shadow-glass">
-          <div class="w-14 h-14 bg-secondary/10 rounded-lg flex items-center justify-center mb-6">
-            <span class="text-secondary text-2xl">🧀</span>
-          </div>
-          <h3 class="text-xl font-bold mb-3 text-white">工作生活平衡</h3>
-          <p class="text-gray-400">组织休闲活动保持身心健康。</p>
-        </div>
-
-        <div class="bg-dark-light frosted p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow shadow-glass">
-          <div class="w-14 h-14 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
-            <span class="text-accent text-2xl">🧀</span>
-          </div>
-          <h3 class="text-xl font-bold mb-3 text-white">社会责任</h3>
-          <p class="text-gray-400">参与公益、传递正能量。</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Download / Plugins (anchor for hero button) -->
-  <section id="download" class="py-20 bg-dark">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-12">
-        <h2 class="text-3xl font-bold mb-4 text-white cheese-icon">我的世界辅助下载</h2>
-        <p class="text-gray-400 max-w-2xl mx-auto">我们提供多个版本，尽量保持安全与稳定。请根据说明与风险自担。</p>
-      </div>
-
-      <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-dark-light frosted rounded-xl overflow-hidden shadow-md card-hover p-6 shadow-glass">
-          <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-            <span class="text-primary text-3xl">🧀</span>
-          </div>
-          <h3 class="text-xl font-bold mb-2 text-white">Cheese Client（无害版本）</h3>
-          <p class="text-gray-400 mb-4">精简无害版本，注重兼容与账号安全。</p>
-          <div class="flex gap-3 mb-4">
-            <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">客户端</span>
-            <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">v1.0</span>
-            <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">12MB</span>
-          </div>
-          <a href="https://www.123865.com/s/374yVv-ug0F3" class="block py-3 bg-primary text-dark rounded-lg text-center hover:bg-primary/90 transition-colors">⬇️ 立即下载</a>
-        </div>
-
-        <div class="bg-dark-light frosted rounded-xl overflow-hidden shadow-md card-hover p-6 shadow-glass">
-          <div class="w-16 h-16 bg-secondary/10 rounded-lg flex items-center justify-center mb-4">
-            <span class="text-secondary text-3xl">🧀</span>
-          </div>
-          <h3 class="text-xl font-bold mb-2 text-white">FDP Client</h3>
-          <p class="text-gray-400 mb-4">视觉效果优良的自由客户端版本。</p>
-          <div class="flex gap-3 mb-4">
-            <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">模组</span>
-            <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">Releases B15</span>
-            <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">8MB</span>
-          </div>
-          <a href="https://fdpinfo.github.io/download" class="block py-3 bg-secondary text-dark rounded-lg text-center hover:bg-secondary/90 transition-colors">⬇️ 立即下载</a>
-        </div>
-
-        <div class="bg-dark-light frosted rounded-xl overflow-hidden shadow-md card-hover p-6 shadow-glass">
-          <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
-            <span class="text-accent text-3xl">🧀</span>
-          </div>
-          <h3 class="text-xl font-bold mb-2 text-white">Liquid Bounce Client (b100)</h3>
-          <p class="text-gray-400 mb-4">一个较受欢迎的免费客户端版本（1.8.9）。</p>
-          <div class="flex gap-3 mb-4">
-            <span class="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">模组</span>
-            <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">b100</span>
-            <span class="px-3 py-1 bg-dark-lighter text-gray-300 text-sm rounded-full">15MB</span>
-          </div>
-          <a href="https://fdpinfo.github.io/download" class="block py-3 bg-accent text-dark rounded-lg text-center hover:bg-accent/90 transition-colors">⬇️ 立即下载</a>
-        </div>
-      </div>
-
-      <div class="mt-10 text-center">
-        <a href="https://xiezao1225.github.io/download" class="inline-flex items-center text-primary font-medium hover:underline">浏览全部产品 <span class="ml-2">🧀</span></a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Contact -->
-  <section id="contact" class="py-20 bg-dark-light">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-12">
-        <h2 class="text-3xl font-bold mb-4 text-white cheese-icon">联系我们</h2>
-        <p class="text-gray-400 max-w-2xl mx-auto">合作、加盟或想交流想法？欢迎联系我们。</p>
-      </div>
-
-      <div class="bg-dark frosted p-8 rounded-xl border border-gray-800 shadow-glass">
-        <div class="grid md:grid-cols-2 gap-8">
-          <div>
-            <h3 class="text-2xl font-bold mb-4 text-white">联系方式</h3>
-            <div class="space-y-6">
-              <div>
-                <h4 class="font-medium text-white">工作室地址</h4>
-                <p class="text-gray-400">芝士王国奶酪省芝士市 dairy 街道 123 号</p>
-              </div>
-              <div>
-                <h4 class="font-medium text-white">联系电话</h4>
-                <p class="text-gray-400">+86 123 4567 8910</p>
-              </div>
-              <div>
-                <h4 class="font-medium text-white">QQ</h4>
-                <p class="text-gray-400">3355673688</p>
-              </div>
-              <div>
-                <h4 class="font-medium text-white">工作时间</h4>
-                <p class="text-gray-400">周一至周日 9:00 - 18:00</p>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <h3 class="text-2xl font-bold mb-4 text-white">关注我们</h3>
-            <div class="flex space-x-3 mb-6">
-              <a href="#" class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-dark transition-colors">🧀</a>
-              <a href="#" class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-dark transition-colors">🧀</a>
-              <a href="#" class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-dark transition-colors">🧀</a>
-            </div>
-
-            <h4 class="font-medium mb-2 text-white">快速留言</h4>
-            <form id="contactForm" class="space-y-3" onsubmit="return false;">
-              <input type="text" id="name" required placeholder="您的姓名" class="w-full px-4 py-2 rounded-md bg-dark-lighter border border-gray-700 text-white" />
-              <input type="email" id="email" required placeholder="邮箱" class="w-full px-4 py-2 rounded-md bg-dark-lighter border border-gray-700 text-white" />
-              <textarea id="message" rows="4" required placeholder="留言内容" class="w-full px-4 py-2 rounded-md bg-dark-lighter border border-gray-700 text-white"></textarea>
-              <div class="flex justify-end">
-                <button id="sendBtn" class="px-4 py-2 bg-primary text-dark rounded-md hover:bg-primary/90">发送</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="bg-dark text-gray-400 py-12 border-t border-gray-800">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-sm">
-      <div class="grid md:grid-cols-4 gap-8 mb-8">
-        <div>
-          <div class="flex items-center space-x-2 mb-4">
-            <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-              <span class="text-dark text-xl">🧀</span>
-            </div>
-            <span class="text-xl font-bold text-white">CheeseStudio</span>
-          </div>
-          <p class="mb-4">用芝士般的热情创造美好。</p>
-          <div class="flex space-x-3">
-            <a href="#" class="hover:text-primary">🧀</a>
-            <a href="#" class="hover:text-primary">🧀</a>
-            <a href="#" class="hover:text-primary">🧀</a>
-          </div>
-        </div>
-
-        <div>
-          <h4 class="text-lg font-bold mb-4 text-white">快速链接</h4>
-          <ul class="space-y-2">
-            <li><a href="#about" class="hover:text-primary">关于我们</a></li>
-            <li><a href="#team" class="hover:text-primary">团队成员</a></li>
-            <li><a href="#skills" class="hover:text-primary">专业技能</a></li>
-            <li><a href="#culture" class="hover:text-primary">团队文化</a></li>
-            <li><a href="#contact" class="hover:text-primary">联系我们</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 class="text-lg font-bold mb-4 text-white">服务</h4>
-          <ul class="space-y-2">
-            <li><a href="#" class="hover:text-primary">软件开发</a></li>
-            <li><a href="#" class="hover:text-primary">UI/UX 设计</a></li>
-            <li><a href="#" class="hover:text-primary">创意策划</a></li>
-            <li><a href="#" class="hover:text-primary">品牌推广</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 class="text-lg font-bold mb-4 text-white">订阅我们</h4>
-          <p class="mb-4">获取最新动态与公告。</p>
-          <form id="subscribeForm" class="flex">
-            <input type="email" placeholder="您的邮箱地址" class="px-4 py-2 rounded-l-lg w-full bg-dark-lighter border border-gray-700 text-white" />
-            <button type="submit" class="bg-primary px-4 py-2 rounded-r-lg hover:bg-primary/90 text-dark">🧀</button>
-          </form>
-        </div>
-      </div>
-
-      <div class="border-t border-gray-800 pt-6 text-center">
-        <p>&copy; 2023 CheeseStudio. 保留所有权利。</p>
-      </div>
-    </div>
-  </footer>
-
-  <!-- Back to top -->
-  <button id="backToTop" aria-label="返回顶部" class="fixed bottom-8 right-8 w-12 h-12 bg-primary text-dark rounded-full shadow-lg flex items-center justify-center">
-    <span>🧀</span>
-  </button>
-
-  <!-- Scripts: initialization and enhancements -->
-  <script>
-    // tiny startup sequence: particles, typed, reveal, counters, UI
-    document.addEventListener('DOMContentLoaded', function () {
-      // initialize particles (tsparticles)
-      if (window.tsParticles) {
-        tsParticles.load('tsparticles', {
-          fpsLimit: 30,
-          interactivity: { events: { onHover: { enable: false }, onClick: { enable: false } } },
-          particles: {
-            number: { value: 30 },
-            color: { value: '#FFB74D' },
-            opacity: { value: 0.08 },
-            size: { value: { min: 1, max: 3 } },
-            move: { enable: true, speed: 0.6, direction: 'none', outModes: { default: 'out' } },
-            links: { enable: true, distance: 120, color: '#FFB74D', opacity: 0.03, width: 1 }
-          }
-        }).catch(() => {});
-      }
-
-      // typed effect
-      const tinyEl = document.getElementById('tinyType');
-      if (tinyEl) {
-        new TinyType(tinyEl, ['创意团队', '开发者', '热爱芝士的你'], 80, 1600);
-      }
-
-      // mobile menu toggle with accessible attributes
-      const menuBtn = document.getElementById('menuBtn');
-      const mobileMenu = document.getElementById('mobileMenu');
-      menuBtn?.addEventListener('click', () => {
-        const expanded = menuBtn.getAttribute('aria-expanded') === 'true';
-        menuBtn.setAttribute('aria-expanded', String(!expanded));
-        mobileMenu.classList.toggle('hidden');
-      });
-
-      // top progress bar
-      const topProgress = document.getElementById('topProgress');
-      window.addEventListener('scroll', () => {
-        const scrollTop = window.scrollY || document.documentElement.scrollTop;
-        const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        const pct = docHeight ? (scrollTop / docHeight) * 100 : 0;
-        if (topProgress) topProgress.style.width = pct + '%';
-      });
-
-      // reveal on scroll via IntersectionObserver (more performant)
-      const reveals = document.querySelectorAll('.reveal, .clickable-card');
-      const ro = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('fade-in');
-            ro.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.12 });
-      reveals.forEach(el => ro.observe(el));
-
-      // lazy loading built-in via loading="lazy" used for images; for older browsers can fallback if needed
-
-      // counters animation
-      const counters = document.querySelectorAll('.counter');
-      const startCounters = () => {
-        counters.forEach(c => {
-          const target = +c.getAttribute('data-target') || 0;
-          const duration = 1400;
-          let start = 0;
-          const step = (timestamp) => {
-            if (!c._startTime) c._startTime = timestamp;
-            const progress = Math.min((timestamp - c._startTime) / duration, 1);
-            c.textContent = Math.floor(progress * target);
-            if (progress < 1) {
-              requestAnimationFrame(step);
-            } else {
-              c.textContent = target;
-            }
-          };
-          requestAnimationFrame(step);
-        });
-      };
-      // observe when counters enter view
-      if (counters.length) {
-        const cObserver = new IntersectionObserver((entries) => {
-          entries.forEach(ent => {
-            if (ent.isIntersecting) {
-              startCounters();
-              cObserver.disconnect();
-            }
-          });
-        }, { threshold: 0.4 });
-        cObserver.observe(counters[0]);
-      }
-
-      // back to top button
-      const backToTop = document.getElementById('backToTop');
-      window.addEventListener('scroll', () => {
-        if ((window.scrollY || window.pageYOffset) > 240) backToTop?.classList.add('show');
-        else backToTop?.classList.remove('show');
-      });
-      backToTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-
-      // small contact form UX: show a quick toast (not sending)
-      const contactForm = document.getElementById('contactForm');
-      const sendBtn = document.getElementById('sendBtn');
-      sendBtn?.addEventListener('click', () => {
-        // very simple validation
-        const name = document.getElementById('name').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const message = document.getElementById('message').value.trim();
-        if (!name || !email || !message) {
-          alert('请填写完整的联系信息。');
-          return;
-        }
-        // simulate sending
-        sendBtn.disabled = true;
-        sendBtn.textContent = '发送中...';
-        setTimeout(() => {
-          sendBtn.disabled = false;
-          sendBtn.textContent = '发送';
-          alert('感谢你的留言！我们会尽快联系你。');
-          contactForm.reset();
-        }, 900);
-      });
-
-      // small accessibility: ensure focusable elements order is sensible
-    });
-  </script>
 </body>
 </html>
