@@ -19,11 +19,9 @@
             color: #fff;
             font-family: 'Segoe UI', sans-serif;
             overflow-x: hidden;
-            /* 初始状态隐藏滚动条，等加载完再显示 */
             overflow-y: hidden; 
         }
 
-        /* ================= 1. Loading 动画样式 ================= */
         #loader {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -36,11 +34,7 @@
             transition: transform 0.8s cubic-bezier(0.85, 0, 0.15, 1);
         }
 
-        .loader-content {
-            text-align: left;
-            width: 300px;
-        }
-
+        .loader-content { text-align: left; width: 300px; }
         .loading-text {
             font-family: monospace;
             color: var(--accent-blue);
@@ -48,7 +42,6 @@
             margin-bottom: 10px;
             letter-spacing: 2px;
         }
-
         .progress-container {
             width: 100%;
             height: 2px;
@@ -56,7 +49,6 @@
             position: relative;
             overflow: hidden;
         }
-
         .progress-bar {
             position: absolute;
             left: 0; top: 0; height: 100%;
@@ -65,20 +57,16 @@
             box-shadow: 0 0 15px var(--accent-blue);
             transition: width 0.4s ease;
         }
-
         .loader-info {
             margin-top: 15px;
             font-family: monospace;
             color: #444;
             font-size: 0.7rem;
         }
-
-        /* 加载完成后的动画状态 */
         .loaded #loader {
             transform: translateY(-100%);
         }
 
-        /* ================= 2. 基础背景与布局 ================= */
         .bg-lines {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -87,7 +75,6 @@
             background-size: 50px 50px;
             z-index: -1;
         }
-
         header {
             height: 100vh;
             display: flex;
@@ -96,15 +83,12 @@
             align-items: center;
             opacity: 0;
             transform: translateY(30px);
-            transition: all 1s ease 0.8s; /* 延迟播放，等屏障拉开 */
+            transition: all 1s ease 0.8s;
         }
-
-        /* 进场后主标题浮现 */
         .loaded header {
             opacity: 1;
             transform: translateY(0);
         }
-
         .hero-title {
             font-size: clamp(3rem, 10vw, 6rem);
             font-weight: 900;
@@ -113,12 +97,81 @@
             -webkit-text-fill-color: transparent;
             letter-spacing: 10px;
         }
-
-        /* 此处省略了上一版中提到的 stats-bar, container 等样式（为了保持简洁） */
-        /* ... 你可以把之前的样式代码粘贴回这里 ... */
-
         .section-title { text-align: center; margin: 100px 0 50px; color: var(--accent-blue); letter-spacing: 5px;}
-
+        /* 新增样式部分 */
+        section {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto 80px auto;
+            padding: 20px 24px;
+            background: var(--glass);
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            box-shadow: 0 6px 32px 0 rgba(0,255,255,0.03);
+        }
+        .about-content, .architect-list, .team-content, .contact-content {
+            font-size: 1.15rem;
+            line-height: 2;
+            color: #d6faff;
+        }
+        .architect-list, .team-content {
+            display: flex;
+            gap: 32px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .architect-item, .team-member {
+            background: rgba(15,20,35,0.2);
+            padding: 22px 30px;
+            min-width: 220px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            color: #a1eaff;
+            box-shadow: 0 2px 8px 0 rgba(32, 255, 255, 0.04);
+            margin: 8px 0;
+        }
+        .team-member img {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            margin-bottom: 12px;
+            border: 2px solid var(--accent-blue);
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .team-member strong {
+            display: block;
+            font-size: 1.05rem;
+            color: var(--accent-blue);
+            margin-top: 8px;
+            text-align: center;
+        }
+        .team-member p {
+            font-size: .95rem;
+            color: #eaeaea;
+            text-align: center;
+        }
+        .contact-content a { color: var(--accent-blue); }
+        footer {
+            text-align: center;
+            margin: 30px 0 20px 0;
+            color: #796aff;
+            font-size: 1rem;
+            opacity:.7;
+            letter-spacing: 1.5px;
+        }
+        @media (max-width: 650px) {
+            section, .about-content, .team-content, .contact-content {
+                padding: 8px;
+                font-size: 0.98rem;
+            }
+            .architect-list, .team-content {
+                flex-direction: column;
+                gap: 14px;
+                align-items: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -144,33 +197,95 @@
         <p style="color: #666; margin-top: 20px;">未来的边界，由代码重新定义。</p>
     </header>
 
+    <!-- Section: 关于 -->
+    <section>
+        <h2 class="section-title">// 关于实验室</h2>
+        <div class="about-content">
+            <p>
+                我们是<span style="color:var(--accent-blue);font-weight:bold;">NEURAL CORE未来实验室</span>，专注于人工智能与创新科技的结合探索。<br>
+                实验室汇聚前沿算法、深度学习、数据分析、创意设计等多领域人才，推动智能科技与现实应用的边界。<br>
+                <br>
+                <strong>愿景：</strong> 让未来的智能更可控、更开放、更有温度。
+            </p>
+        </div>
+    </section>
+
+    <!-- Section: 核心架构师（示例成员） -->
     <section>
         <h2 class="section-title">// OUR ARCHITECTS</h2>
-        </section>
+        <div class="architect-list">
+            <div class="architect-item">
+                <strong>李泽宇 · CTO</strong><br>
+                聚焦AI算法研发，掌舵底层架构与前沿创新，实现技术想象。
+            </div>
+            <div class="architect-item">
+                <strong>陈思颖 · 产品负责人</strong><br>
+                连接用户与产品场景，将智能落地于实际需求，主理人性化设计。
+            </div>
+            <div class="architect-item">
+                <strong>王鹏 · 运维安全</strong><br>
+                保障系统稳健与安全，着力自动化运维与数据流转。
+            </div>
+        </div>
+    </section>
+
+    <!-- Section: 团队展示（可自定义头像，暂用占位符） -->
+    <section>
+        <h2 class="section-title">// 团队成员</h2>
+        <div class="team-content">
+            <div class="team-member">
+                <img src="https://randomuser.me/api/portraits/men/31.jpg" alt="member">
+                <strong>刘欣然</strong>
+                <p>深度学习工程师，专攻神经网络与生成模型。</p>
+            </div>
+            <div class="team-member">
+                <img src="https://randomuser.me/api/portraits/women/24.jpg" alt="member">
+                <strong>张晨</strong>
+                <p>数据可视化工程师，将复杂数据变成直观故事。</p>
+            </div>
+            <div class="team-member">
+                <img src="https://randomuser.me/api/portraits/men/78.jpg" alt="member">
+                <strong>王一帆</strong>
+                <p>后端开发，负责高并发接口与边缘计算架构。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section: 联系我们 -->
+    <section>
+        <h2 class="section-title">// 联系我们</h2>
+        <div class="contact-content">
+            <p>
+                感兴趣加入、合作或交流，请邮件联系：
+                <a href="mailto:neuralcore.lab@example.com">neuralcore.lab@example.com</a>
+                <br>
+                或关注我们的
+                <a href="https://github.com/Xiezao1225/xiezao1225.github.io" target="_blank">GitHub主页</a>。
+            </p>
+        </div>
+    </section>
+
+    <footer>
+        © 2026 NEURAL CORE 未来实验室 | Powered by GitHub Pages
+    </footer>
 
     <script>
         window.addEventListener('load', () => {
             const progress = document.getElementById('progress');
             const statusText = document.getElementById('status-text');
             let width = 0;
-
-            // 模拟加载进度
             const interval = setInterval(() => {
                 if (width >= 100) {
                     clearInterval(interval);
                     statusText.innerText = "SYSTEM READY. ENTERING...";
-                    
-                    // 延迟一小会儿执行离场动画
                     setTimeout(() => {
                         document.body.classList.add('loaded');
-                        document.body.style.overflowY = 'auto'; // 恢复滚动
+                        document.body.style.overflowY = 'auto';
                     }, 500);
                 } else {
                     width += Math.random() * 15;
                     if (width > 100) width = 100;
                     progress.style.width = width + '%';
-                    
-                    // 随机改变文字增加真实感
                     const messages = ["CONNECTING NODES...", "DECRYPTING ASSETS...", "SYNCING CORE..."];
                     if(width > 40 && width < 45) statusText.innerText = messages[0];
                     if(width > 70 && width < 75) statusText.innerText = messages[1];
@@ -178,6 +293,5 @@
             }, 150);
         });
     </script>
-
 </body>
 </html>
