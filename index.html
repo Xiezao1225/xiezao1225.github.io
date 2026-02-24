@@ -3,238 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>未来实验室 | 核心团队</title>
+    <title>NEURAL CORE | 未来实验室</title>
     <style>
         :root {
-            --bg-color: #050507;
-            --card-bg: rgba(255, 255, 255, 0.03);
-            --accent-color: #00f2ff; /* 科技蓝 */
+            --bg-color: #020205;
+            --accent-blue: #00f2ff;
             --accent-purple: #7000ff;
-            --text-main: #e0e0e0;
-            --text-dim: #888;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(0, 242, 255, 0.2);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            overflow-x: hidden;
+            color: #fff;
+            font-family: 'Inter', 'Orbitron', sans-serif;
+            line-height: 1.6;
+            scroll-behavior: smooth;
         }
 
-        /* 科技感网格背景 */
-        body::before {
-            content: "";
+        /* 动态背景：流动线条 */
+        .bg-lines {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-image: 
-                linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                linear-gradient(90deg, var(--bg-color) 21px, transparent 1%) center,
+                linear-gradient(var(--bg-color) 21px, transparent 1%) center, #111;
+            background-size: 22px 22px;
+            opacity: 0.15;
             z-index: -1;
         }
 
-        /* 英雄视觉区 */
+        /* 1. Hero Section */
         header {
-            height: 60vh;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            background: radial-gradient(circle at center, rgba(112, 0, 255, 0.15) 0%, transparent 60%);
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 10vw, 6rem);
+            font-weight: 900;
+            background: linear-gradient(to right, #fff, var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 10px;
+        }
+
+        /* 2. Data Dashboard (新增加) */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            max-width: 1200px;
+            margin: -100px auto 100px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            padding: 40px;
+            border-radius: 20px;
+        }
+
+        .stat-item h2 { color: var(--accent-blue); font-size: 2.5rem; }
+        .stat-item p { font-size: 0.8rem; color: #888; text-transform: uppercase; }
+
+        /* 3. Team Section */
+        .section-title {
             text-align: center;
-            background: radial-gradient(circle at center, rgba(0, 242, 255, 0.1) 0%, transparent 70%);
-        }
-
-        .glitch-title {
-            font-size: 4rem;
-            font-weight: 800;
-            letter-spacing: 5px;
-            text-transform: uppercase;
+            margin-bottom: 80px;
+            font-size: 2.5rem;
             position: relative;
-            animation: glow 2s infinite alternate;
         }
 
-        @keyframes glow {
-            from { text-shadow: 0 0 10px rgba(0,242,255,0.5); }
-            to { text-shadow: 0 0 25px rgba(0,242,255,0.8), 0 0 40px rgba(112,0,255,0.5); }
+        .section-title::after {
+            content: "";
+            display: block;
+            width: 50px;
+            height: 2px;
+            background: var(--accent-blue);
+            margin: 20px auto;
         }
 
-        .subtitle {
-            color: var(--accent-color);
-            font-family: 'Courier New', monospace;
-            margin-top: 10px;
-        }
-
-        /* 团队网格布局 */
         .container {
             max-width: 1200px;
-            margin: -50px auto 100px;
-            padding: 0 20px;
+            margin: 0 auto 150px;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 30px;
+            padding: 0 20px;
         }
 
-        /* 成员卡片设计 */
         .member-card {
-            background: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            padding: 40px 30px;
+            border-radius: 4px; /* 硬核几何感 */
+            transition: 0.4s;
             position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .member-card:hover {
-            transform: translateY(-15px);
-            border-color: var(--accent-color);
-            box-shadow: 0 10px 30px rgba(0, 242, 255, 0.2);
-        }
-
-        .member-card::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 4px;
-            background: linear-gradient(90deg, var(--accent-color), var(--accent-purple));
-            opacity: 0;
-            transition: 0.3s;
-        }
-
-        .member-card:hover::before {
-            opacity: 1;
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.1);
+            border-color: var(--accent-blue);
         }
 
         .avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            margin-bottom: 20px;
-            border: 2px solid var(--accent-color);
-            padding: 5px;
-            filter: grayscale(100%);
-            transition: 0.5s;
+            width: 100%;
+            aspect-ratio: 1;
+            background: #111;
+            margin-bottom: 25px;
+            clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%);
+            border: 1px solid var(--accent-blue);
         }
 
-        .member-card:hover .avatar {
-            filter: grayscale(0%);
-            transform: rotate(360deg);
+        /* 4. Timeline / Roadmap (新增加) */
+        .timeline {
+            max-width: 800px;
+            margin: 100px auto;
+            padding: 0 20px;
         }
 
-        .name {
-            font-size: 1.5rem;
-            margin-bottom: 8px;
-            letter-spacing: 1px;
+        .timeline-item {
+            padding-left: 30px;
+            border-left: 1px solid var(--accent-blue);
+            padding-bottom: 50px;
+            position: relative;
         }
 
-        .role {
-            color: var(--accent-color);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            margin-bottom: 15px;
-            display: block;
+        .timeline-item::before {
+            content: "";
+            position: absolute;
+            left: -6px; top: 0;
+            width: 11px; height: 11px;
+            background: var(--accent-blue);
+            box-shadow: 0 0 10px var(--accent-blue);
         }
 
-        .bio {
-            font-size: 0.85rem;
-            color: var(--text-dim);
-            line-height: 1.6;
-        }
-
-        .tech-tags {
-            margin-top: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .tag {
-            font-size: 0.7rem;
-            background: rgba(0, 242, 255, 0.1);
-            color: var(--accent-color);
-            padding: 4px 10px;
-            border-radius: 4px;
-            border: 1px solid rgba(0, 242, 255, 0.2);
-        }
-
-        /* 装饰性元素 */
-        .footer-line {
+        /* 5. CTA Footer */
+        footer {
+            padding: 100px 20px;
             text-align: center;
-            padding: 50px;
-            font-size: 0.8rem;
-            color: #333;
-            letter-spacing: 2px;
+            background: linear-gradient(to top, rgba(0, 242, 255, 0.05), transparent);
         }
 
+        .btn-connect {
+            padding: 15px 40px;
+            background: transparent;
+            border: 1px solid var(--accent-blue);
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        .btn-connect:hover {
+            background: var(--accent-blue);
+            color: #000;
+            box-shadow: 0 0 20px var(--accent-blue);
+        }
     </style>
 </head>
 <body>
 
+    <div class="bg-lines"></div>
+
     <header>
-        <h1 class="glitch-title">THE SQUAD</h1>
-        <p class="subtitle">> system.init("innovation_mode");</p>
-    </header>
-
-    <main class="container">
-        <div class="member-card">
-            <img src="https://via.placeholder.com/150/00f2ff/ffffff?text=CEO" alt="CEO" class="avatar">
-            <span class="role">Founding Partner</span>
-            <h3 class="name">Aiden Pierce</h3>
-            <p class="bio">15年网络安全经验，致力于构建下一代去中心化安全协议。</p>
-            <div class="tech-tags">
-                <span class="tag">CyberSec</span>
-                <span class="tag">Blockchain</span>
-            </div>
-        </div>
-
-        <div class="member-card">
-            <img src="https://via.placeholder.com/150/7000ff/ffffff?text=AI" alt="AI Specialist" class="avatar">
-            <span class="role">Chief AI Architect</span>
-            <h3 class="name">Dr. Elena</h3>
-            <p class="bio">斯坦福计算机博士，主攻神经网络架构优化与多模态模型。</p>
-            <div class="tech-tags">
-                <span class="tag">PyTorch</span>
-                <span class="tag">NLP</span>
-                <span class="tag">CUDA</span>
-            </div>
-        </div>
-
-        <div class="member-card">
-            <img src="https://via.placeholder.com/150/00ffaa/ffffff?text=DEV" alt="Lead Dev" class="avatar">
-            <span class="role">Fullstack Engineer</span>
-            <h3 class="name">Marco Rossi</h3>
-            <p class="bio">开源社区活跃贡献者，追求极致的代码性能与交互体验。</p>
-            <div class="tech-tags">
-                <span class="tag">Rust</span>
-                <span class="tag">WebAssembly</span>
-            </div>
-        </div>
-
-        <div class="member-card">
-            <img src="https://via.placeholder.com/150/ff0070/ffffff?text=UI" alt="Designer" class="avatar">
-            <span class="role">Visual Director</span>
-            <h3 class="name">Luna Chen</h3>
-            <p class="bio">将美学与逻辑融合，专注于数字孪生界面的视觉语言定义。</p>
-            <div class="tech-tags">
-                <span class="tag">UI/UX</span>
-                <span class="tag">Three.js</span>
-            </div>
-        </div>
-    </main>
-
-    <div class="footer-line">
-        © 2026 FUTURE LABS. ALL SYSTEMS OPERATIONAL.
-    </div>
-
-</body>
-</html>
+        <p style="letter-spacing: 5px; color: var(--accent-blue); margin-bottom: 20px;">ESTABLISHED 2026</p>
