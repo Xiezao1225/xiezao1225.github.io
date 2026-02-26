@@ -6,247 +6,234 @@
     <title>个人简介 | SHEN_REN Industry</title>
     <style>
         :root {
-            --bg-color: #020205;
+            --bg-color: #05050a;
             --accent-blue: #00f2ff;
             --accent-purple: #7000ff;
+            --text-main: #e0faff;
+            --text-dim: #8892b0;
             --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(0, 242, 255, 0.2);
+            --border: rgba(0, 242, 255, 0.15);
+            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
         }
 
+        /* 基础样式优化 */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background-color: var(--bg-color);
-            color: #fff;
-            font-family: 'Segoe UI', sans-serif;
+            color: var(--text-main);
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
             overflow-x: hidden;
         }
 
+        /* 加载动画保持并优化 */
         #loader {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: #000;
             z-index: 9999;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            transition: transform 0.8s cubic-bezier(0.85, 0, 0.15, 1);
+            transition: opacity 0.8s ease, visibility 0.8s;
         }
+        .loaded #loader { opacity: 0; visibility: hidden; }
 
-        .loader-content { text-align: left; width: 300px; }
+        .loader-content { width: 280px; }
         .loading-text {
-            font-family: monospace;
+            font-family: 'Courier New', monospace;
             color: var(--accent-blue);
-            font-size: 0.8rem;
-            margin-bottom: 10px;
-            letter-spacing: 2px;
+            font-size: 0.75rem;
+            margin-bottom: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
         }
         .progress-container {
-            width: 100%;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.1);
+            width: 100%; height: 2px;
+            background: rgba(255, 255, 255, 0.05);
             position: relative;
-            overflow: hidden;
         }
         .progress-bar {
             position: absolute;
-            left: 0; top: 0; height: 100%;
-            width: 0%;
+            height: 100%; width: 0%;
             background: var(--accent-blue);
-            box-shadow: 0 0 15px var(--accent-blue);
-            transition: width 0.4s ease;
-        }
-        .loader-info {
-            margin-top: 15px;
-            font-family: monospace;
-            color: #444;
-            font-size: 0.7rem;
-        }
-        .loaded #loader {
-            transform: translateY(-100%);
+            box-shadow: 0 0 20px var(--accent-blue);
+            transition: width 0.3s ease;
         }
 
+        /* 背景网格 - 更加隐约 */
         .bg-lines {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-image: linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 60px 60px;
             z-index: -1;
+            mask-image: radial-gradient(circle at center, black, transparent 80%);
         }
+
+        /* Header 优化 */
         header {
             height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 1s ease 0.8s;
+            text-align: center;
+            padding: 0 20px;
         }
-        .loaded header {
-            opacity: 1;
-            transform: translateY(0);
+        .hero-tag {
+            color: var(--accent-blue);
+            letter-spacing: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            animation: fadeIn 1s ease forwards;
         }
         .hero-title {
-            font-size: clamp(3rem, 10vw, 6rem);
-            font-weight: 900;
-            background: linear-gradient(to right, #fff, var(--accent-blue));
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 30%, var(--accent-blue));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: 10px;
+            letter-spacing: -1px;
         }
-        .section-title { text-align: center; margin: 100px 0 50px; color: var(--accent-blue); letter-spacing: 5px;}
-        /* 新增样式部分 */
+
+        /* 容器布局 */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 24px 100px;
+        }
+
         section {
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto 80px auto;
-            padding: 20px 24px;
             background: var(--glass);
-            border-radius: 18px;
+            backdrop-filter: blur(10px);
             border: 1px solid var(--border);
-            box-shadow: 0 6px 32px 0 rgba(0,255,255,0.03);
+            border-radius: 24px;
+            padding: 60px;
+            margin-top: -100px; /* 向上提一点 */
+            box-shadow: var(--card-shadow);
         }
-        .profile-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 40px;
-        }
+
+        /* Profile 头部排版 */
         .profile-header {
-            text-align: center;
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 40px;
+            align-items: center;
+            margin-bottom: 60px;
         }
         .profile-avatar {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            border: 3px solid var(--accent-blue);
-            margin-bottom: 20px;
-            box-shadow: 0 0 30px rgba(0, 242, 255, 0.3);
+            width: 180px; height: 180px;
+            border-radius: 40px; /* 换成圆角矩形更有工业感 */
+            border: 1px solid var(--accent-blue);
+            object-fit: cover;
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.15);
         }
         .profile-name {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: var(--accent-blue);
-            margin-bottom: 10px;
+            font-size: 3rem;
+            color: #fff;
+            margin-bottom: 8px;
         }
         .profile-tagline {
-            font-size: 1.2rem;
-            color: #a1eaff;
-            margin-bottom: 20px;
+            color: var(--accent-blue);
+            font-size: 1.1rem;
+            margin-bottom: 24px;
         }
+
+        /* Stats 样式优化 */
         .profile-stats {
             display: flex;
-            gap: 40px;
-            margin-top: 20px;
+            gap: 30px;
         }
         .stat-item {
-            text-align: center;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 10px 20px;
+            border-radius: 12px;
+            border-left: 3px solid var(--accent-purple);
         }
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--accent-blue);
-        }
-        .stat-label {
-            font-size: 0.9rem;
-            color: #796aff;
-        }
-        .profile-details {
-            width: 100%;
-        }
-        .detail-section {
-            margin-bottom: 40px;
-        }
+        .stat-value { font-weight: 700; font-size: 1.1rem; color: #fff; }
+        .stat-label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; }
+
+        /* 内容板块 */
+        .detail-section { margin-bottom: 50px; }
         .detail-title {
-            font-size: 1.5rem;
-            font-weight: bold;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
             color: var(--accent-blue);
             margin-bottom: 20px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
-        }
-        .detail-content {
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: #d6faff;
-        }
-        .strengths-weaknesses {
             display: flex;
-            gap: 40px;
-            margin-top: 20px;
+            align-items: center;
         }
-        .strengths, .weaknesses {
+        .detail-title::after {
+            content: "";
             flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--border), transparent);
+            margin-left: 20px;
         }
-        .strengths h4, .weaknesses h4 {
-            color: var(--accent-blue);
-            margin-bottom: 15px;
+        .detail-content p { margin-bottom: 1.5rem; color: #b0c4de; font-size: 1.05rem; }
+
+        /* 优缺点卡片化 */
+        .grid-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
         }
-        .strengths ul, .weaknesses ul {
-            list-style-type: none;
-            padding-left: 0;
+        .feature-card {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .strengths li, .weaknesses li {
-            margin-bottom: 10px;
-            padding-left: 20px;
-            position: relative;
+        .feature-card h4 { margin-bottom: 16px; font-size: 1rem; display: flex; align-items: center; }
+        .feature-card ul { list-style: none; }
+        .feature-card li { 
+            font-size: 0.95rem; 
+            margin-bottom: 12px; 
+            padding-left: 24px; 
+            position: relative; 
+            color: var(--text-dim);
         }
-        .strengths li:before {
-            content: "✓";
-            color: #00ff88;
-            position: absolute;
-            left: 0;
-        }
-        .weaknesses li:before {
-            content: "✗";
-            color: #ff4444;
-            position: absolute;
-            left: 0;
-        }
-        .personality-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 20px;
-        }
+        .strengths li::before { content: "→"; position: absolute; left: 0; color: var(--accent-blue); }
+        .weaknesses li::before { content: "×"; position: absolute; left: 0; color: #ff4444; }
+
+        /* 标签 */
+        .personality-tags { display: flex; flex-wrap: wrap; gap: 10px; }
         .tag {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: 0.3s;
         }
-        .tag.positive {
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            color: #00ff88;
-        }
-        .tag.negative {
-            background: rgba(255, 68, 68, 0.1);
-            border: 1px solid rgba(255, 68, 68, 0.3);
-            color: #ff4444;
-        }
+        .tag:hover { border-color: var(--accent-blue); background: rgba(0, 242, 255, 0.05); }
+
         footer {
             text-align: center;
-            margin: 30px 0 20px 0;
-            color: #796aff;
-            font-size: 1rem;
-            opacity:.7;
-            letter-spacing: 1.5px;
+            padding: 40px;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            letter-spacing: 1px;
         }
-        @media (max-width: 650px) {
-            section, .profile-content, .detail-content {
-                padding: 8px;
-                font-size: 0.98rem;
-            }
-            .strengths-weaknesses {
-                flex-direction: column;
-                gap: 20px;
-            }
-            .profile-stats {
-                flex-direction: column;
-                gap: 20px;
-            }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            section { padding: 30px 20px; margin-top: -50px; }
+            .profile-header { grid-template-columns: 1fr; text-align: center; gap: 20px; }
+            .profile-avatar { margin: 0 auto; width: 140px; height: 140px; }
+            .profile-stats { justify-content: center; flex-wrap: wrap; }
+            .grid-box { grid-template-columns: 1fr; }
+            .hero-title { font-size: 3rem; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -254,13 +241,9 @@
 
     <div id="loader">
         <div class="loader-content">
-            <div class="loading-text" id="status-text">LOADING PROFILE...</div>
+            <div class="loading-text" id="status-text">INITIALIZING...</div>
             <div class="progress-container">
                 <div class="progress-bar" id="progress"></div>
-            </div>
-            <div class="loader-info">
-                PROFILE_ID: xiezao <br>
-                INITIALIZING PERSONAL DATA...
             </div>
         </div>
     </div>
@@ -268,94 +251,87 @@
     <div class="bg-lines"></div>
 
     <header>
-        <p style="letter-spacing: 5px; color: var(--accent-blue); margin-bottom: 20px;">PERSONAL PROFILE</p>
+        <p class="hero-tag">Identity Document</p>
         <h1 class="hero-title">个人简介</h1>
-        <p style="color: #666; margin-top: 20px;">深入了解我的性格与特点</p>
+        <p style="color: var(--text-dim); margin-top: 15px; letter-spacing: 2px;">SHEN_REN INDUSTRY DATA TERMINAL</p>
     </header>
 
-    <!-- Section: 个人简介 -->
-    <section>
-        <div class="profile-content">
+    <div class="container">
+        <section>
             <div class="profile-header">
-                <img src="potato/xiezao.jpg" alt="个人头像" class="profile-avatar">
-                <h2 class="profile-name">xiezao</h2>
-                <p class="profile-tagline">群聊活跃分子 | 技术探索者 | 创意达人</p>
-                <div class="profile-stats">
-                    <div class="stat-item">
-                        <div class="stat-value">活跃</div>
-                        <div class="stat-label">群聊贡献</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">探索</div>
-                        <div class="stat-label">技术精神</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">创意</div>
-                        <div class="stat-label">表达能力</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="profile-details">
-                <div class="detail-section">
-                    <h3 class="detail-title">// 个人概述</h3>
-                    <div class="detail-content">
-                        <p>我是一个性格鲜明、充满活力的群聊参与者，善于制造轻松愉快的氛围，同时对技术探索充满热情。我的行为模式展现出强烈的表达欲和创造力，喜欢尝试新鲜事物并解决问题。</p>
-                        <p>在社交互动中，我倾向于直接表达自己的情感和想法，虽然有时显得情绪化，但也因此显得真实和直率。我享受通过网络用语、表情包和创意内容与他人互动，是群体中的活跃分子。</p>
-                    </div>
-                </div>
-                
-                <div class="detail-section">
-                    <h3 class="detail-title">// 优势与缺点</h3>
-                    <div class="strengths-weaknesses">
-                        <div class="strengths">
-                            <h4>优势</h4>
-                            <ul>
-                                <li>活跃气氛，富有幽默感</li>
-                                <li>行动力强，乐于尝试与解决问题</li>
-                                <li>表达欲旺盛，情感外放</li>
-                                <li>具备一定的创造与模仿能力</li>
-                            </ul>
+                <img src="potato/xiezao.jpg" alt="Avatar" class="profile-avatar">
+                <div class="profile-info">
+                    <h2 class="profile-name">xiezao</h2>
+                    <p class="profile-tagline">群聊活跃分子 // 技术探索者 // 创意达人</p>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Communication</div>
+                            <div class="stat-value">高度活跃</div>
                         </div>
-                        <div class="weaknesses">
-                            <h4>缺点</h4>
-                            <ul>
-                                <li>情绪波动大，表达易极端化</li>
-                                <li>言行略显自我中心，忽视边界感</li>
-                                <li>注意力分散，发言碎片化且缺乏深度</li>
-                                <li>存在挑衅与轻微破坏性倾向</li>
-                            </ul>
+                        <div class="stat-item">
+                            <div class="stat-label">Creativity</div>
+                            <div class="stat-value">思维跳跃</div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="detail-section">
-                    <h3 class="detail-title">// 性格标签</h3>
-                    <div class="personality-tags">
-                        <span class="tag positive">活跃搞怪</span>
-                        <span class="tag positive">动手尝试</span>
-                        <span class="tag positive">直率外放</span>
-                        <span class="tag positive">富有玩心</span>
-                        <span class="tag negative">情绪化</span>
-                        <span class="tag negative">自我中心</span>
-                        <span class="tag negative">浮躁跳跃</span>
-                        <span class="tag negative">边界感模糊</span>
-                    </div>
+            </div>
+
+            <div class="detail-section">
+                <h3 class="detail-title">OVERVIEW 概述</h3>
+                <div class="detail-content">
+                    <p>我是一个性格鲜明、充满活力的群聊参与者，善于制造轻松愉快的氛围。我的行为模式展现出强烈的表达欲和创造力，喜欢在数字丛林中尝试新鲜事物并解决问题。</p>
+                    <p>在社交互动中，我倾向于直率表达。虽然有时显得情绪化，但也因此显得真实。我享受通过梗文化与创意内容与他人互动，是群体中不可或缺的润滑剂。</p>
                 </div>
-                
-                <div class="detail-section">
-                    <h3 class="detail-title">// 综合评价</h3>
-                    <div class="detail-content">
-                        <p>综合来看，我在群聊中扮演了一个高度活跃、善于制造话题但同时也可能带来干扰的角色。我的性格充满矛盾：既有幽默创造的一面，也有情绪不稳、行为随性的一面。</p>
-                        <p>在社交中，我能够快速吸引注意、活跃气氛，但也可能因不顾及他人感受和规则边界而引发摩擦。我的行为模式更像是在寻求即时反馈和关注，享受于技术探索和梗文化带来的即时乐趣，而非进行深入、稳定的社交互动。</p>
+            </div>
+
+            <div class="detail-section">
+                <h3 class="detail-title">SWOT ANALYSIS 分析</h3>
+                <div class="grid-box">
+                    <div class="feature-card strengths">
+                        <h4>优势 STRENGTHS</h4>
+                        <ul>
+                            <li>活跃气氛，富有天然幽默感</li>
+                            <li>行动力极强，乐于解决复杂问题</li>
+                            <li>表达欲旺盛，沟通无隔阂</li>
+                            <li>具备出色的模仿与二次创作能力</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card weaknesses">
+                        <h4>缺点 WEAKNESSES</h4>
+                        <ul>
+                            <li>情绪波动大，表达易极端化</li>
+                            <li>言行略显自我中心，边界感弱</li>
+                            <li>注意力分散，发言碎片化</li>
+                            <li>存在潜在的挑衅与破坏性倾向</li>
+                        </ul>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+
+            <div class="detail-section">
+                <h3 class="detail-title">CORE TAGS 核心标签</h3>
+                <div class="personality-tags">
+                    <span class="tag"># 活跃搞怪</span>
+                    <span class="tag"># 动手尝试</span>
+                    <span class="tag"># 直率外放</span>
+                    <span class="tag"># 富有玩心</span>
+                    <span class="tag" style="color:#ff4444"># 情绪化</span>
+                    <span class="tag" style="color:#ff4444"># 边界感模糊</span>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <h3 class="detail-title">EVALUATION 综合评价</h3>
+                <div class="detail-content">
+                    <p>综合来看，我在群体中扮演了一个高度活跃、善于制造话题的角色。性格中充满矛盾与美感：既有幽默创造的一面，也有随性不羁的一面。</p>
+                    <p>这种特质使我能快速吸引注意，但也可能带来摩擦。我的行为模式更倾向于寻求<strong>即时反馈</strong>，在技术探索和文化碰撞中获得乐趣，而非追求平庸的稳定。</p>
+                </div>
+            </div>
+        </section>
+    </div>
 
     <footer>
-        © 2026 SHEN_REN Industry 神人工业 | Powered by GitHub Pages
+        © 2026 SHEN_REN INDUSTRY 神人工业 | <span style="color: var(--accent-blue);">STAY CURIOUS.</span>
     </footer>
 
     <script>
@@ -366,20 +342,18 @@
             const interval = setInterval(() => {
                 if (width >= 100) {
                     clearInterval(interval);
-                    statusText.innerText = "PROFILE LOADED. ACCESS GRANTED.";
+                    statusText.innerText = "ACCESS GRANTED";
                     setTimeout(() => {
                         document.body.classList.add('loaded');
-                        document.body.style.overflowY = 'auto';
-                    }, 500);
+                    }, 400);
                 } else {
-                    width += Math.random() * 15;
+                    width += Math.random() * 20;
                     if (width > 100) width = 100;
                     progress.style.width = width + '%';
-                    const messages = ["SCANNING PERSONAL DATA...", "ANALYZING PERSONALITY...", "GENERATING PROFILE..."];
-                    if(width > 40 && width < 45) statusText.innerText = messages[0];
-                    if(width > 70 && width < 75) statusText.innerText = messages[1];
+                    if(width > 40) statusText.innerText = "ANALYZING CORE...";
+                    if(width > 80) statusText.innerText = "SYNCING DATA...";
                 }
-            }, 150);
+            }, 100);
         });
     </script>
 </body>
