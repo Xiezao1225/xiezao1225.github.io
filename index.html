@@ -22,17 +22,10 @@
             overflow-x: hidden;
             overflow-y: hidden; 
         }
-        /* 加载动画 */
-        #loader {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: transform 0.8s cubic-bezier(0.85, 0, 0.15, 1);
+        #auth-overlay {
+            position:fixed;top:0;left:0;right:0;bottom:0;
+            background:rgba(15,20,35,0.96);z-index:99999;
+            display:flex;flex-direction:column;justify-content:center;align-items:center;
         }
         .loader-content { text-align: left; width: 300px; }
         .loading-text {
@@ -66,7 +59,6 @@
         .loaded #loader {
             transform: translateY(-100%);
         }
-        /* 背景装饰 */
         .bg-lines {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -115,7 +107,6 @@
             letter-spacing: 5px;
             font-size: 1.5rem;
         }
-        /* 通缉令特化样式 */
         .wanted-section {
             border: 1px solid var(--border-red);
             background: rgba(255, 0, 60, 0.02);
@@ -166,7 +157,6 @@
             letter-spacing: 2px;
             animation: blink 1s infinite;
         }
-        /* 列表与成员样式 */
         .architect-list, .team-content {
             display: flex;
             gap: 20px;
@@ -195,7 +185,6 @@
             color: #555;
             font-size: 0.9rem;
         }
-        /* 动画 */
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes glitch {
             0% { transform: translate(0); }
@@ -209,16 +198,10 @@
             .wanted-container { flex-direction: column; text-align: center; }
             .hero-title { letter-spacing: 4px; }
         }
-        /* 认证遮罩样式 */
-        #auth-overlay {
-            position:fixed;top:0;left:0;right:0;bottom:0;
-            background:rgba(15,20,35,0.96);z-index:99999;
-            display:flex;flex-direction:column;justify-content:center;align-items:center;
-        }
     </style>
 </head>
 <body>
-<!-- 认证页面遮罩部分，放在body最开始 -->
+<!-- 认证页面遮罩, body最顶部 -->
 <div id="auth-overlay">
     <div style="
         background:rgba(40,50,80,0.9);border-radius:18px;padding:32px 24px;box-shadow:0 2px 32px #00f2ff2b;
@@ -242,6 +225,7 @@
         <div id="auth-error" style="color:#ff003c;margin-top:16px;font-size:0.95rem;display:none;">口令错误，请重试。</div>
     </div>
 </div>
+
     <div id="loader">
         <div class="loader-content">
             <div class="loading-text" id="status-text">INITIALIZING SHEN_REN...</div>
@@ -359,12 +343,13 @@
             const pw = document.getElementById('auth-password').value;
             if (pw === PASSWORD) {
                 document.getElementById('auth-overlay').style.display = 'none';
-                document.body.style.overflowY = 'hidden'; // 让加载动画正常显示
+                // 认证通过后隐藏遮罩，但加载动画未结束前页面依然禁止滚动
+                document.body.style.overflowY = 'hidden'; // 保证loader动画独占滚动
             } else {
                 document.getElementById('auth-error').style.display = 'block';
             }
         }
-        // 初始只允许滚动认证区域
+        // 初始禁止页面滚动
         document.body.style.overflow = 'hidden';
 
         window.addEventListener('load', () => {
@@ -377,7 +362,7 @@
                     statusText.innerText = "SYSTEM READY. ENTERING...";
                     setTimeout(() => {
                         document.body.classList.add('loaded');
-                        document.body.style.overflowY = 'auto';
+                        document.body.style.overflowY = 'auto'; // loader动画结束后恢复滚动
                     }, 500);
                 } else {
                     width += Math.random() * 15;
