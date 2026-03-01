@@ -22,11 +22,6 @@
             overflow-x: hidden;
             overflow-y: hidden; 
         }
-        #auth-overlay {
-            position:fixed;top:0;left:0;right:0;bottom:0;
-            background:rgba(15,20,35,0.96);z-index:99999;
-            display:flex;flex-direction:column;justify-content:center;align-items:center;
-        }
         .loader-content { text-align: left; width: 300px; }
         .loading-text {
             font-family: monospace;
@@ -201,30 +196,6 @@
     </style>
 </head>
 <body>
-<!-- 认证页面遮罩, body最顶部 -->
-<div id="auth-overlay">
-    <div style="
-        background:rgba(40,50,80,0.9);border-radius:18px;padding:32px 24px;box-shadow:0 2px 32px #00f2ff2b;
-        text-align:center;min-width:270px;">
-        <h2 style="color:#00f2ff;letter-spacing:3px;">身份验证</h2>
-        <p style="color:#aaa;font-size:1rem;">请输入访问口令</p>
-        <input id="auth-password" type="password" style="
-            margin:18px 0;
-            padding:8px 12px;
-            border-radius:4px;
-            border:1px solid #00f2ff;
-            outline:none;
-            font-size:1rem;"
-            placeholder="口令" onkeydown="if(event.key==='Enter'){authCheck();}">
-        <br>
-        <button onclick="authCheck()" style="
-            background:#00f2ff;color:#fff;padding:8px 22px;
-            border-radius:5px;
-            border:none;font-size:1rem;
-            cursor:pointer;letter-spacing:2px;">进入</button>
-        <div id="auth-error" style="color:#ff003c;margin-top:16px;font-size:0.95rem;display:none;">口令错误，请重试。</div>
-    </div>
-</div>
 
     <div id="loader">
         <div class="loader-content">
