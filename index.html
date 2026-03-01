@@ -337,21 +337,6 @@
     </footer>
 
     <script>
-        // 简单认证（口令: shenren2026）
-        const PASSWORD = 'shenren2026';
-        function authCheck() {
-            const pw = document.getElementById('auth-password').value;
-            if (pw === PASSWORD) {
-                document.getElementById('auth-overlay').style.display = 'none';
-                // 认证通过后隐藏遮罩，但加载动画未结束前页面依然禁止滚动
-                document.body.style.overflowY = 'hidden'; // 保证loader动画独占滚动
-            } else {
-                document.getElementById('auth-error').style.display = 'block';
-            }
-        }
-        // 初始禁止页面滚动
-        document.body.style.overflow = 'hidden';
-
         window.addEventListener('load', () => {
             const progress = document.getElementById('progress');
             const statusText = document.getElementById('status-text');
