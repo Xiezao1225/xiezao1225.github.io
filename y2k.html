@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHEN_REN Industry | 神人工业</title>
+    <!-- 千禧年科技感/赛博字体（Orbitron） -->
+    <link href="https://fonts.googleapis.com/css?family=Orbitron:700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #edfeff 0%, #e1dbfb 40%, #f7e2fc 100%);
+            --glass: rgba(255,255,255, 0.42);
+            --glass-dark: rgba(230,236,255, 0.62);
+            --accent-blue: #54d1ff;
+            --accent-pink: #ffa8fb;
+            --accent-cyan: #4effec;
+            --accent-purple: #b98fff;
+            --accent-green: #98ffd1;
+            --metal: #bebfcf;
+            --metal-dark: #acadc6;
+            --border: rgba(130, 163, 206, 0.19);
+            --shadow: 0 8px 40px 0 rgba(185,175,247,0.24);
+            --main-title: 'Orbitron', 'Segoe UI', Arial, sans-serif;
+        }
+        /* BODY & BACKGROUND */
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg-gradient), url("https://www.transparenttextures.com/patterns/cubes.png");
+            min-height: 100vh;
+            font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;
+            color: #24264c;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+        /* BG TECH LINES */
+        .bg-lines {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
+            pointer-events:none;
+            background-image:
+                repeating-linear-gradient(125deg,rgba(174,225,255,0.11) 0 2px, transparent 2px 48px),
+                repeating-linear-gradient(45deg,rgba(155,212,254,0.08) 0 2px, transparent 2px 60px);
+            opacity: 0.95;
+        }
+        /* LOADER */
+        #loader {
+            position: fixed; inset: 0; z-index: 9999;
+            background: linear-gradient(105deg, #eaf7ff 60%, #c6ffe5 100%);
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 1.03s cubic-bezier(.08,.88,.28,.88);
+            opacity: 1;
+        }
+        .loader-box {
+            background: var(--glass);
+            padding: 50px 56px 38px 56px;
+            border-radius: 28px;
+            border: 2.6px solid var(--metal-dark);
+            box-shadow: 0 0 46px #b9f6ff, 0 0 140px #dadafd60, 0 0 3px 2px #fff inset;
+            min-width: 330px;
+            text-align: center;
+            position: relative;
+        }
+        .logo-anim {
+            font-family: var(--main-title);
+            font-size: 2.8rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            /* 彩虹动态渐变+发光 */
+            background: linear-gradient(90deg, #9dffe6, #75e1ff, #e7b3ff, #ffe1fb, #57eaff);
+            background-size: 200%;
+            animation: rainbowGlow 4s linear infinite;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: 16px;
+            margin-bottom: 16px;
+            text-shadow: 0 0 40px var(--accent-blue), 0 0 8px #fff, 0 0 2px var(--accent-purple);
+        }
+        @keyframes rainbowGlow {
+            0% {background-position:0 50%;}
+            100% {background-position:100% 50%;}
+        }
+        .loading-text {
+            font-family: var(--main-title), monospace;
+            color: var(--accent-blue);
+            font-size: 1.1rem;
+            letter-spacing: 7px;
+            margin-bottom: 16px;
+            text-shadow: 0 0 6px var(--accent-blue);
+            animation: typingEffect 1.6s steps(32) infinite alternate;
+        }
+        @keyframes typingEffect {
+            0% { letter-spacing: 3px; }
+            100% { letter-spacing: 14px; color: var(--accent-pink);}
+        }
+        .progress-container {
+            width: 88%; height: 8px;
+            background: #e8ecfb;
+            border-radius: 6px;
+            margin: 15px auto 0 auto;
+            overflow: hidden;
+            box-shadow: 0 1.5px 6px #cffcff13;
+        }
+        .progress-bar {
+            height: 100%;
+            border-radius: 6px;
+            background: linear-gradient(90deg,var(--accent-blue),var(--accent-pink),var(--accent-green));
+            box-shadow: 0 0 13px #fff, 0 0 8px var(--accent-blue);
+            transition: width 0.5s cubic-bezier(.4,.7,.7,1.1);
+        }
+        .loader-info {
+            margin-top: 17px;
+            font-family: monospace;
+            color: #6ba8c5;
+            font-size: 0.92rem;
+            letter-spacing: 1.5px;
+        }
+        .system-ready {
+            margin-top: 21px;
+            animation: blinkReady 1.05s infinite;
+            color: var(--accent-cyan);
+            font-weight: bold;
+            font-family: var(--main-title), monospace;
+            font-size: 1.11rem;
+            letter-spacing: 7px;
+            display: none;
+        }
+        @keyframes blinkReady {
+            50% { opacity: 0.45; }
+        }
+        body.loaded {
+            overflow-y: auto;
+        }
+        .loaded #loader {
+            opacity: 0;
+            pointer-events: none;
+        }
+        /* HEADER */
+        header {
+            min-height: 100vh;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0;
+            transform: translateY(35px);
+            transition: all 1s cubic-bezier(.4,1.2,.3,1) 0.9s;
+        }
+        .loaded header { opacity: 1; transform: translateY(0);}
+        .hero-title {
+            font-size: clamp(2.5rem, 7vw, 5.2rem);
+            font-family: var(--main-title);
+            font-weight: bold;
+            letter-spacing: 20px;
+            background: linear-gradient(90deg,#fff,#86e7ff 28%,#ef99f9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 6px 24px #f8e5ff90);
+            text-align:center;
+            margin-bottom: 20px;
+        }
+        .access {
+            letter-spacing: 6px;
+            color: var(--accent-cyan);
+            background: linear-gradient(90deg,#fff,#a2fff5 60%,#ffbffc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.15rem;
+            margin-bottom: 16px;
+            text-shadow: 0px 0px 10px #fefeff;
+        }
+        /* SECTION/GLASS CARD */
+        section {
+            width: 100%;
+            max-width: 980px;
+            margin: 0 auto 62px auto;
+            padding: 38px 26px;
+            background: var(--glass);
+            border-radius: 18px;
+            border: 1.6px solid var(--border);
+            box-shadow: var(--shadow), 0 2px 22px #fff3 inset;
+            backdrop-filter: blur(13px);
+            position: relative;
+            overflow: visible;
+        }
+        .section-title {
+            text-align:center;
+            margin-bottom: 36px;
+            font-family: var(--main-title), Arial, sans-serif;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-pink));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-size: 1.7rem; letter-spacing: 12px;
+            text-shadow: 0 0 16px #ffe9ff8e;
+        }
+        /* SYSTEM ALERT/WANTED CARD */
+        .wanted-section {
+            border: 2.2px solid var(--accent-pink);
+            background: rgba(255, 228, 254, 0.14);
+            box-shadow: 0 0 34px rgba(255, 86, 255, 0.12);
+            margin-bottom: 36px;
+        }
+        .wanted-title {
+            color: var(--accent-pink) !important;
+            animation: y2kGlitch 2.5s infinite;
+            text-shadow: 0 0 15px #ffe7fa, 0 0 22px #ffb6fa83;
+        }
+        @keyframes y2kGlitch {
+            10% { transform: translateX(-2px);}
+            20% { transform: translateY(2px);}
+            40% { transform: translateX(1px);}
+            60% { transform: translateY(2px);}
+            80% { transform: translateX(-1px);}
+            90% { transform: translateY(-2px);}
+            100% { transform: none;}
+        }
+        .wanted-container {
+            display: flex; align-items: center; gap: 30px;
+            background: rgba(242, 209, 255, 0.12);
+            padding: 26px 18px;
+            border: 1.5px dashed var(--accent-pink);
+            border-radius: 14px;
+            position: relative;
+        }
+        .wanted-avatar {
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            border: 3.5px solid var(--accent-pink);
+            background: #e5f5ff;
+            padding: 5px;
+            box-shadow: 0 0 22px #f8dbff, 0 0 9px #ffe9ff;
+            flex-shrink: 0;
+            filter: grayscale(0.08) saturate(1.8);
+            position: relative;
+        }
+        .wanted-avatar:after {
+            content: '🟇';
+            position: absolute; left: 100%; top: 18px;
+            font-size: 30px; color: #ffeaff;
+            text-shadow: 0 0 8px #ffc6fc82, 0 0 6px #fff;
+            animation: iconStar 1.5s infinite alternate;
+        }
+        @keyframes iconStar {
+            50% { transform: scale(1.13) rotate(-20deg);}
+        }
+        .wanted-info h3 {
+            font-size: 2.2rem;
+            color: var(--accent-pink);
+            margin-bottom: 10px;
+            font-family: var(--main-title), monospace;
+        }
+        .wanted-info p {
+            color: #ea6ec5;
+            font-size: 1.1rem;
+            font-family: Orbitron, monospace;
+            line-height: 1.6;
+        }
+        .status-tag {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 5px 16px;
+            background: linear-gradient(90deg, var(--accent-pink) 10%, var(--accent-blue));
+            color: #fff;
+            border-radius: 12px;
+            font-weight: bold;
+            font-family: var(--main-title), monospace;
+            font-size: 0.96rem;
+            letter-spacing: 4px;
+            animation: blink 1.2s infinite alternate;
+            box-shadow: 0 0 17px #fff9, 0 0 9px var(--accent-pink);
+            border: 1.6px solid #fff;
+        }
+        @keyframes blink { 50% {opacity:.33;} }
+        /* OUR ARCHITECTS + TEAM */
+        .architect-list, .team-content {
+            display: flex;
+            gap: 21px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .architect-item, .team-member {
+            background: var(--glass-dark);
+            padding: 23px 18px;
+            min-width: 210px;
+            border-radius: 14px;
+            border: 1.4px solid var(--metal-dark);
+            text-align: center;
+            box-shadow: 0 0 12px #e9fafe55, 0 2px 18px #fff2 inset;
+            font-family: 'Orbitron', Arial, sans-serif;
+            transition: 0.19s;
+        }
+        .architect-item:hover, .team-member:hover {
+            border-color: var(--accent-blue); transform: scale(1.03) translateY(-5px);
+            box-shadow: 0 0 30px #b9ffe2, 0 2px 28px #fff5 inset;
+        }
+        .architect-item strong {
+            color: var(--accent-blue); font-size: 1.08rem;
+        }
+        /* TEAM MEMBER AVATAR */
+        .team-member img {
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-blue);
+            margin-bottom: 13px;
+            background: #f7f7ff;
+            box-shadow: 0 0 9px #d7feff;
+        }
+        /* BUTTON/Y2K LINK */
+        a, .btn {
+            display: inline-block;
+            padding: 10px 28px;
+            margin-top: 16px;
+            border-radius: 23px;
+            background: linear-gradient(90deg, #cef3ff 0%, #ffe1fc 100%);
+            border: 1.7px solid var(--accent-cyan);
+            color: #2053b9;
+            font-family: var(--main-title), sans-serif;
+            text-transform: uppercase;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-shadow: 0 0 2px #fff8;
+            box-shadow: 0 2px 14px #fffc, 0 0 20px #cef5ff8e;
+            cursor:pointer; text-decoration:none; transition: transform 0.16s, box-shadow 0.14s;
+            filter: saturate(1.13);
+        }
+        a:hover, .btn:hover {
+            background: linear-gradient(90deg,#c1fff4 0%,#f0bfff 100%);
+            color: #780bbb;
+            transform: translateY(-2.8px) scale(1.04);
+            box-shadow: 0 0 30px #eee6ff, 0 0 54px #fff3;
+        }
+        /* 联系方式邮件 */
+        .contact-mail {
+            color: var(--accent-blue)!important;
+            text-decoration: underline dotted;
+            font-weight: bold;
+            filter: brightness(1.14);
+        }
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 40px 0 54px 0;
+            color: #444d95;
+            font-size: 1.07rem;
+            background: linear-gradient(to right,#efecfe 0%,rgba(255,255,255,0.0) 60%);
+            letter-spacing: 2px;
+        }
+        footer span {
+            color: var(--accent-purple);
+            text-shadow: 0 0 9px #d5a9ff70;
+        }
+        /* 自适应 */
+        @media (max-width: 700px) {
+            header { min-height: 60vh;}
+            .wanted-container,.architect-list,.team-content { flex-direction: column;  gap:12px;}
+            .loader-box { min-width: 96vw; padding: 23px 6vw 19px 6vw;}
+            .hero-title { letter-spacing: 7px;}
+            section { padding: 23px 7px;}
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 启动动画 -->
+    <div id="loader">
+        <div class="loader-box">
+            <div class="logo-anim">神人工业</div>
+            <div class="loading-text" id="status-text">INITIALIZING SHEN_REN...</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress"></div>
+            </div>
+            <div class="loader-info">
+                NODE_ID: 0x9178 <br>
+                ESTABLISHING SECURE PROTOCOL...
+            </div>
+            <div id="system-ready" class="system-ready">SYSTEM READY! 欢迎进入神人工业</div>
+        </div>
+    </div>
+
+    <div class="bg-lines"></div>
+
+    <header>
+        <p class="access">ACCESS GRANTED</p>
+        <h1 class="hero-title">SHEN_REN Industry</h1>
+        <p style="color: #8c74c5; margin-top: 19px; font-family: monospace; font-size:1.15rem; letter-spacing:3.5px;">&lt; 这么强？！？ /&gt;</p>
+    </header>
+    
+    <section class="wanted-section">
+        <h2 class="section-title wanted-title">⚠️ SYSTEM ALERT: WANTED</h2>
+        <div class="wanted-container">
+            <img src="https://minotar.net/armor/bust/dj_yao/100.png" alt="dj_yao" class="wanted-avatar">
+            <div class="wanted-info">
+                <h3>dj_yao</h3>
+                <p><strong>罪名：</strong> <span style="color:#f435a6">搞。我的。善魂。</span></p>
+                <p><strong>悬赏：</strong><span style="color:#ad35b4">9,191,919,191,919,191,919,191 神人币 (SHEN_COIN) / 下界合金块 * 64盒</span></p>
+                <span class="status-tag">TARGET ACTIVE / 极度危险</span>
+            </div>
+        </div>
+    </section>
+    
+    <section class="wanted-section">
+        <h2 class="section-title wanted-title">⚠️ SYSTEM ALERT: WANTED</h2>
+        <div class="wanted-container">
+            <img src="https://minotar.net/armor/bust/MC_dogs/100.png" alt="MC_dogs" class="wanted-avatar">
+            <div class="wanted-info">
+                <h3>MC_dogs</h3>
+                <p><strong>罪名：</strong> 说我是给、试图在服务器内发动降维打击。</p>
+                <p><strong>悬赏：</strong>9,178,666 神人币 (SHEN_COIN) / 附魔金苹果 * 64</p>
+                <span class="status-tag">TARGET ACTIVE / 危险</span>
+            </div>
+        </div>
+    </section>
+    
+    <section>
+        <h2 class="section-title">// 关于神人</h2>
+        <div style="line-height: 1.82; color: #653a99; font-size: 1.15rem; font-family:Orbitron,sans-serif;">
+            <p>我们是 <span style="background:linear-gradient(to right,#3eeaf4,#e788ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:bold;font-size:1.3em;">SHEN_REN Industry</span>，专注于人工智能与创新科技的结合探索。</p>
+            <p>实验室汇聚前沿算法、深度学习、数据分析、创意设计等多领域人才，推动智能科技与现实应用的边界。</p>
+            <br>
+            <p><strong>愿景：</strong> 让未来的智能更可控、更开放、更有温度。</p>
+            <a href="#" class="btn">查看个人简介 →</a>
+        </div>
+    </section>
+
+    <section>
+        <h2 class="section-title">// OUR ARCHITECTS</h2>
+        <div class="architect-list">
+            <div class="architect-item">
+                <strong>YonmkoQWQ</strong><br>
+                <span style="font-size: 0.95rem; color:#6e37e8;">神人工业创始人😱😱😱</span>
+            </div>
+            <div class="architect-item">
+                <strong>Miky_BIW</strong><br>
+                <span style="font-size: 0.95rem; color:#0eacd4;">神人来了</span>
+            </div>
+            <div class="architect-item">
+                <strong>xiezao</strong><br>
+                <span style="font-size: 0.95rem; color:#2b8be9;">我去</span>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2 class="section-title">// 团队成员</h2>
+        <div class="team-content">
+            <div class="team-member">
+                <img src="https://randomuser.me/api/portraits/men/31.jpg" alt="member">
+                <strong style="display: block; color: var(--accent-blue);">刷石机</strong>
+                <p style="font-size: 0.92rem; color: #b33bd4;">负责 刷石</p>
+            </div>
+            <div class="team-member">
+                <img src="https://randomuser.me/api/portraits/women/24.jpg" alt="member">
+                <strong style="display: block; color: var(--accent-blue);">甘蔗机</strong>
+                <p style="font-size: 0.92rem; color: #24b8a2;">负责 甘蔗</p>
+            </div>
+            <div class="team-member">
+                <img src="https://randomuser.me/api/portraits/men/78.jpg" alt="member">
+                <strong style="display: block; color: var(--accent-blue);">刷铁机</strong>
+                <p style="font-size: 0.92rem; color: #358af8;">负责 刷铁</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2 class="section-title">// 联系我们</h2>
+        <div style="text-align: center;">
+            <p style="font-family: 'Orbitron',sans-serif; font-size:1.05em;">感兴趣加入、合作或交流，请邮件联系：</p>
+            <a href="mailto:neuralcore.lab@example.com" class="contact-mail">neuralcore.lab@example.com</a>
+            <p style="margin-top: 10px;">
+                或关注我们的 <a href="#" class="btn" style="margin:0 3px 0 3px;">GitHub 主页</a>
+            </p>
+        </div>
+    </section>
+
+    <footer>
+        © 2026 SHEN_REN Industry 神人工业 | <span>Protocol Alpha-9</span>
+    </footer>
+
+    <script>
+        window.addEventListener('load', () => {
+            const progress = document.getElementById('progress');
+            const statusText = document.getElementById('status-text');
+            const systemReady = document.getElementById('system-ready');
+            let width = 0;
+            const messages = [
+                "INITIALIZING SHEN_REN...",
+                "CONNECTING NODES...",
+                "DECRYPTING ASSETS...",
+                "SYNCING CORE...",
+                "SYSTEM READY!"
+            ];
+            let msgStep = 0;
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    statusText.style.display = "none";
+                    systemReady.style.display = "block";
+                    setTimeout(()=>{
+                        document.body.classList.add('loaded');
+                    }, 650);
+                } else {
+                    width += Math.random() * 12;
+                    if (width > 100) width = 100;
+                    progress.style.width = width + '%';
+
+                    // 随进度切换文字
+                    if(width > 10 && width < 35) statusText.innerText = messages[1];
+                    if(width > 40 && width < 65) statusText.innerText = messages[2];
+                    if(width > 70 && width < 95) statusText.innerText = messages[3];
+                    if(width >= 99) statusText.innerText = messages[4];
+                }
+            }, 130);
+        });
+    </script>
+</body>
+</html>
