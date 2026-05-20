@@ -354,6 +354,30 @@
             .hero-title { letter-spacing: 7px;}
             section { padding: 23px 7px;}
         }
+        .wanted-section.wanted-down {
+            position: relative;
+            overflow: hidden;
+        }
+        .wanted-section.wanted-down .wanted-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            pointer-events: all;
+        }
+        .wanted-section.wanted-down .wanted-down-text {
+            color: #ff2222;
+            font-size: 3.2rem;
+            font-weight: bold;
+            letter-spacing: 0.2em;
+            text-shadow: 0 2px 16px rgba(0,0,0,0.85);
+            font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;
+            user-select: none;
+        }
     </style>
 </head>
 <body>
@@ -395,7 +419,7 @@
         </div>
     </section>
     
-    <section class="wanted-section">
+    <section class="wanted-section wanted-down">
         <h2 class="section-title wanted-title">⚠️ SYSTEM ALERT: WANTED</h2>
         <div class="wanted-container">
             <img src="https://minotar.net/armor/bust/MC_dogs/100.png" alt="MC_dogs" class="wanted-avatar">
@@ -403,8 +427,11 @@
                 <h3>MC_dogs</h3>
                 <p><strong>罪名：</strong> 说我是给、试图在服务器内发动降维打击。</p>
                 <p><strong>悬赏：</strong>9,178,666 神人币 (SHEN_COIN) / 附魔金苹果 * 64</p>
-                <span class="status-tag">TARGET ACTIVE / 危险</span>
+                <span class="status-tag">TARGET DOWN / 毙掉了</span>
             </div>
+        </div>
+        <div class="wanted-overlay">
+            <span class="wanted-down-text">毙掉了</span>
         </div>
     </section>
     
