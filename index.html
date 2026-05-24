@@ -370,6 +370,52 @@
     <header>
         <p style="letter-spacing: 6px; color: var(--accent-blue); margin-bottom: 22px; font-weight: 300;">ACCESS GRANTED</p>
         <h1 class="hero-title">SHEN_REN Industry</h1>
+        <!-- 在 header 内部，hero-title 下方添加 -->
+        <div style="margin-top: 32px; display: flex; gap: 18px; flex-wrap: wrap; justify-content: center;">
+            <a href="profile.html" style="
+                display: inline-block;
+                padding: 14px 34px;
+                border: 1.5px solid var(--accent-blue);
+                color: var(--accent-blue);
+                text-decoration: none;
+                font-family: monospace;
+                letter-spacing: 4px;
+                font-size: 1rem;
+                transition: all 0.3s;
+                border-radius: 6px;
+                position: relative;
+                overflow: hidden;
+                background: rgba(0, 242, 255, 0.03);
+            " onmouseover="this.style.boxShadow='0 0 30px rgba(0,242,255,0.4)'; this.style.transform='translateY(-3px)'; this.style.background='rgba(0,242,255,0.1)';" 
+               onmouseout="this.style.boxShadow='none'; this.style.transform='translateY(0)'; this.style.background='rgba(0,242,255,0.03)';">
+                📁 进入人物档案
+            </a>
+            <a href="profile.html#wanted" style="
+                display: inline-block;
+                padding: 14px 34px;
+                border: 1.5px solid var(--accent-red);
+                color: var(--accent-red);
+                text-decoration: none;
+                font-family: monospace;
+                letter-spacing: 4px;
+                font-size: 1rem;
+                transition: all 0.3s;
+                border-radius: 6px;
+                background: rgba(255, 0, 60, 0.03);
+                animation: btnPulse 2s infinite;
+            " onmouseover="this.style.boxShadow='0 0 30px rgba(255,0,60,0.5)'; this.style.transform='translateY(-3px)';" 
+               onmouseout="this.style.boxShadow='none'; this.style.transform='translateY(0)';">
+                ⚠ 查看通缉令
+            </a>
+        </div>
+        
+        <!-- 按钮脉冲动画（放在原有 style 标签内） -->
+        <style>
+            @keyframes btnPulse {
+                0%, 100% { box-shadow: 0 0 8px rgba(255,0,60,0.3); }
+                50% { box-shadow: 0 0 24px rgba(255,0,60,0.7); }
+            }
+        </style>
         <p style="color: #6c7a8a; margin-top: 24px; font-family: monospace; font-size: 1.2rem;">&lt; 这么强？！？ /&gt;</p>
     </header>
     
