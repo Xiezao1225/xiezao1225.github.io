@@ -3,685 +3,919 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人简介 | SHEN_REN Industry</title>
+    <title>PERSONNEL FILE | 神人工业 · 人物档案</title>
     <style>
         :root {
             --bg-color: #020205;
             --accent-blue: #00f2ff;
             --accent-purple: #7000ff;
+            --accent-red: #ff003c;
+            --accent-green: #00ff88;
             --glass: rgba(255, 255, 255, 0.03);
             --border: rgba(0, 242, 255, 0.2);
+            --border-purple: rgba(112, 0, 255, 0.35);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             background-color: var(--bg-color);
-            color: #fff;
-            font-family: 'Segoe UI', sans-serif;
+            color: #d0e0f0;
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', monospace;
             overflow-x: hidden;
         }
 
-            --bg-color: #05050a;
-            --accent-blue: #00f2ff;
-            --accent-purple: #7000ff;
-            --text-main: #e0faff;
-            --text-dim: #8892b0;
-            --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(0, 242, 255, 0.15);
-            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
-        }
-
-        /* 基础样式优化 */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        /* 加载动画保持并优化 */
-        #loader {
+        /* 背景网格 */
+        .bg-lines {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: transform 0.8s cubic-bezier(0.85, 0, 0.15, 1);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 242, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 255, 0.04) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -2;
+            pointer-events: none;
         }
 
-        .loader-content { text-align: left; width: 300px; }
-        .loading-text {
-            font-family: monospace;
-            color: var(--accent-blue);
-            font-size: 0.8rem;
-            margin-bottom: 10px;
-            letter-spacing: 2px;
+        /* 粒子光点 */
+        .particle {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+            animation: floatUp linear infinite;
+            opacity: 0;
         }
-        .progress-container {
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* 顶部扫描线 */
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 2px;
-            background: rgba(255, 255, 255, 0.1);
+            background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+            z-index: 999;
+            pointer-events: none;
+            animation: scanDown 4s linear infinite;
+            opacity: 0.4;
+        }
+
+        @keyframes scanDown {
+            0% {
+                top: -2px;
+            }
+            100% {
+                top: 100vh;
+            }
+        }
+
+        /* 导航栏 */
+        header {
+            width: 100%;
+            padding: 18px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            background: rgba(2, 2, 5, 0.88);
+            backdrop-filter: blur(16px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 900;
+            font-size: 1.3rem;
+            letter-spacing: 5px;
+            color: var(--accent-blue);
+            text-shadow: 0 0 22px rgba(0, 242, 255, 0.5);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--accent-blue);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            background: rgba(0, 242, 255, 0.06);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.25);
+        }
+
+        nav {
+            display: flex;
+            gap: 26px;
+        }
+
+        nav a {
+            color: #8899aa;
+            text-decoration: none;
+            font-size: 0.85rem;
+            letter-spacing: 2.5px;
+            transition: all 0.3s;
+            font-family: monospace;
+            position: relative;
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: var(--accent-blue);
+            text-shadow: 0 0 10px var(--accent-blue);
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--accent-blue);
+            transition: width 0.3s;
+        }
+
+        nav a:hover::after,
+        nav a.active::after {
+            width: 100%;
+        }
+
+        /* 主内容 */
+        main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 50px 30px 80px;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            text-align: center;
+            margin-bottom: 55px;
+        }
+
+        .page-header .tag {
+            display: inline-block;
+            padding: 5px 16px;
+            border: 1px solid var(--accent-purple);
+            color: var(--accent-purple);
+            font-family: monospace;
+            letter-spacing: 4px;
+            font-size: 0.78rem;
+            margin-bottom: 16px;
+            animation: pulseTag 2s infinite;
+        }
+
+        @keyframes pulseTag {
+            0%,
+            100% {
+                box-shadow: 0 0 8px rgba(112, 0, 255, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 22px rgba(112, 0, 255, 0.7);
+            }
+        }
+
+        .page-header h1 {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 900;
+            letter-spacing: 8px;
+            background: linear-gradient(180deg, #fff 0%, var(--accent-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .page-header .subtitle {
+            color: #556;
+            font-family: monospace;
+            letter-spacing: 3px;
+            font-size: 0.9rem;
+        }
+
+        /* 筛选标签 */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 45px;
+        }
+
+        .filter-btn {
+            padding: 8px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: transparent;
+            color: #889;
+            font-family: monospace;
+            letter-spacing: 2px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 4px;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+            background: rgba(0, 242, 255, 0.06);
+            box-shadow: 0 0 16px rgba(0, 242, 255, 0.2);
+        }
+
+        /* 人物卡片网格 */
+        .personnel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            gap: 24px;
+        }
+
+        /* 人物卡片 */
+        .personnel-card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .personnel-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 18px 40px rgba(0, 242, 255, 0.15), 0 0 0 1px rgba(0, 242, 255, 0.2) inset;
+        }
+
+        .personnel-card.founder {
+            border-color: var(--border-purple);
+        }
+
+        .personnel-card.founder:hover {
+            border-color: var(--accent-purple);
+            box-shadow: 0 18px 40px rgba(112, 0, 255, 0.2);
+        }
+
+        .card-header {
+            padding: 28px 24px 16px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 12px;
+            border: 2px solid var(--accent-blue);
+            background: rgba(0, 242, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
             position: relative;
             overflow: hidden;
         }
-        .progress-bar {
-            position: absolute;
-            left: 0; top: 0; height: 100%;
-            width: 0%;
-            background: var(--accent-blue);
-            box-shadow: 0 0 15px var(--accent-blue);
-            transition: width 0.4s ease;
-        }
-        .loader-info {
-            margin-top: 15px;
-            font-family: monospace;
-            color: #444;
-            font-size: 0.7rem;
-        }
-        .loaded #loader {
-            transform: translateY(-100%);
-        }
 
-        .bg-lines {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
-            z-index: -1;
-        }
-            justify-content: center;
-            align-items: center;
-            transition: opacity 0.8s ease, visibility 0.8s;
-        }
-        .loaded #loader { opacity: 0; visibility: hidden; }
-
-        .loader-content { width: 280px; }
-        .loading-text {
-            font-family: 'Courier New', monospace;
-            color: var(--accent-blue);
-            font-size: 0.75rem;
-            margin-bottom: 12px;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-        }
-        .progress-container {
-            width: 100%; height: 2px;
-            background: rgba(255, 255, 255, 0.05);
-            position: relative;
-        }
-        .progress-bar {
-            position: absolute;
-            height: 100%; width: 0%;
-            background: var(--accent-blue);
-            box-shadow: 0 0 20px var(--accent-blue);
-            transition: width 0.3s ease;
-        }
-
-        /* 背景网格 - 更加隐约 */
-        .bg-lines {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: 
-                linear-gradient(var(--border) 1px, transparent 1px),
-                linear-gradient(90deg, var(--border) 1px, transparent 1px);
-            background-size: 60px 60px;
-            z-index: -1;
-            mask-image: radial-gradient(circle at center, black, transparent 80%);
-        }
-
-        /* Header 优化 */
-        header {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 1s ease 0.8s;
-        }
-        .loaded header {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .hero-title {
-            font-size: clamp(3rem, 10vw, 6rem);
-            font-weight: 900;
-            background: linear-gradient(to right, #fff, var(--accent-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 10px;
-        }
-        .section-title { text-align: center; margin: 100px 0 50px; color: var(--accent-blue); letter-spacing: 5px;}
-        /* 新增样式部分 */
-        section {
+        .avatar img {
             width: 100%;
-            max-width: 900px;
-            margin: 0 auto 80px auto;
-            padding: 20px 24px;
-            background: var(--glass);
-            border-radius: 18px;
-            border: 1px solid var(--border);
-            box-shadow: 0 6px 32px 0 rgba(0,255,255,0.03);
+            height: 100%;
+            object-fit: cover;
         }
-        .profile-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 40px;
-        }
-        .profile-header {
-            text-align: center;
-        }
-        .profile-avatar {
-            width: 200px;
-            height: 200px;
+
+        .avatar .status-dot {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
-            border: 3px solid var(--accent-blue);
-            margin-bottom: 20px;
-            box-shadow: 0 0 30px rgba(0, 242, 255, 0.3);
+            border: 2px solid var(--bg-color);
         }
-        .profile-name {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: var(--accent-blue);
-            margin-bottom: 10px;
+
+        .status-dot.online {
+            background: var(--accent-green);
+            box-shadow: 0 0 10px var(--accent-green);
         }
-        .profile-tagline {
+
+        .status-dot.offline {
+            background: #555;
+        }
+
+        .status-dot.busy {
+            background: var(--accent-red);
+            box-shadow: 0 0 10px var(--accent-red);
+        }
+
+        .card-header .info h3 {
             font-size: 1.2rem;
-            color: #a1eaff;
-            margin-bottom: 20px;
+            letter-spacing: 3px;
+            color: #fff;
+            margin-bottom: 4px;
         }
-        .profile-stats {
-            display: flex;
-            gap: 40px;
-            margin-top: 20px;
-        }
-        .stat-item {
-            text-align: center;
-        }
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
+
+        .card-header .info .codename {
+            font-family: monospace;
             color: var(--accent-blue);
+            font-size: 0.8rem;
+            letter-spacing: 2px;
         }
-        .stat-label {
-            font-size: 0.9rem;
-            color: #796aff;
+
+        .card-header .info .rank {
+            display: inline-block;
+            padding: 2px 10px;
+            border: 1px solid var(--accent-purple);
+            color: var(--accent-purple);
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            margin-top: 4px;
         }
-        .profile-details {
-            width: 100%;
+
+        .card-body {
+            padding: 0 24px 20px;
         }
-        .detail-section {
-            margin-bottom: 40px;
+
+        .card-body .bio {
+            color: #8899aa;
+            font-size: 0.88rem;
+            line-height: 1.7;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
         }
-        .detail-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--accent-blue);
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
-        }
-        .detail-content {
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: #d6faff;
-        }
-        .strengths-weaknesses {
-            display: flex;
-            gap: 40px;
-            margin-top: 20px;
-        }
-        .strengths, .weaknesses {
-            flex: 1;
-        }
-        .strengths h4, .weaknesses h4 {
-            color: var(--accent-blue);
-            margin-bottom: 15px;
-        }
-        .strengths ul, .weaknesses ul {
-            list-style-type: none;
-            padding-left: 0;
-        }
-        .strengths li, .weaknesses li {
-            margin-bottom: 10px;
-            padding-left: 20px;
-            position: relative;
-        }
-        .strengths li:before {
-            content: "✓";
-            color: #00ff88;
-            position: absolute;
-            left: 0;
-        }
-        .weaknesses li:before {
-            content: "✗";
-            color: #ff4444;
-            position: absolute;
-            left: 0;
-        }
-        .personality-tags {
+
+        .card-body .tags {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 8px;
         }
-        .tag {
-            padding: 8px 16px;
+
+        .card-body .tag-item {
+            padding: 4px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 20px;
-            font-size: 0.9rem;
+            font-size: 0.72rem;
+            letter-spacing: 1.5px;
+            color: #778;
+            transition: all 0.3s;
         }
-        .tag.positive {
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            color: #00ff88;
+
+        .card-body .tag-item:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
         }
-        .tag.negative {
-            background: rgba(255, 68, 68, 0.1);
-            border: 1px solid rgba(255, 68, 68, 0.3);
-            color: #ff4444;
-        }
-        footer {
-            text-align: center;
-            margin: 30px 0 20px 0;
-            color: #796aff;
-            font-size: 1rem;
-            opacity:.7;
+
+        .card-footer {
+            padding: 14px 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: monospace;
+            font-size: 0.72rem;
+            color: #556;
             letter-spacing: 1.5px;
         }
-        @media (max-width: 650px) {
-            section, .profile-content, .detail-content {
-                padding: 8px;
-                font-size: 0.98rem;
-            }
-            .strengths-weaknesses {
-                flex-direction: column;
-                gap: 20px;
-            }
-            .profile-stats {
-                flex-direction: column;
-                gap: 20px;
-            }
-            text-align: center;
-            padding: 0 20px;
-        }
-        .hero-tag {
-            color: var(--accent-blue);
-            letter-spacing: 8px;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-            text-transform: uppercase;
-            animation: fadeIn 1s ease forwards;
-        }
-        .hero-title {
-            font-size: clamp(2.5rem, 8vw, 5rem);
-            font-weight: 800;
-            background: linear-gradient(135deg, #fff 30%, var(--accent-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -1px;
+
+        .card-footer .clearance {
+            color: var(--accent-green);
         }
 
-        /* 容器布局 */
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 0 24px 100px;
+        .card-footer .clearance.restricted {
+            color: var(--accent-red);
         }
 
-        section {
-            background: var(--glass);
+        /* 悬停高亮光效 */
+        .personnel-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 242, 255, 0.03), transparent);
+            transition: left 0.6s;
+            pointer-events: none;
+        }
+
+        .personnel-card:hover::before {
+            left: 100%;
+        }
+
+        /* 详情弹窗 */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 2, 5, 0.9);
             backdrop-filter: blur(10px);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 60px;
-            margin-top: -100px; /* 向上提一点 */
-            box-shadow: var(--card-shadow);
-        }
-
-        /* Profile 头部排版 */
-        .profile-header {
-            display: grid;
-            grid-template-columns: 180px 1fr;
-            gap: 40px;
-            align-items: center;
-            margin-bottom: 60px;
-        }
-        .profile-avatar {
-            width: 180px; height: 180px;
-            border-radius: 40px; /* 换成圆角矩形更有工业感 */
-            border: 1px solid var(--accent-blue);
-            object-fit: cover;
-            box-shadow: 0 0 30px rgba(0, 242, 255, 0.15);
-        }
-        .profile-name {
-            font-size: 3rem;
-            color: #fff;
-            margin-bottom: 8px;
-        }
-        .profile-tagline {
-            color: var(--accent-blue);
-            font-size: 1.1rem;
-            margin-bottom: 24px;
-        }
-
-        /* Stats 样式优化 */
-        .profile-stats {
+            z-index: 1000;
             display: flex;
-            gap: 30px;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s;
         }
-        .stat-item {
-            background: rgba(255, 255, 255, 0.03);
-            padding: 10px 20px;
-            border-radius: 12px;
-            border-left: 3px solid var(--accent-purple);
-        }
-        .stat-value { font-weight: 700; font-size: 1.1rem; color: #fff; }
-        .stat-label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; }
 
-        /* 内容板块 */
-        .detail-section { margin-bottom: 50px; }
-        .detail-title {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            color: var(--accent-blue);
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background: rgba(10, 15, 25, 0.95);
+            border: 1px solid var(--accent-blue);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 550px;
+            width: 90%;
+            box-shadow: 0 0 60px rgba(0, 242, 255, 0.2);
+            position: relative;
+            animation: modalIn 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        @keyframes modalIn {
+            from {
+                transform: scale(0.9) translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+            box-shadow: 0 0 16px rgba(255, 0, 60, 0.4);
+        }
+
+        .modal-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 14px;
+            border: 2px solid var(--accent-blue);
             margin-bottom: 20px;
             display: flex;
             align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            background: rgba(0, 242, 255, 0.04);
         }
-        .detail-title::after {
-            content: "";
-            flex: 1;
-            height: 1px;
-            background: linear-gradient(90deg, var(--border), transparent);
-            margin-left: 20px;
-        }
-        .detail-content p { margin-bottom: 1.5rem; color: #b0c4de; font-size: 1.05rem; }
 
-        /* 优缺点卡片化 */
-        .grid-box {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
+        .modal h2 {
+            font-size: 1.8rem;
+            letter-spacing: 5px;
+            margin-bottom: 6px;
         }
-        .feature-card {
-            background: rgba(255, 255, 255, 0.02);
-            padding: 24px;
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .feature-card h4 { margin-bottom: 16px; font-size: 1rem; display: flex; align-items: center; }
-        .feature-card ul { list-style: none; }
-        .feature-card li { 
-            font-size: 0.95rem; 
-            margin-bottom: 12px; 
-            padding-left: 24px; 
-            position: relative; 
-            color: var(--text-dim);
-        }
-        .strengths li::before { content: "→"; position: absolute; left: 0; color: var(--accent-blue); }
-        .weaknesses li::before { content: "×"; position: absolute; left: 0; color: #ff4444; }
 
-        /* 标签 */
-        .personality-tags { display: flex; flex-wrap: wrap; gap: 10px; }
-        .tag {
-            padding: 6px 14px;
-            border-radius: 8px;
+        .modal .modal-codename {
+            color: var(--accent-blue);
+            font-family: monospace;
+            letter-spacing: 3px;
+            margin-bottom: 18px;
+            font-size: 0.9rem;
+        }
+
+        .modal .modal-bio {
+            color: #aab;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .modal .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-family: monospace;
             font-size: 0.8rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: 0.3s;
+            letter-spacing: 2px;
         }
-        .tag:hover { border-color: var(--accent-blue); background: rgba(0, 242, 255, 0.05); }
 
+        .stat-row .stat-label {
+            color: #667;
+        }
+
+        .stat-row .stat-value {
+            color: var(--accent-blue);
+        }
+
+        /* 页脚 */
         footer {
             text-align: center;
-            padding: 40px;
-            color: var(--text-dim);
+            padding: 30px 20px;
+            color: #444;
             font-size: 0.8rem;
-            letter-spacing: 1px;
+            letter-spacing: 2.5px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
         }
 
-        /* 移动端适配 */
+        footer span {
+            color: var(--accent-purple);
+        }
+
+        /* 响应式 */
         @media (max-width: 768px) {
-            section { padding: 30px 20px; margin-top: -50px; }
-            .profile-header { grid-template-columns: 1fr; text-align: center; gap: 20px; }
-            .profile-avatar { margin: 0 auto; width: 140px; height: 140px; }
-            .profile-stats { justify-content: center; flex-wrap: wrap; }
-            .grid-box { grid-template-columns: 1fr; }
-            .hero-title { font-size: 3rem; }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            header {
+                padding: 14px 18px;
+                flex-direction: column;
+                gap: 12px;
+            }
+            nav {
+                gap: 14px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            nav a {
+                font-size: 0.72rem;
+                letter-spacing: 1.5px;
+            }
+            .personnel-grid {
+                grid-template-columns: 1fr;
+            }
+            .modal {
+                padding: 24px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <div class="loader-content">
-            <div class="loading-text" id="status-text">LOADING PROFILE...</div>
-            <div class="progress-container">
-                <div class="progress-bar" id="progress"></div>
-            </div>
-            <div class="loader-info">
-                PROFILE_ID: xiezao <br>
-                INITIALIZING PERSONAL DATA...
-            </div>
-            <div class="loading-text" id="status-text">INITIALIZING...</div>
-            <div class="progress-container">
-                <div class="progress-bar" id="progress"></div>
-            </div>
-        </div>
-    </div>
-
+    <!-- 背景网格 -->
     <div class="bg-lines"></div>
 
+    <!-- 扫描线 -->
+    <div class="scanline"></div>
+
+    <!-- 导航栏 -->
     <header>
-        <p style="letter-spacing: 5px; color: var(--accent-blue); margin-bottom: 20px;">PERSONAL PROFILE</p>
-        <h1 class="hero-title">个人简介</h1>
-        <p style="color: #666; margin-top: 20px;">深入了解我的性格与特点</p>
+        <a href="index.html" class="logo">
+            <div class="logo-icon">⚡</div>
+            <span>SHEN_REN</span>
+        </a>
+        <nav>
+            <a href="index.html">// 主页</a>
+            <a href="profile.html" class="active">// 人物档案</a>
+            <a href="index.html#architects">// 架构师</a>
+            <a href="index.html#download">// 下载</a>
+            <a href="index.html#contact">// 联系</a>
+        </nav>
     </header>
 
-    <!-- Section: 个人简介 -->
-    <section>
-        <div class="profile-content">
-            <div class="profile-header">
-                <img src="potato/xiezao.jpg" alt="个人头像" class="profile-avatar">
-                <h2 class="profile-name">xiezao</h2>
-                <p class="profile-tagline">群聊活跃分子 | 技术探索者 | 创意达人</p>
-                <div class="profile-stats">
-                    <div class="stat-item">
-                        <div class="stat-value">活跃</div>
-                        <div class="stat-label">群聊贡献</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">探索</div>
-                        <div class="stat-label">技术精神</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">创意</div>
-                        <div class="stat-label">表达能力</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="profile-details">
-                <div class="detail-section">
-                    <h3 class="detail-title">// 个人概述</h3>
-                    <div class="detail-content">
-                        <p>我是一个性格鲜明、充满活力的群聊参与者，善于制造轻松愉快的氛围，同时对技术探索充满热情。我的行为模式展现出强烈的表达欲和创造力，喜欢尝试新鲜事物并解决问题。</p>
-                        <p>在社交互动中，我倾向于直接表达自己的情感和想法，虽然有时显得情绪化，但也因此显得真实和直率。我享受通过网络用语、表情包和创意内容与他人互动，是群体中的活跃分子。</p>
-                    </div>
-                </div>
-                
-                <div class="detail-section">
-                    <h3 class="detail-title">// 优势与缺点</h3>
-                    <div class="strengths-weaknesses">
-                        <div class="strengths">
-                            <h4>优势</h4>
-                            <ul>
-                                <li>活跃气氛，富有幽默感</li>
-                                <li>行动力强，乐于尝试与解决问题</li>
-                                <li>表达欲旺盛，情感外放</li>
-                                <li>具备一定的创造与模仿能力</li>
-                            </ul>
-                        </div>
-                        <div class="weaknesses">
-                            <h4>缺点</h4>
-                            <ul>
-                                <li>情绪波动大，表达易极端化</li>
-                                <li>言行略显自我中心，忽视边界感</li>
-                                <li>注意力分散，发言碎片化且缺乏深度</li>
-                                <li>存在挑衅与轻微破坏性倾向</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="detail-section">
-                    <h3 class="detail-title">// 性格标签</h3>
-                    <div class="personality-tags">
-                        <span class="tag positive">活跃搞怪</span>
-                        <span class="tag positive">动手尝试</span>
-                        <span class="tag positive">直率外放</span>
-                        <span class="tag positive">富有玩心</span>
-                        <span class="tag negative">情绪化</span>
-                        <span class="tag negative">自我中心</span>
-                        <span class="tag negative">浮躁跳跃</span>
-                        <span class="tag negative">边界感模糊</span>
-                    </div>
-                </div>
-                
-                <div class="detail-section">
-                    <h3 class="detail-title">// 综合评价</h3>
-                    <div class="detail-content">
-                        <p>综合来看，我在群聊中扮演了一个高度活跃、善于制造话题但同时也可能带来干扰的角色。我的性格充满矛盾：既有幽默创造的一面，也有情绪不稳、行为随性的一面。</p>
-                        <p>在社交中，我能够快速吸引注意、活跃气氛，但也可能因不顾及他人感受和规则边界而引发摩擦。我的行为模式更像是在寻求即时反馈和关注，享受于技术探索和梗文化带来的即时乐趣，而非进行深入、稳定的社交互动。</p>
-                    </div>
-                </div>
-            </div>
+    <!-- 主内容 -->
+    <main>
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div class="tag">📁 CLASSIFIED DOSSIER</div>
+            <h1>PERSONNEL FILE</h1>
+            <p class="subtitle">&gt; 神人工业 · 核心人物档案库</p>
         </div>
-    </section>
 
-    <footer>
-        © 2026 SHEN_REN Industry 神人工业 | Powered by GitHub Pages
-        <p class="hero-tag">Identity Document</p>
-        <h1 class="hero-title">个人简介</h1>
-        <p style="color: var(--text-dim); margin-top: 15px; letter-spacing: 2px;">SHEN_REN INDUSTRY DATA TERMINAL</p>
-    </header>
+        <!-- 筛选栏 -->
+        <div class="filter-bar">
+            <button class="filter-btn active" data-filter="all">全部</button>
+            <button class="filter-btn" data-filter="founder">创始人</button>
+            <button class="filter-btn" data-filter="architect">架构师</button>
+            <button class="filter-btn" data-filter="engineer">工程师</button>
+            <button class="filter-btn" data-filter="designer">设计师</button>
+            <button class="filter-btn" data-filter="wanted">⚠ 通缉中</button>
+        </div>
 
-    <div class="container">
-        <section>
-            <div class="profile-header">
-                <img src="potato/xiezao.jpg" alt="Avatar" class="profile-avatar">
-                <div class="profile-info">
-                    <h2 class="profile-name">xiezao</h2>
-                    <p class="profile-tagline">群聊活跃分子 // 技术探索者 // 创意达人</p>
-                    <div class="profile-stats">
-                        <div class="stat-item">
-                            <div class="stat-label">Communication</div>
-                            <div class="stat-value">高度活跃</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-label">Creativity</div>
-                            <div class="stat-value">思维跳跃</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <!-- 人物卡片网格 -->
+        <div class="personnel-grid" id="personnelGrid">
+            <!-- 卡片通过 JS 动态生成 -->
+        </div>
+    </main>
 
-            <div class="detail-section">
-                <h3 class="detail-title">OVERVIEW 概述</h3>
-                <div class="detail-content">
-                    <p>我是一个性格鲜明、充满活力的群聊参与者，善于制造轻松愉快的氛围。我的行为模式展现出强烈的表达欲和创造力，喜欢在数字丛林中尝试新鲜事物并解决问题。</p>
-                    <p>在社交互动中，我倾向于直率表达。虽然有时显得情绪化，但也因此显得真实。我享受通过梗文化与创意内容与他人互动，是群体中不可或缺的润滑剂。</p>
-                </div>
-            </div>
-
-            <div class="detail-section">
-                <h3 class="detail-title">SWOT ANALYSIS 分析</h3>
-                <div class="grid-box">
-                    <div class="feature-card strengths">
-                        <h4>优势 STRENGTHS</h4>
-                        <ul>
-                            <li>活跃气氛，富有天然幽默感</li>
-                            <li>行动力极强，乐于解决复杂问题</li>
-                            <li>表达欲旺盛，沟通无隔阂</li>
-                            <li>具备出色的模仿与二次创作能力</li>
-                        </ul>
-                    </div>
-                    <div class="feature-card weaknesses">
-                        <h4>缺点 WEAKNESSES</h4>
-                        <ul>
-                            <li>情绪波动大，表达易极端化</li>
-                            <li>言行略显自我中心，边界感弱</li>
-                            <li>注意力分散，发言碎片化</li>
-                            <li>存在潜在的挑衅与破坏性倾向</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <div class="detail-section">
-                <h3 class="detail-title">CORE TAGS 核心标签</h3>
-                <div class="personality-tags">
-                    <span class="tag"># 活跃搞怪</span>
-                    <span class="tag"># 动手尝试</span>
-                    <span class="tag"># 直率外放</span>
-                    <span class="tag"># 富有玩心</span>
-                    <span class="tag" style="color:#ff4444"># 情绪化</span>
-                    <span class="tag" style="color:#ff4444"># 边界感模糊</span>
-                </div>
-            </div>
-
-            <div class="detail-section">
-                <h3 class="detail-title">EVALUATION 综合评价</h3>
-                <div class="detail-content">
-                    <p>综合来看，我在群体中扮演了一个高度活跃、善于制造话题的角色。性格中充满矛盾与美感：既有幽默创造的一面，也有随性不羁的一面。</p>
-                    <p>这种特质使我能快速吸引注意，但也可能带来摩擦。我的行为模式更倾向于寻求<strong>即时反馈</strong>，在技术探索和文化碰撞中获得乐趣，而非追求平庸的稳定。</p>
-                </div>
-            </div>
-        </section>
+    <!-- 详情弹窗 -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modalContent"></div>
     </div>
 
+    <!-- 页脚 -->
     <footer>
-        © 2026 SHEN_REN INDUSTRY 神人工业 | <span style="color: var(--accent-blue);">STAY CURIOUS.</span>
+        © 2026 <span>SHEN_REN Industry</span> 神人工业 | Protocol Alpha-9 | CLASSIFIED LEVEL: OMEGA
     </footer>
 
     <script>
-        window.addEventListener('load', () => {
-            const progress = document.getElementById('progress');
-            const statusText = document.getElementById('status-text');
-            let width = 0;
-            const interval = setInterval(() => {
-                if (width >= 100) {
-                    clearInterval(interval);
-                    statusText.innerText = "PROFILE LOADED. ACCESS GRANTED.";
-                    setTimeout(() => {
-                        document.body.classList.add('loaded');
-                        document.body.style.overflowY = 'auto';
-                    }, 500);
-                } else {
-                    width += Math.random() * 15;
-                    if (width > 100) width = 100;
-                    progress.style.width = width + '%';
-                    const messages = ["SCANNING PERSONAL DATA...", "ANALYZING PERSONALITY...", "GENERATING PROFILE..."];
-                    if(width > 40 && width < 45) statusText.innerText = messages[0];
-                    if(width > 70 && width < 75) statusText.innerText = messages[1];
+        // ==================== 粒子背景 ====================
+        function createParticles() {
+            const count = 35;
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = (Math.random() * 10 + 8) + 's';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                particle.style.width = (Math.random() * 3 + 1) + 'px';
+                particle.style.height = particle.style.width;
+                if (Math.random() > 0.7) {
+                    particle.style.background = '#7000ff';
                 }
-            }, 150);
+                document.body.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // ==================== 人物数据 ====================
+        const personnelData = [{
+            id: 'yonmko',
+            name: 'YonmkoQWQ',
+            codename: 'FOUNDER_ALPHA',
+            rank: '创始人',
+            category: 'founder',
+            bio: '神人工业创始人兼首席架构师。拥有超乎常人的代码直觉和对未来科技的敏锐洞察力。在人工智能与系统架构领域拥有深厚造诣，致力于将神人工业打造为行业标杆。',
+            tags: ['AI架构', '系统设计', '战略规划', '全栈开发'],
+            clearance: 'OMEGA',
+            status: 'online',
+            avatar: '👑',
+            joinDate: '2023.01',
+            projects: '神人OS、NeuralCore、量子协议'
+        }, {
+            id: 'miky',
+            name: 'Miky_BIW',
+            codename: 'ARCHITECT_BETA',
+            rank: '联合创始人',
+            category: 'founder',
+            bio: '神人工业联合创始人。"神人来了"口号的提出者，负责团队运营与产品方向把控。擅长将复杂概念转化为可执行方案，是团队中的灵魂人物。',
+            tags: ['产品运营', '团队管理', '创意策划', '品牌战略'],
+            clearance: 'ALPHA',
+            status: 'online',
+            avatar: '⚡',
+            joinDate: '2023.02',
+            projects: '神人品牌体系、市场扩张计划'
+        }, {
+            id: 'xiezao',
+            name: 'xiezao',
+            codename: 'WILDCARD_GAMMA',
+            rank: '核心架构师',
+            category: 'architect',
+            bio: '神人工业核心成员。以"我去"闻名于团队内外，总是能在关键时刻带来意想不到的解决方案。专精于底层系统与高性能计算。',
+            tags: ['底层系统', '高性能计算', '安全协议', '逆向工程'],
+            clearance: 'ALPHA',
+            status: 'busy',
+            avatar: '🔥',
+            joinDate: '2023.05',
+            projects: '安全防火墙、加密通信协议'
+        }, {
+            id: 'shuashiji',
+            name: '刷石机',
+            codename: 'ENGINEER_DELTA',
+            rank: '高级工程师',
+            category: 'engineer',
+            bio: '神人工业资深工程师。负责核心模块开发与自动化流水线搭建。工作态度严谨，代码风格干净利落，是团队中不可或缺的技术支柱。',
+            tags: ['自动化', '模块开发', '流水线', '测试框架'],
+            clearance: 'BETA',
+            status: 'online',
+            avatar: '🪨',
+            joinDate: '2023.08',
+            projects: '自动构建系统、代码审查平台'
+        }, {
+            id: 'ganzheji',
+            name: '甘蔗机',
+            codename: 'DESIGNER_EPSILON',
+            rank: '首席设计师',
+            category: 'designer',
+            bio: '神人工业首席视觉设计师。将赛博朋克美学与实用主义完美融合，打造出神人工业标志性的视觉风格。对像素级的细节有着执着追求。',
+            tags: ['UI/UX', '视觉设计', '动效', '品牌视觉'],
+            clearance: 'BETA',
+            status: 'online',
+            avatar: '🎨',
+            joinDate: '2023.09',
+            projects: '神人UI库、品牌视觉规范'
+        }, {
+            id: 'shuatieji',
+            name: '刷铁机',
+            codename: 'ENGINEER_ZETA',
+            rank: '系统工程师',
+            category: 'engineer',
+            bio: '神人工业系统工程师。专注于服务器架构与基础设施维护。确保神人工业的所有服务稳定运行，是幕后默默付出的守护者。',
+            tags: ['服务器', '基础设施', '运维', '容器化'],
+            clearance: 'BETA',
+            status: 'offline',
+            avatar: '⚙️',
+            joinDate: '2023.11',
+            projects: '容器编排平台、监控告警系统'
+        }, {
+            id: 'dj_yao',
+            name: 'dj_yao',
+            codename: 'TARGET_ZERO',
+            rank: '⚠ 通缉目标',
+            category: 'wanted',
+            bio: '【系统警报】高危通缉目标。罪名：搞我的善魂。此人极度危险，悬赏金额已突破天际。任何提供有效线索者将获得巨额神人币奖励。',
+            tags: ['通缉', '极度危险', '善魂破坏者', '高额悬赏'],
+            clearance: 'RESTRICTED',
+            status: 'busy',
+            avatar: '💀',
+            joinDate: '未知',
+            projects: '悬赏: 9,191,919,191,919,191,919,191 神人币'
+        }, {
+            id: 'mc_dogs',
+            name: 'MC_dogs',
+            codename: 'TARGET_TERMINATED',
+            rank: '☠ 已击毙',
+            category: 'wanted',
+            bio: '【状态更新】目标已确认击毙。原罪名：说我是给、试图在服务器内发动降维打击。悬赏已撤销，案件归档。此档案仅供内部查阅。',
+            tags: ['已终结', '降维打击未遂', '案件归档'],
+            clearance: 'RESTRICTED',
+            status: 'offline',
+            avatar: '☠️',
+            joinDate: '已终止',
+            projects: '状态: TERMINATED · 悬赏已撤销'
+        }];
+
+        // ==================== 渲染卡片 ====================
+        const grid = document.getElementById('personnelGrid');
+
+        function renderCards(filter = 'all') {
+            grid.innerHTML = '';
+            const filtered = filter === 'all' ?
+                personnelData :
+                personnelData.filter(p => p.category === filter);
+
+            filtered.forEach(person => {
+                const card = document.createElement('div');
+                card.className = `personnel-card ${person.category === 'founder' ? 'founder' : ''} fade-in`;
+                card.setAttribute('data-category', person.category);
+                card.onclick = () => openModal(person);
+
+                const statusClass = person.status;
+                const clearanceClass = person.clearance === 'RESTRICTED' ? 'restricted' : '';
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="avatar">
+                            <span>${person.avatar}</span>
+                            <div class="status-dot ${statusClass}"></div>
+                        </div>
+                        <div class="info">
+                            <h3>${person.name}</h3>
+                            <div class="codename">${person.codename}</div>
+                            <div class="rank">${person.rank}</div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="bio">${person.bio}</p>
+                        <div class="tags">
+                            ${person.tags.map(t => `<span class="tag-item">${t}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <span>CLEARANCE: <span class="clearance ${clearanceClass}">${person.clearance}</span></span>
+                        <span>▶ 详情</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            // 触发渐入动画
+            requestAnimationFrame(() => {
+                document.querySelectorAll('.fade-in').forEach((el, i) => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                });
+            });
+        }
+
+        // ==================== 筛选功能 ====================
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove(
+                    'active'));
+                this.classList.add('active');
+                const filter = this.getAttribute('data-filter');
+                renderCards(filter);
+            });
         });
+
+        // ==================== 弹窗详情 ====================
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalContent = document.getElementById('modalContent');
+
+        function openModal(person) {
+            const statusMap = {
+                'online': '🟢 在线',
+                'offline': '⚫ 离线',
+                'busy': '🔴 忙碌'
+            };
+
+            modalContent.innerHTML = `
+                <button class="modal-close" onclick="closeModal()">✕</button>
+                <div class="modal-avatar">${person.avatar}</div>
+                <h2>${person.name}</h2>
+                <div class="modal-codename">代号: ${person.codename}</div>
+                <p class="modal-bio">${person.bio}</p>
+                <div class="stat-row">
+                    <span class="stat-label">职级</span>
+                    <span class="stat-value">${person.rank}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">状态</span>
+                    <span class="stat-value">${statusMap[person.status] || person.status}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">权限等级</span>
+                    <span class="stat-value" style="color: ${person.clearance === 'RESTRICTED' ? 'var(--accent-red)' : 'var(--accent-green)'}">${person.clearance}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">加入日期</span>
+                    <span class="stat-value">${person.joinDate}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">关联项目</span>
+                    <span class="stat-value">${person.projects}</span>
+                </div>
+                <div style="margin-top:20px; display:flex; flex-wrap:wrap; gap:8px;">
+                    ${person.tags.map(t => `<span class="tag-item">${t}</span>`).join('')}
+                </div>
+            `;
+            modalOverlay.classList.add('active');
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+        }
+
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === modalOverlay) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // ==================== 初始渲染 ====================
+        renderCards();
+
+        // 渐入动画样式补充
+        const style = document.createElement('style');
+        style.textContent = `
+            .fade-in {
+                opacity: 0;
+                transform: translateY(20px);
+                transition: opacity 0.6s ease, transform 0.6s ease;
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
