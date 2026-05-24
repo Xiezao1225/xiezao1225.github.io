@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>SHEN_REN Industry | 神人工业</title>
     <style>
         :root {
@@ -14,107 +14,126 @@
             --border: rgba(0, 242, 255, 0.2);
             --border-red: rgba(255, 0, 60, 0.3);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
         body {
             background-color: var(--bg-color);
             color: #fff;
-            font-family: 'Segoe UI', 'PingFang SC', sans-serif;
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
             overflow: hidden;
+            position: relative;
         }
-        /* Loader 启动动画样式 */
+        /* 启动动画覆盖层 */
         #loader {
             position: fixed;
             inset: 0;
-            background: linear-gradient(120deg, #020205 80%, #00f2ff 120%);
+            background: linear-gradient(135deg, #020205 80%, #0a1a2b 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            transition: opacity 0.7s;
+            transition: opacity 0.8s cubic-bezier(0.23, 1, 0.32, 1);
             opacity: 1;
-            backdrop-filter: blur(14px);
+            backdrop-filter: blur(16px);
+            pointer-events: auto;
         }
         .loader-box {
-            background: rgba(20,28,40,0.7);
+            background: rgba(8, 15, 26, 0.75);
+            backdrop-filter: blur(12px);
             padding: 48px 48px 36px 48px;
-            border-radius: 22px;
+            border-radius: 28px;
             border: 1.5px solid var(--accent-blue);
-            box-shadow: 0 0 40px var(--accent-blue), 0 0 60px #000 inset;
+            box-shadow: 0 0 50px rgba(0, 242, 255, 0.3), 0 0 70px #000 inset;
             text-align: center;
             min-width: 340px;
+            transition: all 0.3s ease;
         }
         .logo-anim {
-            font-size: 2.35rem;
+            font-size: 2.7rem;
             font-weight: 900;
             color: var(--accent-purple);
-            margin-bottom: 16px;
-            letter-spacing: 9px;
-            animation: logoRotate 1.3s infinite cubic-bezier(.4,.6,.5,1.1);
-            text-shadow: 0 0 40px var(--accent-blue);
+            margin-bottom: 18px;
+            letter-spacing: 10px;
+            animation: logoRotate 1.4s infinite cubic-bezier(.42,.0,.58,1);
+            text-shadow: 0 0 45px var(--accent-blue);
+            background: linear-gradient(180deg, #fff 0%, #a0f0ff 80%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         @keyframes logoRotate {
-            0%  { transform: rotate(-3deg); }
-            50% { transform: scale(1.11) rotate(6deg);}
-            100%{ transform: rotate(-3deg);}
+            0%  { transform: rotate(-2deg) scale(0.98); }
+            50% { transform: scale(1.13) rotate(5deg);}
+            100%{ transform: rotate(-2deg) scale(0.98);}
         }
         .loading-text {
-            font-family: monospace;
+            font-family: 'Courier New', monospace;
             color: var(--accent-blue);
-            font-size: 1.05rem;
-            letter-spacing: 2px;
-            margin-bottom: 11px;
-            animation: typingEffect 1.5s steps(32) infinite alternate;
+            font-size: 1.1rem;
+            letter-spacing: 2.5px;
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            animation: textPulse 1.2s infinite alternate;
         }
-        @keyframes typingEffect {
-            0% { letter-spacing: 2px; }
-            100% { letter-spacing: 9px; color: var(--accent-purple);}
+        @keyframes textPulse {
+            0% { letter-spacing: 2px; opacity: 0.9; }
+            100% { letter-spacing: 8px; color: var(--accent-purple); opacity: 1;}
         }
         .progress-container {
             width: 100%;
-            height: 3px;
-            background: rgba(255, 255, 255, 0.08);
-            position: relative;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 10px;
             overflow: hidden;
-            margin-top: 5px;
+            margin-top: 8px;
         }
         .progress-bar {
-            position: absolute;
-            left: 0; top: 0; height: 100%;
+            height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
-            box-shadow: 0 0 15px var(--accent-blue), 0 0 25px var(--accent-purple);
-            transition: width 0.4s cubic-bezier(.4,.7,.7,1.3);
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple), #ff66aa);
+            box-shadow: 0 0 18px var(--accent-blue), 0 0 30px var(--accent-purple);
+            border-radius: 10px;
+            transition: width 0.3s ease-out;
         }
         .loader-info {
-            margin-top: 21px;
+            margin-top: 22px;
             font-family: monospace;
-            color: #bcd7e2;
-            font-size: 0.82rem;
+            color: #b0d4e6;
+            font-size: 0.85rem;
             letter-spacing: 1px;
+            opacity: 0.85;
         }
         .system-ready {
-            margin-top: 19px;
-            animation: blinkReady 1s infinite;
+            margin-top: 20px;
+            animation: blinkReady 1.1s infinite;
             color: #00f2ff;
             font-weight: bold;
             font-family: monospace;
-            font-size: 1.1rem;
-            display:none;
+            font-size: 1.2rem;
+            display: none;
+            text-shadow: 0 0 12px var(--accent-blue);
         }
         @keyframes blinkReady {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.33; }
+            50% { opacity: 0.25; }
         }
+        /* 背景网格 */
         .bg-lines {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-image: linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(rgba(0, 242, 255, 0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 255, 0.06) 1px, transparent 1px);
+            background-size: 52px 52px;
             z-index: -1;
+            pointer-events: none;
         }
+        /* 加载完成后显示主体 */
         body.loaded {
             overflow-y: auto;
+            overflow-x: hidden;
         }
         .loaded #loader {
             opacity: 0;
@@ -127,136 +146,210 @@
             justify-content: center;
             align-items: center;
             opacity: 0;
-            transform: translateY(30px);
-            transition: all 1s ease 0.8s;
+            transform: translateY(35px);
+            transition: all 1s ease 0.7s;
         }
         .loaded header {
             opacity: 1;
             transform: translateY(0);
         }
         .hero-title {
-            font-size: clamp(2.5rem, 8vw, 6rem);
+            font-size: clamp(2.8rem, 9vw, 6.5rem);
             font-weight: 900;
-            background: linear-gradient(to right, #fff, var(--accent-blue));
+            background: linear-gradient(to right, #ffffff, #a0f0ff, var(--accent-blue));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: 10px;
+            letter-spacing: 11px;
             text-align: center;
+            line-height: 1.2;
+            filter: drop-shadow(0 0 20px rgba(0,242,255,0.4));
         }
         section {
             width: 100%;
-            max-width: 900px;
+            max-width: 920px;
             margin: 0 auto 80px auto;
-            padding: 40px 30px;
+            padding: 42px 32px;
             background: var(--glass);
-            border-radius: 18px;
+            border-radius: 20px;
             border: 1px solid var(--border);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
+            transition: transform 0.2s ease;
         }
         .section-title { 
             text-align: center; 
-            margin-bottom: 40px; 
+            margin-bottom: 42px; 
             color: var(--accent-blue); 
-            letter-spacing: 5px;
-            font-size: 1.5rem;
+            letter-spacing: 6px;
+            font-size: 1.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
         }
         .wanted-section {
             border: 1px solid var(--border-red);
-            background: rgba(255, 0, 60, 0.02);
-            box-shadow: 0 0 30px rgba(255, 0, 60, 0.1);
+            background: rgba(255, 0, 60, 0.03);
+            box-shadow: 0 0 35px rgba(255, 0, 60, 0.15);
         }
         .wanted-title {
             color: var(--accent-red) !important;
-            text-shadow: 0 0 10px rgba(255, 0, 60, 0.5);
-            animation: glitch 2s infinite;
+            text-shadow: 0 0 12px rgba(255, 0, 60, 0.6);
+            animation: glitchText 2.2s infinite;
+        }
+        @keyframes glitchText {
+            0% { transform: translate(0); }
+            20% { transform: translate(-1.5px, 1.5px); }
+            40% { transform: translate(1.5px, -1px); }
+            60% { transform: translate(-1px, -1.5px); }
+            80% { transform: translate(1.5px, 1px); }
+            100% { transform: translate(0); }
         }
         .wanted-container {
             display: flex;
             align-items: center;
-            gap: 30px;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 25px;
+            gap: 28px;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 28px;
             border: 1px dashed var(--accent-red);
-            border-radius: 12px;
+            border-radius: 14px;
+            flex-wrap: wrap;
         }
         .wanted-avatar {
             width: 120px;
             height: 120px;
             border: 2px solid var(--accent-red);
-            background: #111;
+            background: #0a0a0a;
             padding: 5px;
             flex-shrink: 0;
-            filter: grayscale(0.5) contrast(1.2);
+            filter: grayscale(0.4) contrast(1.2);
+            border-radius: 4px;
         }
         .wanted-info h3 {
-            font-size: 2.2rem;
+            font-size: 2.3rem;
             color: var(--accent-red);
-            margin-bottom: 10px;
-            font-family: monospace;
+            margin-bottom: 12px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
         }
         .wanted-info p {
-            color: #ffb3c1;
-            font-size: 0.95rem;
-            line-height: 1.6;
+            color: #ffccd5;
+            font-size: 0.98rem;
+            line-height: 1.7;
+            margin-bottom: 6px;
         }
         .status-tag {
             display: inline-block;
-            margin-top: 15px;
-            padding: 4px 12px;
+            margin-top: 16px;
+            padding: 6px 16px;
             background: var(--accent-red);
             color: #fff;
             font-weight: bold;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
+            letter-spacing: 2.5px;
+            border-radius: 4px;
+            animation: blink 1.2s infinite;
+            text-transform: uppercase;
+        }
+        /* 已击毙专用样式 */
+        .terminated-tag {
+            background: #2c2c2c !important;
+            color: #aaaaaa !important;
+            border: 1px solid #5a5a5a;
+            animation: none !important;
             letter-spacing: 2px;
-            animation: blink 1s infinite;
+            box-shadow: 0 0 8px rgba(255,255,255,0.1);
+        }
+        .terminated-avatar {
+            filter: grayscale(1) contrast(1.1) brightness(0.7) !important;
+            border-color: #5a5a5a !important;
+        }
+        .terminated-name {
+            color: #999 !important;
+            text-decoration: line-through;
+            text-decoration-color: var(--accent-red);
         }
         .architect-list, .team-content {
             display: flex;
-            gap: 20px;
+            gap: 22px;
             flex-wrap: wrap;
             justify-content: center;
         }
         .architect-item, .team-member {
-            background: rgba(15,20,35,0.4);
-            padding: 20px;
+            background: rgba(18, 24, 38, 0.55);
+            padding: 22px 18px;
             min-width: 200px;
-            border-radius: 14px;
+            border-radius: 16px;
             border: 1px solid var(--border);
             text-align: center;
-            transition: 0.3s;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(6px);
         }
-        .architect-item:hover { border-color: var(--accent-blue); transform: translateY(-5px); }
+        .architect-item:hover { 
+            border-color: var(--accent-blue); 
+            transform: translateY(-6px); 
+            box-shadow: 0 10px 20px rgba(0,242,255,0.2);
+        }
         .team-member img {
-            width: 60px; height: 60px;
+            width: 70px; 
+            height: 70px;
             border-radius: 50%;
             border: 2px solid var(--accent-blue);
-            margin-bottom: 15px;
+            margin-bottom: 16px;
+            object-fit: cover;
+            background: #111;
         }
         footer {
             text-align: center;
-            padding: 40px 0;
-            color: #555;
+            padding: 45px 20px 35px;
+            color: #5a5a6e;
             font-size: 0.9rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            margin-top: 30px;
         }
-        @keyframes blink { 50% { opacity: 0; } }
-        @keyframes glitch {
-            0% { transform: translate(0); }
-            20% { transform: translate(-2px, 2px); }
-            40% { transform: translate(-2px, -2px); }
-            60% { transform: translate(2px, 2px); }
-            80% { transform: translate(2px, -2px); }
-            100% { transform: translate(0); }
+        a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        a:hover {
+            text-shadow: 0 0 10px var(--accent-blue);
+        }
+        @keyframes blink { 
+            50% { opacity: 0.15; } 
         }
         @media (max-width: 650px) {
-            .wanted-container { flex-direction: column; text-align: center; }
-            .hero-title { letter-spacing: 4px; }
-            .loader-box { min-width: 200px; padding: 30px 10px 18px 10px;}
+            .wanted-container { 
+                flex-direction: column; 
+                text-align: center; 
+            }
+            .hero-title { 
+                letter-spacing: 5px; 
+            }
+            .loader-box { 
+                min-width: 260px; 
+                padding: 30px 18px 22px 18px;
+            }
+            .wanted-avatar {
+                width: 100px;
+                height: 100px;
+            }
         }
+            @keyframes deadPulse {
+                0% { opacity: 0.75; text-shadow: 0 0 25px #ff003c, 0 0 45px #aa0022; }
+                50% { opacity: 1; text-shadow: 0 0 50px #ff003c, 0 0 80px #ff2255; }
+                100% { opacity: 0.75; text-shadow: 0 0 25px #ff003c, 0 0 45px #aa0022; }
+            }
+            .terminated-avatar {
+                filter: grayscale(1) contrast(1.2) brightness(0.65) !important;
+                border-color: #5a5a5a !important;
+            }
+            .terminated-name {
+                text-decoration: line-through;
+                text-decoration-color: #ff003c;
+            }
     </style>
 </head>
 <body>
 
-    <!-- 启动动画，页面完全加载前覆盖全屏 -->
+    <!-- 启动动画 -->
     <div id="loader">
         <div class="loader-box">
             <div class="logo-anim">神人工业</div>
@@ -268,52 +361,80 @@
                 NODE_ID: 0x9178 <br>
                 ESTABLISHING SECURE PROTOCOL...
             </div>
-            <div id="system-ready" class="system-ready">SYSTEM READY! 欢迎进入神人工业</div>
+            <div id="system-ready" class="system-ready">⚡ SYSTEM READY! 欢迎进入神人工业</div>
         </div>
     </div>
 
     <div class="bg-lines"></div>
 
     <header>
-        <p style="letter-spacing: 5px; color: var(--accent-blue); margin-bottom: 20px;">ACCESS GRANTED</p>
+        <p style="letter-spacing: 6px; color: var(--accent-blue); margin-bottom: 22px; font-weight: 300;">ACCESS GRANTED</p>
         <h1 class="hero-title">SHEN_REN Industry</h1>
-        <p style="color: #666; margin-top: 20px; font-family: monospace;">&lt; 这么强？！？ /&gt;</p>
+        <p style="color: #6c7a8a; margin-top: 24px; font-family: monospace; font-size: 1.2rem;">&lt; 这么强？！？ /&gt;</p>
     </header>
     
+    <!-- dj_yao 通缉 (保持原样) -->
     <section class="wanted-section">
-        <h2 class="section-title wanted-title">⚠️ SYSTEM ALERT: WANTED</h2>
+        <h2 class="section-title wanted-title">🤷‍♂️ SYSTEM ALERT: FORGET IT</h2>
         <div class="wanted-container">
-            <img src="https://minotar.net/armor/bust/dj_yao/100.png" alt="MC_dogs" class="wanted-avatar">
+            <img src="https://minotar.net/armor/bust/dj_yao/100.png" alt="dj_yao" class="wanted-avatar">
             <div class="wanted-info">
                 <h3>dj_yao</h3>
-                <p><strong>罪名：</strong><h1><color="red">搞。我的。善魂。</color></h1></p>
-                <p><strong>悬赏：</strong>9,191,919,191,919,191,919,191 神人币 (SHEN_COIN) / 下界合金块 * 64盒</p>
+                <p><strong>原罪名：</strong><span style="color:#ff8888; font-weight:bold;">搞。我的。善魂。</span></p>
+                <p><strong>当前状态：</strong><span style="color:#cccccc; font-weight:bold; background:#2a2a2a; padding:2px 8px; border-radius:4px;">算了 (FORGET IT)</span></p>
+                <p><strong>悬赏状态：</strong> <span style="text-decoration: line-through; color:#777;">已撤销</span></p>
                 <span class="status-tag">TARGET ACTIVE / 极度危险</span>
             </div>
         </div>
     </section>
     
-    <section class="wanted-section">
-        <h2 class="section-title wanted-title">⚠️ SYSTEM ALERT: WANTED</h2>
-        <div class="wanted-container">
-            <img src="https://minotar.net/armor/bust/MC_dogs/100.png" alt="MC_dogs" class="wanted-avatar">
-            <div class="wanted-info">
-                <h3>MC_dogs</h3>
-                <p><strong>罪名：</strong>说我是给、试图在服务器内发动降维打击。</p>
-                <p><strong>悬赏：</strong>9,178,666 神人币 (SHEN_COIN) / 附魔金苹果 * 64</p>
-                <span class="status-tag">TARGET ACTIVE / 危险</span>
-            </div>
+<!-- MC_dogs 状态已修改为“已击毙” —— 替换原 section -->
+<section class="wanted-section" style="border-color: #5a5a6a; background: rgba(30,30,35,0.2); box-shadow: 0 0 30px rgba(255,0,60,0.2); position: relative; overflow: hidden;">
+    
+    <!-- 这个 div 就是红色的“毙掉了”水印/覆盖层 -->
+    <div style="
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-15deg);
+        font-size: clamp(3rem, 12vw, 7rem);
+        font-weight: 900;
+        color: rgba(255, 0, 60, 0.9);
+        text-shadow: 0 0 30px #ff003c, 0 0 60px #aa0022;
+        letter-spacing: 16px;
+        white-space: nowrap;
+        pointer-events: none;
+        z-index: 10;
+        font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        animation: deadPulse 1.8s infinite;
+        background: rgba(0,0,0,0.2);
+        padding: 0 30px;
+        border-radius: 8px;
+    ">毙掉了</div>
+
+    <!-- 原有的标题 -->
+    <h2 class="section-title wanted-title" style="color: #c0c0c0 !important; text-shadow: 0 0 8px #888; position: relative; z-index: 5;">⚠️ 目标状态更新 · KILLED</h2>
+    
+    <div class="wanted-container" style="border-color: #6a6a7a; background: rgba(20,20,28,0.55); position: relative; z-index: 5; backdrop-filter: blur(4px);">
+        <img src="https://minotar.net/armor/bust/MC_dogs/100.png" alt="MC_dogs" class="wanted-avatar terminated-avatar">
+        <div class="wanted-info">
+            <h3 class="terminated-name" style="color: #aaa !important;">MC_dogs</h3>
+            <p><strong>原罪名：</strong>说我是给、试图在服务器内发动降维打击。</p>
+            <p><strong>当前状态：</strong><span style="color:#ff8888; font-weight:bold; background:#2a0a0a; padding:2px 10px; border-radius:4px;">毙掉了 (KILLED)</span></p>
+            <p><strong>悬赏状态：</strong> <span style="text-decoration: line-through; color:#777;">已撤销</span> · 目标确认跑路</p>
+            <span class="status-tag terminated-tag" style="background: #3a3a3a; color: #ccc; border:1px solid #666;">⚰️ TARGET KILLED · 毙掉了</span>
         </div>
-    </section>
+    </div>
+</section>
     
     <section>
         <h2 class="section-title">// 关于神人</h2>
-        <div style="line-height: 1.8; color: #d6faff;">
+        <div style="line-height: 1.9; color: #d6faff; font-size: 1.05rem;">
             <p>我们是<span style="color:var(--accent-blue);font-weight:bold;">SHEN_REN Industry</span>，专注于人工智能与创新科技的结合探索。</p>
             <p>实验室汇聚前沿算法、深度学习、数据分析、创意设计等多领域人才，推动智能科技与现实应用的边界。</p>
             <br>
             <p><strong>愿景：</strong> 让未来的智能更可控、更开放、更有温度。</p>
-            <a href="#" style="color: var(--accent-blue); text-decoration: none; display: inline-block; margin-top: 15px;">查看个人简介 →</a>
+            <a href="#" style="color: var(--accent-blue); text-decoration: none; display: inline-block; margin-top: 18px; font-weight: 500;">查看个人简介 →</a>
         </div>
     </section>
 
@@ -321,15 +442,15 @@
         <h2 class="section-title">// OUR ARCHITECTS</h2>
         <div class="architect-list">
             <div class="architect-item">
-                <strong style="color: var(--accent-blue);">YonmkoQWQ</strong><br>
+                <strong style="color: var(--accent-blue); font-size: 1.2rem;">YonmkoQWQ</strong><br>
                 <span style="font-size: 0.9rem; opacity: 0.8;">神人工业创始人😱😱😱</span>
             </div>
             <div class="architect-item">
-                <strong style="color: var(--accent-blue);">Miky_BIW</strong><br>
+                <strong style="color: var(--accent-blue); font-size: 1.2rem;">Miky_BIW</strong><br>
                 <span style="font-size: 0.9rem; opacity: 0.8;">神人来了</span>
             </div>
             <div class="architect-item">
-                <strong style="color: var(--accent-blue);">xiezao</strong><br>
+                <strong style="color: var(--accent-blue); font-size: 1.2rem;">xiezao</strong><br>
                 <span style="font-size: 0.9rem; opacity: 0.8;">我去</span>
             </div>
         </div>
@@ -339,17 +460,17 @@
         <h2 class="section-title">// 团队成员</h2>
         <div class="team-content">
             <div class="team-member">
-                <img src="https://randomuser.me/api/portraits/men/31.jpg" alt="member">
+                <img src="https://randomuser.me/api/portraits/men/31.jpg" alt="刷石机">
                 <strong style="display: block; color: var(--accent-blue);">刷石机</strong>
                 <p style="font-size: 0.85rem; color: #888;">负责 刷石</p>
             </div>
             <div class="team-member">
-                <img src="https://randomuser.me/api/portraits/women/24.jpg" alt="member">
+                <img src="https://randomuser.me/api/portraits/women/24.jpg" alt="甘蔗机">
                 <strong style="display: block; color: var(--accent-blue);">甘蔗机</strong>
                 <p style="font-size: 0.85rem; color: #888;">负责 甘蔗</p>
             </div>
             <div class="team-member">
-                <img src="https://randomuser.me/api/portraits/men/78.jpg" alt="member">
+                <img src="https://randomuser.me/api/portraits/men/78.jpg" alt="刷铁机">
                 <strong style="display: block; color: var(--accent-blue);">刷铁机</strong>
                 <p style="font-size: 0.85rem; color: #888;">负责 刷铁</p>
             </div>
@@ -360,50 +481,51 @@
         <h2 class="section-title">// 联系我们</h2>
         <div style="text-align: center;">
             <p>感兴趣加入、合作或交流，请邮件联系：</p>
-            <a href="mailto:neuralcore.lab@example.com" style="color: var(--accent-blue);">neuralcore.lab@example.com</a>
-            <p style="margin-top: 10px;">或关注我们的 <a href="#" style="color: var(--accent-blue);">GitHub 主页</a></p>
+            <a href="mailto:neuralcore.lab@example.com" style="color: var(--accent-blue); font-weight: 500;">neuralcore.lab@example.com</a>
+            <p style="margin-top: 12px;">或关注我们的 <a href="#" style="color: var(--accent-blue);">GitHub 主页</a></p>
         </div>
     </section>
 
     <footer>
-        © 2026 SHEN_REN Industry 神人工业 | <span style="color: var(--accent-purple);">Protocol Alpha-9</span>
+        © 2026 SHEN_REN Industry 神人工业 | <span style="color: var(--accent-purple);">Protocol Alpha-9</span> | 状态更新: MC_dogs 已击毙
     </footer>
 
     <script>
-        window.addEventListener('load', () => {
-            const progress = document.getElementById('progress');
-            const statusText = document.getElementById('status-text');
-            const systemReady = document.getElementById('system-ready');
-            let width = 0;
-            const messages = [
-                "INITIALIZING SHEN_REN...",
-                "CONNECTING NODES...",
-                "DECRYPTING ASSETS...",
-                "SYNCING CORE...",
-                "SYSTEM READY!"
-            ];
-            let msgStep = 0;
-            const interval = setInterval(() => {
-                if (width >= 100) {
-                    clearInterval(interval);
-                    statusText.style.display = "none";
-                    systemReady.style.display = "block";
-                    setTimeout(()=>{
-                        document.body.classList.add('loaded');
-                    }, 600);
-                } else {
-                    width += Math.random() * 13;
-                    if (width > 100) width = 100;
-                    progress.style.width = width + '%';
+        (function() {
+            window.addEventListener('load', () => {
+                const progress = document.getElementById('progress');
+                const statusText = document.getElementById('status-text');
+                const systemReady = document.getElementById('system-ready');
+                let width = 0;
+                const messages = [
+                    "INITIALIZING SHEN_REN...",
+                    "CONNECTING NODES...",
+                    "DECRYPTING ASSETS...",
+                    "SYNCING CORE...",
+                    "SYSTEM READY!"
+                ];
+                
+                const interval = setInterval(() => {
+                    if (width >= 100) {
+                        clearInterval(interval);
+                        statusText.style.display = "none";
+                        systemReady.style.display = "block";
+                        setTimeout(() => {
+                            document.body.classList.add('loaded');
+                        }, 650);
+                    } else {
+                        width += Math.random() * 14;
+                        if (width > 100) width = 100;
+                        progress.style.width = width + '%';
 
-                    // 随进度切换文字
-                    if(width > 10 && width < 35) statusText.innerText = messages[1];
-                    if(width > 40 && width < 65) statusText.innerText = messages[2];
-                    if(width > 70 && width < 95) statusText.innerText = messages[3];
-                    if(width >= 99) statusText.innerText = messages[4];
-                }
-            }, 140);
-        });
+                        if (width > 12 && width < 38) statusText.innerText = messages[1];
+                        else if (width >= 42 && width < 68) statusText.innerText = messages[2];
+                        else if (width >= 72 && width < 94) statusText.innerText = messages[3];
+                        else if (width >= 98) statusText.innerText = messages[4];
+                    }
+                }, 145);
+            });
+        })();
     </script>
 </body>
 </html>
