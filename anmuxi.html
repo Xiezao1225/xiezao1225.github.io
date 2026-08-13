@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>安慕希 · 超燃旋转沉浸</title>
+<style>
+  :root {
+    --bg: #020205;
+    --blue: #00f2ff;
+    --purple: #7000ff;
+    --red: #ff003c;
+    --orange: #ff6b35;
+    --yellow: #ffd23f;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    color: #fff;
+    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    overflow: hidden;
+  }
+
+  /* ===== 背景 ===== */
+  .bg {
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 30%, rgba(255,107,53,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 70%, rgba(112,0,255,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(0,242,255,0.06) 0%, transparent 60%),
+      linear-gradient(180deg, #050510 0%, #0a0510 100%);
+    z-index: 0;
+  }
+  .bg::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,242,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,242,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridShift 20s linear infinite;
+  }
+  @keyframes gridShift {
+    0% { transform: translate(0,0); }
+    100% { transform: translate(60px,60px); }
+  }
+
+  /* ===== 粒子 canvas ===== */
+  #particles {
+    position: fixed; inset: 0; z-index: 1;
+    pointer-events: none;
+  }
+
+  /* ===== 主容器 ===== */
+  .stage {
+    position: relative; z-index: 2;
+    width: 100%; height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ===== 标题 ===== */
+  .title-wrap {
+    text-align: center;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .main-title {
+    font-size: clamp(2rem, 5vw, 3.8rem);
+    font-weight: 900;
+    letter-spacing: 8px;
+    background: linear-gradient(135deg, #ff6b35, #ffd23f, #ff003c, #7000ff, #00f2ff);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientFlow 4s ease infinite, titleFloat 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px rgba(255,107,53,0.4));
+  }
+  .sub-title {
+    margin-top: 8px;
+    font-size: clamp(0.8rem, 1.5vw, 1.1rem);
+    letter-spacing: 6px;
+    color: rgba(255,255,255,0.5);
+    font-family: 'Courier New', monospace;
+  }
+  @keyframes gradientFlow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  @keyframes titleFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  /* ===== 视频框 ===== */
+  .video-frame {
+    position: relative;
+    width: min(80vw, 900px);
+    aspect-ratio: 16/9;
+    border-radius: 20px;
+    overflow: visible;
+  }
+
+  /* 外圈旋转光环 */
+  .halo {
+    position: absolute; inset: -30px;
+    border-radius: 30px;
+    background: conic-gradient(
+      from 0deg,
+      #ff6b35, #ffd23f, #ff003c, #7000ff, #00f2ff, #ff6b35
+    );
+    animation: spin 6s linear infinite;
+    filter: blur(20px);
+    opacity: 0.6;
+    z-index: -2;
+  }
+  .halo.paused { animation-play-state: paused; }
+
+  .halo-2 {
+    position: absolute; inset: -15px;
+    border-radius: 25px;
+    background: conic-gradient(
+      from 180deg,
+      transparent, #ff6b35, transparent, #ffd23f, transparent, #ff003c, transparent, #7000ff, transparent, #00f2ff, transparent
+    );
+    animation: spin 8s linear infinite reverse;
+    filter: blur(12px);
+    opacity: 0.8;
+    z-index: -1;
+  }
+  .halo-2.paused { animation-play-state: paused; }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* 四角装饰 */
+  .corner {
+    position: absolute;
+    width: 40px; height: 40px;
+    border: 2px solid var(--blue);
+    z-index: 5;
+    animation: cornerPulse 2s ease-in-out infinite;
+  }
+  .corner.tl { top: -8px; left: -8px; border-right: none; border-bottom: none; }
+  .corner.tr { top: -8px; right: -8px; border-left: none; border-bottom: none; animation-delay: 0.5s; }
+  .corner.bl { bottom: -8px; left: -8px; border-right: none; border-top: none; animation-delay: 1s; }
+  .corner.br { bottom: -8px; right: -8px; border-left: none; border-top: none; animation-delay: 1.5s; }
+  @keyframes cornerPulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; filter: drop-shadow(0 0 8px var(--blue)); }
+  }
+
+  /* 视频容器 */
+  .video-box {
+    position: relative;
+    width: 100%; height: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #000;
+    border: 2px solid rgba(0,242,255,0.3);
+    box-shadow:
+      0 0 40px rgba(0,242,255,0.25),
+      0 0 80px rgba(112,0,255,0.2),
+      inset 0 0 60px rgba(0,0,0,0.8);
+  }
+  video {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* 燃烧覆盖层 */
+  .burn-overlay {
+    position: absolute; inset: 0;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 40%,
+      rgba(255,107,53,0.08) 60%,
+      rgba(255,0,60,0.15) 80%,
+      rgba(112,0,255,0.2) 100%
+    );
+    pointer-events: none;
+    mix-blend-mode: screen;
+    z-index: 3;
+    animation: burnPulse 3s ease-in-out infinite;
+  }
+  @keyframes burnPulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+  }
+
+  /* 旋转火焰边框 */
+  .fire-ring {
+    position: absolute; inset: 0;
+    border-radius: 16px;
+    pointer-events: none;
+    z-index: 4;
+  }
+
+  /* ===== 控制栏 ===== */
+  .controls {
+    position: absolute;
+    bottom: 20px; left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 20px;
+    background: rgba(10,10,20,0.8);
+    backdrop-filter: blur(12px);
+    border-radius: 50px;
+    border: 1px solid rgba(0,242,255,0.25);
+    box-shadow: 0 0 20px rgba(0,242,255,0.2);
+    z-index: 10;
+    transition: opacity 0.3s;
+  }
+  .controls.hidden { opacity: 0; pointer-events: none; }
+
+  .btn {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    border: 2px solid var(--blue);
+    background: rgba(0,242,255,0.1);
+    color: var(--blue);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.3s;
+  }
+  .btn:hover {
+    background: var(--blue);
+    color: #000;
+    box-shadow: 0 0 20px var(--blue);
+    transform: scale(1.1);
+  }
+  .btn.play {
+    width: 52px; height: 52px;
+    font-size: 20px;
+    border-color: var(--orange);
+    color: var(--orange);
+    background: rgba(255,107,53,0.15);
+  }
+  .btn.play:hover {
+    background: var(--orange);
+    color: #000;
+    box-shadow: 0 0 25px var(--orange);
+  }
+
+  .progress-wrap {
+    width: 200px;
+    height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--orange), var(--yellow));
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 10px var(--orange);
+  }
+  .time {
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+    color: rgba(255,255,255,0.7);
+    min-width: 90px;
+    text-align: center;
+  }
+  .vol-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .vol-slider {
+    width: 60px;
+    height: 4px;
+    -webkit-appearance: none;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    outline: none;
+  }
+  .vol-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--blue);
+    cursor: pointer;
+    box-shadow: 0 0 8px var(--blue);
+  }
+
+  /* ===== 旋转粒子环 ===== */
+  .orbit {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 120%; height: 120%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 6;
+  }
+  .orbit-dot {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--orange);
+    box-shadow: 0 0 10px var(--orange), 0 0 20px var(--red);
+    transform-origin: 0 0;
+  }
+
+  /* ===== 加载动画 ===== */
+  .loader {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    transition: opacity 0.6s;
+  }
+  .loader.hide { opacity: 0; pointer-events: none; }
+  .loader-ring {
+    width: 80px; height: 80px;
+    border: 4px solid rgba(0,242,255,0.1);
+    border-top-color: var(--orange);
+    border-right-color: var(--red);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    box-shadow: 0 0 30px rgba(255,107,53,0.3);
+  }
+  .loader-text {
+    margin-top: 20px;
+    letter-spacing: 4px;
+    color: rgba(255,255,255,0.6);
+    font-family: 'Courier New', monospace;
+    animation: blink 1.2s infinite;
+  }
+  @keyframes blink { 50% { opacity: 0.3; } }
+
+  /* ===== 返回按钮 ===== */
+  .back-btn {
+    position: fixed;
+    top: 24px; left: 24px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: rgba(10,10,20,0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0,242,255,0.3);
+    border-radius: 30px;
+    color: var(--blue);
+    text-decoration: none;
+    font-size: 14px;
+    letter-spacing: 2px;
+    transition: all 0.3s;
+  }
+  .back-btn:hover {
+    background: var(--blue);
+    color: #000;
+    box-shadow: 0 0 20px var(--blue);
+  }
+
+  /* ===== 全屏按钮 ===== */
+  .fs-btn {
+    position: fixed;
+    top: 24px; right: 24px;
+    z-index: 100;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: rgba(10,10,20,0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0,242,255,0.3);
+    color: var(--blue);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.3s;
+  }
+  .fs-btn:hover {
+    background: var(--blue);
+    color: #000;
+    box-shadow: 0 0 20px var(--blue);
+  }
+
+  /* ===== 响应式 ===== */
+  @media (max-width: 650px) {
+    .video-frame { width: 92vw; }
+    .progress-wrap { width: 120px; }
+    .controls { gap: 8px; padding: 8px 14px; }
+    .btn { width: 36px; height: 36px; }
+    .btn.play { width: 44px; height: 44px; }
+    .time { min-width: 70px; font-size: 10px; }
+    .vol-slider { width: 40px; }
+    .corner { width: 28px; height: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<canvas id="particles"></canvas>
+
+<div class="loader" id="loader">
+  <div class="loader-ring"></div>
+  <div class="loader-text">LOADING ANMUXI EXPERIENCE...</div>
+</div>
+
+<a href="index.html" class="back-btn">← 返回</a>
+<button class="fs-btn" id="fsBtn" title="全屏">⛶</button>
+
+<div class="stage">
+  <div class="title-wrap">
+    <div class="main-title">安慕希 · 超燃旋转</div>
+    <div class="sub-title">IMMERSIVE ROTATION EXPERIENCE</div>
+  </div>
+
+  <div class="video-frame" id="frame">
+    <div class="halo" id="halo"></div>
+    <div class="halo-2" id="halo2"></div>
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+
+    <div class="video-box">
+      <video id="video" preload="metadata" loop>
+        <source src="video/超燃安慕希头旋转沉浸1分32秒版.mp4" type="video/mp4">
+        浏览器不支持 video 标签
+      </video>
+      <div class="burn-overlay"></div>
+      <div class="fire-ring"></div>
+      <div class="orbit" id="orbit"></div>
+    </div>
+
+    <div class="controls" id="controls">
+      <button class="btn" id="playBtn" title="播放/暂停">▶</button>
+      <button class="btn" id="backBtn" title="后退10秒">⏪</button>
+      <button class="btn" id="fwdBtn" title="前进10秒">⏩</button>
+      <div class="progress-wrap" id="progress">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="time" id="time">00:00 / 00:00</div>
+      <div class="vol-wrap">
+        <button class="btn" id="muteBtn" title="静音" style="width:36px;height:36px;font-size:14px;">🔊</button>
+        <input type="range" class="vol-slider" id="volSlider" min="0" max="1" step="0.05" value="1">
+      </div>
+      <button class="btn" id="speedBtn" title="速度" style="width:auto;padding:0 12px;font-size:12px;">1x</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const video = document.getElementById('video');
+  const playBtn = document.getElementById('playBtn');
+  const backBtn = document.getElementById('backBtn');
+  const fwdBtn = document.getElementById('fwdBtn');
+  const progress = document.getElementById('progress');
+  const progressFill = document.getElementById('progressFill');
+  const timeEl = document.getElementById('time');
+  const muteBtn = document.getElementById('muteBtn');
+  const volSlider = document.getElementById('volSlider');
+  const speedBtn = document.getElementById('speedBtn');
+  const controls = document.getElementById('controls');
+  const fsBtn = document.getElementById('fsBtn');
+  const halo = document.getElementById('halo');
+  const halo2 = document.getElementById('halo2');
+  const loader = document.getElementById('loader');
+
+  const speeds = [0.5, 1, 1.25, 1.5, 2];
+  let speedIdx = 1;
+
+  // ===== 播放控制 =====
+  function togglePlay() {
+    if (video.paused) {
+      video.play();
+      playBtn.textContent = '⏸';
+      halo.classList.remove('paused');
+      halo2.classList.remove('paused');
+    } else {
+      video.pause();
+      playBtn.textContent = '▶';
+      halo.classList.add('paused');
+      halo2.classList.add('paused');
+    }
+  }
+  playBtn.addEventListener('click', togglePlay);
+  video.addEventListener('click', togglePlay);
+  backBtn.addEventListener('click', () => { video.currentTime = Math.max(0, video.currentTime - 10); });
+  fwdBtn.addEventListener('click', () => { video.currentTime = Math.min(video.duration, video.currentTime + 10); });
+
+  // ===== 进度条 =====
+  video.addEventListener('timeupdate', () => {
+    if (video.duration) {
+      const pct = (video.currentTime / video.duration) * 100;
+      progressFill.style.width = pct + '%';
+      timeEl.textContent = formatTime(video.currentTime) + ' / ' + formatTime(video.duration);
+    }
+  });
+  progress.addEventListener('click', (e) => {
+    const rect = progress.getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    video.currentTime = pct * video.duration;
+  });
+
+  function formatTime(s) {
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+  }
+
+  // ===== 音量 =====
+  muteBtn.addEventListener('click', () => {
+    video.muted = !video.muted;
+    muteBtn.textContent = video.muted ? '🔇' : '🔊';
+  });
+  volSlider.addEventListener('input', (e) => {
+    video.volume = parseFloat(e.target.value);
+  });
+
+  // ===== 速度 =====
+  speedBtn.addEventListener('click', () => {
+    speedIdx = (speedIdx + 1) % speeds.length;
+    video.playbackRate = speeds[speedIdx];
+    speedBtn.textContent = speeds[speedIdx] + 'x';
+  });
+
+  // ===== 全屏 =====
+  fsBtn.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  });
+
+  // ===== 键盘控制 =====
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+    if (e.code === 'ArrowLeft') { video.currentTime = Math.max(0, video.currentTime - 5); }
+    if (e.code === 'ArrowRight') { video.currentTime = Math.min(video.duration, video.currentTime + 5); }
+    if (e.code === 'ArrowUp') { video.volume = Math.min(1, video.volume + 0.1); volSlider.value = video.volume; }
+    if (e.code === 'ArrowDown') { video.volume = Math.max(0, video.volume - 0.1); volSlider.value = video.volume; }
+    if (e.key === 'm') { video.muted = !video.muted; muteBtn.textContent = video.muted ? '🔇' : '🔊'; }
+    if (e.key === 'f') { fsBtn.click(); }
+  });
+
+  // ===== 控制栏自动隐藏 =====
+  let hideTimer;
+  document.addEventListener('mousemove', () => {
+    controls.classList.remove('hidden');
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(() => {
+      if (!video.paused) controls.classList.add('hidden');
+    }, 3000);
+  });
+
+  // ===== 加载完成 =====
+  video.addEventListener('loadeddata', () => {
+    setTimeout(() => {
+      loader.classList.add('hide');
+    }, 600);
+  });
+
+  // ===== 旋转粒子环 =====
+  const orbit = document.getElementById('orbit');
+  for (let i = 0; i < 36; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'orbit-dot';
+    const angle = (i / 36) * Math.PI * 2;
+    const radius = 130 + Math.random() * 40;
+    const x = Math.cos(angle) * radius;
+    const y = Math.sin(angle) * radius;
+    const delay = (i / 36) * 6;
+    dot.style.transform = `translate(${x}px, ${y}px)`;
+    dot.style.animation = `spin ${6 + Math.random()*4}s linear ${delay}s infinite`;
+    dot.style.background = i % 3 === 0 ? 'var(--orange)' : i % 3 === 1 ? 'var(--yellow)' : 'var(--red)';
+    dot.style.boxShadow = `0 0 8px ${dot.style.background}`;
+    orbit.appendChild(dot);
+  }
+
+  // ===== 背景粒子 =====
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const particles = [];
+  for (let i = 0; i < 80; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: (Math.random() - 0.5) * 0.5,
+      r: Math.random() * 2 + 0.5,
+      color: ['#ff6b35','#ffd23f','#ff003c','#7000ff','#00f2ff'][Math.floor(Math.random()*5)]
+    });
+  }
+
+  function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 10;
+      ctx.fill();
+    });
+    requestAnimationFrame(animateParticles);
+  }
+  animateParticles();
+
+  // ===== 火焰燃烧效果（随机浮动） =====
+  const videoBox = document.querySelector('.video-box');
+  let burnIntensity = 0;
+  setInterval(() => {
+    burnIntensity = 0.5 + Math.random() * 0.5;
+    videoBox.style.boxShadow = `
+      0 0 ${40*burnIntensity}px rgba(0,242,255,${0.25*burnIntensity}),
+      0 0 ${80*burnIntensity}px rgba(112,0,255,${0.2*burnIntensity}),
+      0 0 ${60*burnIntensity}px rgba(255,107,53,${0.15*burnIntensity}),
+      inset 0 0 60px rgba(0,0,0,0.8)
+    `;
+  }, 300);
+</script>
+</body>
+</html>

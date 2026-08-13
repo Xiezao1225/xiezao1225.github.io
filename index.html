@@ -248,7 +248,7 @@
             animation: blink 1.2s infinite;
             text-transform: uppercase;
         }
-        /* 已击毙专用样式 */
+        /* 已复活专用样式 */
         .terminated-tag {
             background: #2c2c2c !important;
             color: #aaaaaa !important;
@@ -332,18 +332,22 @@
                 height: 100px;
             }
         }
-            @keyframes deadPulse {
-                0% { opacity: 0.75; text-shadow: 0 0 25px #ff003c, 0 0 45px #aa0022; }
-                50% { opacity: 1; text-shadow: 0 0 50px #ff003c, 0 0 80px #ff2255; }
-                100% { opacity: 0.75; text-shadow: 0 0 25px #ff003c, 0 0 45px #aa0022; }
+            @keyframes resurrectPulse {
+                0% { opacity: 0.8; text-shadow: 0 0 25px #e788ff, 0 0 50px #9b59b6; }
+                50% { opacity: 1; text-shadow: 0 0 50px #e788ff, 0 0 80px #9b59b6, 0 0 110px #6c3483; }
+                100% { opacity: 0.8; text-shadow: 0 0 25px #e788ff, 0 0 50px #9b59b6; }
             }
-            .terminated-avatar {
-                filter: grayscale(1) contrast(1.2) brightness(0.65) !important;
-                border-color: #5a5a5a !important;
+            .resurrected-avatar {
+                filter: none !important;
+                border-color: var(--accent-purple) !important;
             }
-            .terminated-name {
-                text-decoration: line-through;
-                text-decoration-color: #ff003c;
+            .resurrected-name {
+                text-decoration: none;
+            }
+            .resurrected-tag {
+                animation: none !important;
+                letter-spacing: 2px;
+                box-shadow: 0 0 12px rgba(231, 136, 255, 0.5);
             }
     </style>
 </head>
@@ -407,6 +411,40 @@
                onmouseout="this.style.boxShadow='none'; this.style.transform='translateY(0)';">
                 ⚠ 查看通缉令
             </a>
+            <a href="anmuxi.html" style="
+                display: inline-block;
+                padding: 14px 34px;
+                border: 1.5px solid #ff6b35;
+                color: #ff6b35;
+                text-decoration: none;
+                font-family: monospace;
+                letter-spacing: 4px;
+                font-size: 1rem;
+                transition: all 0.3s;
+                border-radius: 6px;
+                background: rgba(255, 107, 53, 0.05);
+                animation: btnBurn 2.5s infinite;
+            " onmouseover="this.style.boxShadow='0 0 30px rgba(255,107,53,0.6)'; this.style.transform='translateY(-3px) scale(1.05)';" 
+               onmouseout="this.style.boxShadow='none'; this.style.transform='translateY(0) scale(1)';">
+                🔥 安慕希超燃
+            </a>
+            <a href="minecraft.html" style="
+                display: inline-block;
+                padding: 14px 34px;
+                border: 1.5px solid #5cb85c;
+                color: #5cb85c;
+                text-decoration: none;
+                font-family: monospace;
+                letter-spacing: 4px;
+                font-size: 1rem;
+                transition: all 0.3s;
+                border-radius: 6px;
+                background: rgba(92, 184, 92, 0.05);
+                animation: btnGrass 3s infinite;
+            " onmouseover="this.style.boxShadow='0 0 30px rgba(92,184,92,0.6)'; this.style.transform='translateY(-3px) scale(1.05)';" 
+               onmouseout="this.style.boxShadow='none'; this.style.transform='translateY(0) scale(1)';">
+                🎮 我的世界
+            </a>
         </div>
         
         <!-- 按钮脉冲动画（放在原有 style 标签内） -->
@@ -414,6 +452,14 @@
             @keyframes btnPulse {
                 0%, 100% { box-shadow: 0 0 8px rgba(255,0,60,0.3); }
                 50% { box-shadow: 0 0 24px rgba(255,0,60,0.7); }
+            }
+            @keyframes btnBurn {
+                0%, 100% { box-shadow: 0 0 8px rgba(255,107,53,0.4); }
+                50% { box-shadow: 0 0 28px rgba(255,107,53,0.8), 0 0 50px rgba(255,0,60,0.3); }
+            }
+            @keyframes btnGrass {
+                0%, 100% { box-shadow: 0 0 8px rgba(92,184,92,0.4); }
+                50% { box-shadow: 0 0 28px rgba(92,184,92,0.8), 0 0 50px rgba(92,184,92,0.3); }
             }
         </style>
         <p style="color: #6c7a8a; margin-top: 24px; font-family: monospace; font-size: 1.2rem;">&lt; 这么强？！？ /&gt;</p>
@@ -434,10 +480,10 @@
         </div>
     </section>
     
-<!-- MC_dogs 状态已修改为“已击毙” —— 替换原 section -->
-<section class="wanted-section" style="border-color: #5a5a6a; background: rgba(30,30,35,0.2); box-shadow: 0 0 30px rgba(255,0,60,0.2); position: relative; overflow: hidden;">
+<!-- MC_dogs 状态已修改为"已复活" —— 替换原 section -->
+<section class="wanted-section" style="border-color: var(--accent-purple); background: rgba(60, 20, 80, 0.15); box-shadow: 0 0 30px rgba(231, 136, 255, 0.25); position: relative; overflow: hidden;">
     
-    <!-- 这个 div 就是红色的“毙掉了”水印/覆盖层 -->
+    <!-- 已复活水印/覆盖层 -->
     <div style="
         position: absolute;
         top: 50%;
@@ -445,30 +491,30 @@
         transform: translate(-50%, -50%) rotate(-15deg);
         font-size: clamp(3rem, 12vw, 7rem);
         font-weight: 900;
-        color: rgba(255, 0, 60, 0.9);
-        text-shadow: 0 0 30px #ff003c, 0 0 60px #aa0022;
+        color: rgba(231, 136, 255, 0.85);
+        text-shadow: 0 0 30px #e788ff, 0 0 60px #9b59b6, 0 0 90px #6c3483;
         letter-spacing: 16px;
         white-space: nowrap;
         pointer-events: none;
         z-index: 10;
         font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-        animation: deadPulse 1.8s infinite;
-        background: rgba(0,0,0,0.2);
+        animation: resurrectPulse 2s infinite;
+        background: rgba(0,0,0,0.15);
         padding: 0 30px;
         border-radius: 8px;
-    ">毙掉了</div>
+    ">已复活</div>
 
     <!-- 原有的标题 -->
-    <h2 class="section-title wanted-title" style="color: #c0c0c0 !important; text-shadow: 0 0 8px #888; position: relative; z-index: 5;">⚠️ 目标状态更新 · KILLED</h2>
+    <h2 class="section-title wanted-title" style="color: var(--accent-purple) !important; text-shadow: 0 0 12px rgba(231, 136, 255, 0.6); position: relative; z-index: 5; animation: none;">✨ 目标状态更新 · RESURRECTED</h2>
     
-    <div class="wanted-container" style="border-color: #6a6a7a; background: rgba(20,20,28,0.55); position: relative; z-index: 5; backdrop-filter: blur(4px);">
-        <img src="https://minotar.net/armor/bust/MC_dogs/100.png" alt="MC_dogs" class="wanted-avatar terminated-avatar">
+    <div class="wanted-container" style="border-color: var(--accent-purple); background: rgba(30, 15, 40, 0.55); position: relative; z-index: 5; backdrop-filter: blur(4px);">
+        <img src="https://minotar.net/armor/bust/MC_dogs/100.png" alt="MC_dogs" class="wanted-avatar resurrected-avatar">
         <div class="wanted-info">
-            <h3 class="terminated-name" style="color: #aaa !important;">MC_dogs</h3>
+            <h3 class="resurrected-name" style="color: var(--accent-purple) !important; text-decoration: none;">MC_dogs</h3>
             <p><strong>原罪名：</strong>说我是给、试图在服务器内发动降维打击。</p>
-            <p><strong>当前状态：</strong><span style="color:#ff8888; font-weight:bold; background:#2a0a0a; padding:2px 10px; border-radius:4px;">毙掉了 (KILLED)</span></p>
-            <p><strong>悬赏状态：</strong> <span style="text-decoration: line-through; color:#777;">已撤销</span> · 目标确认跑路</p>
-            <span class="status-tag terminated-tag" style="background: #3a3a3a; color: #ccc; border:1px solid #666;">⚰️ TARGET KILLED · 毙掉了</span>
+            <p><strong>当前状态：</strong><span style="color:#e788ff; font-weight:bold; background:rgba(231,136,255,0.1); padding:2px 10px; border-radius:4px; border:1px solid var(--accent-purple);">已复活 (RESURRECTED)</span></p>
+            <p><strong>悬赏状态：</strong> <span style="color: var(--accent-purple);">已恢复</span> · 目标已回归</p>
+            <span class="status-tag resurrected-tag" style="background: var(--accent-purple); color: #fff; border:1px solid #e788ff;">✨ TARGET RESURRECTED · 已复活</span>
         </div>
     </div>
 </section>
@@ -533,7 +579,7 @@
     </section>
 
     <footer>
-        © 2026 SHEN_REN Industry 神人工业 | <span style="color: var(--accent-purple);">Protocol Alpha-9</span> | 状态更新: MC_dogs 已击毙
+        © 2026 SHEN_REN Industry 神人工业 | <span style="color: var(--accent-purple);">Protocol Alpha-9</span> | 状态更新: MC_dogs 已复活
     </footer>
 
     <script>
