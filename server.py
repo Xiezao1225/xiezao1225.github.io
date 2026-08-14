@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""支持 Range 请求的本地 HTTP 服务器，用于视频播放"""
+"""支持 Range 请求的本地 HTTP 服务器，用于视频播放
 import http.server
 import os
 import re
@@ -75,4 +75,4 @@ with socketserver.TCPServer(("", PORT), RangeHandler) as httpd:
     print(f"✅ 服务器已启动: http://localhost:{PORT}")
     print(f"   视频页: http://localhost:{PORT}/anmuxi.html")
     print(f"   首页:   http://localhost:{PORT}/index.html")
-    httpd.serve_forever()
+    httpd.serve_forever()"""
