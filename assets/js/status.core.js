@@ -138,7 +138,8 @@
     var table = SUPA.table || 'status';
     var session = loadSession();
     var refreshTimer = null;
-    var ws = null, wsRef = 0, heartbeat = null, retry = 0, stopped = true;
+    var ws = null, wsRef = 0, heartbeat = null, joinTimer = null, retry = 0, stopped = true;
+    var warnedOnce = false;   /* 每次断线只刷一条日志，别把控制台刷爆 */
     var pollTimer = null, realtimeOk = false, onRemote = null;
 
     function authed() { return !!(session && session.access_token); }
@@ -273,9 +274,16 @@
 
     /* --- Realtime（Phoenix 协议）--- */
 
+    /* Realtime 用的 key：优先用专门配的 legacy JWT，否则退回 anonKey。
+       新版 sb_publishable_ key 不是 JWT，Realtime 的 WebSocket 对它兼容不好
+       （supabase/realtime#1561），所以允许单独指定一把。 */
+    function realtimeKey() {
+      return SUPA.realtimeKey || SUPA.anonKey;
+    }
+
     function realtimeUrl() {
       return base.replace(/^http/, 'ws') + '/realtime/v1/websocket'
-        + '?apikey=' + encodeURIComponent(SUPA.anonKey) + '&vsn=1.0.0';
+        + '?apikey=' + encodeURIComponent(realtimeKey()) + '&vsn=1.0.0';
     }
 
     function startRealtime() {
@@ -285,6 +293,7 @@
 
       ws.onopen = function () {
         retry = 0;
+        warnedOnce = false;   /* 连上了，下次断线重新警告一遍 */
         wsRef++;
         var ref = String(wsRef);
         ws.send(JSON.stringify({
@@ -297,7 +306,7 @@
                 event: '*', schema: 'public', table: table, filter: 'id=eq.1'
               }]
             },
-            access_token: (session && session.access_token) || SUPA.anonKey
+            access_token: (session && session.access_token) || realtimeKey()
           }
         }));
         heartbeat = setInterval(function () {
@@ -335,17 +344,42 @@
         }
       };
 
-      ws.onclose = function () {
+      ws.onclose = function (ev) {
         clearInterval(heartbeat);
         if (stopped) return;
         realtimeOk = false;
         startPoll();
         notifyMode();
+
+        /* 把关闭原因说出来 —— 这是区分"key 被拒"和"网络被墙"的唯一线索。
+           只警告一次，之后静默重试，避免刷爆控制台。 */
+        if (!warnedOnce) {
+          warnedOnce = true;
+          var code = ev && ev.code;
+          var why = {
+            1000: '正常关闭',
+            1006: '连接被异常切断（最常见两种原因：网络/代理拦了 wss，或服务器直接断开）',
+            1008: '违反策略被拒（通常是 key 不被接受）',
+            4401: '鉴权失败（key 无效或已轮换）',
+            4403: '无权限访问该频道'
+          }[code] || '未知原因';
+          console.warn('[SRStatus] Realtime 断开，已自动降级为 ' +
+            Math.round(Math.max(10000, CFG.pollInterval || 20000) / 1000) + ' 秒轮询。'
+            + ' 关闭码 ' + (code === undefined ? '(无)' : code) + '：' + why
+            + (SUPA.realtimeKey ? ''
+               : '  —— 小提示：在 status.config.js 给 supabase.realtimeKey 填上 legacy anon JWT 可恢复秒级推送。'));
+        }
+
         retry = Math.min(retry + 1, 6);
         setTimeout(startRealtime, 1000 * Math.pow(2, retry - 1));
       };
 
-      ws.onerror = function () { /* onclose 会跟上 */ };
+      ws.onerror = function () {
+        if (retry <= 1) {
+          console.warn('[SRStatus] Realtime WebSocket 报错（详细关闭码见紧接着的 onclose 日志）。' +
+            ' REST 读写不受影响，页面会走轮询。');
+        }
+      };
     }
 
     /* 降级轮询：Realtime 连不上或没权限时，靠它保证数据仍然是新的 */
@@ -360,6 +394,8 @@
       if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
     }
     function notifyMode() {
+      /* 已经拿到实时连接就把看门狗撤了，免得它 8 秒后再多推一次 */
+      if (realtimeOk) clearTimeout(joinTimer);
       emit({ _mode: realtimeOk ? 'realtime' : 'poll' });
     }
 
@@ -368,6 +404,7 @@
       realtimeOk = false;
       stopPoll();
       clearInterval(heartbeat);
+      clearTimeout(joinTimer);
       if (ws) { try { ws.close(); } catch (e) {} ws = null; }
     }
 
@@ -377,6 +414,17 @@
       realtimeOk = false;
       startRealtime();
       startPoll();            /* 先开着轮询兜底；Realtime 一连上就自动关掉 */
+      /* 看门狗：有些网络环境下 WebSocket 会一直挂着，既不 open 也不 close。
+         那就 8 秒后认定 Realtime 不可用，正式走轮询，徽标也不会卡在"正在连接"。 */
+      clearTimeout(joinTimer);
+      joinTimer = setTimeout(function () {
+        if (!realtimeOk) {
+          startPoll();
+          if (typeof onRemote === 'function') {
+            try { onRemote({ _mode: 'poll', _timeout: true }); } catch (e) {}
+          }
+        }
+      }, 8000);
       function onVis() {
         if (document.hidden) {
           stopRealtime();

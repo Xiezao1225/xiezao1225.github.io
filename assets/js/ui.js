@@ -35,6 +35,26 @@
     }
   }
 
+  /* 默认同步方式：谁都别忘了调，页面自己就会给出一个确定值。
+     以前这个职责散落在各页的 boot() 里，admin.js 漏了 —— 于是徽标永远停在
+     HTML 里写死的"正在连接…"。现在改成由本模块自动落地，杜绝这类漏调。 */
+  function defaultMode() {
+    var S = window.SRStatus;
+    if (!S || !S.adapterName || S.adapterName === 'local') return 'local';
+    return 'poll';   /* 有后端就先按轮询显示；Realtime 连上会再升级成 realtime */
+  }
+
+  function autoInit() {
+    pick();
+    setSync(defaultMode());
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', autoInit);
+  } else {
+    autoInit();
+  }
+
   /* ------------------------------------------------- 错误 / 提示条 */
 
   function showNotice(box, html) {

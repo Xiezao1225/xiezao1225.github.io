@@ -20,6 +20,11 @@
   function boot() {
     errBox = document.getElementById('errBox');
 
+    /* ⚠️ 先把徽标设成一个"不可能卡住"的初始值。
+       HTML 里写的是"正在连接…"，如果这里不覆盖，一旦 Realtime 既没连上
+       也没正常关闭，用户就会永远看到"正在连接"。 */
+    UI.setSync(S.adapterName === 'local' ? 'local' : 'poll');
+
     board = B.mount(document.querySelector('[data-sr-board]'), { live: true });
 
     /* 先把兜底状态画出来，页面不会空着等网络 */
@@ -47,8 +52,6 @@
           current = fresh;
           B.renderRecord(board, fresh);
         });
-      } else if (first) {
-        UI.setSync('local');
       }
     }).catch(function (e) {
       UI.setSync(S.adapterName === 'local' ? 'local' : 'poll');

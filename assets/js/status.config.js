@@ -56,6 +56,20 @@ window.SR_STATUS_CONFIG = {
     //    （代码里已经做了自动纠偏，但填对最省事）
     url: 'https://mwllhesriszibxotmrln.supabase.co',
     anonKey: 'sb_publishable_SnUVwwX1QJsIbgk7YS5h8Q_uRA6O-gi',
+
+    /* ⚠️ Realtime（WebSocket 实时推送）专用 key —— 可选，留空就自动降级成 20 秒轮询。
+     *
+     * 为什么需要它：新版 sb_publishable_ key 不是 JWT，REST 和 Auth 用它都没问题，
+     * 但 Realtime 的 WebSocket 对非 JWT key 有已知兼容问题（supabase/realtime#1561），
+     * 表现就是控制台里那句 "WebSocket connection ... failed"。
+     *
+     * 想要秒级推送就往这里填 legacy anon JWT（eyJ... 开头那一长串）：
+     *   控制台 → Settings → API Keys → Legacy API keys → anon
+     *
+     * 不填 = 页面用 20 秒轮询，功能一样完整，只是慢一点。
+     */
+    realtimeKey: '',
+
     table: 'status'
   },
 

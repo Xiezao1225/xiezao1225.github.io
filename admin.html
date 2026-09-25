@@ -133,6 +133,15 @@
               把 <code>provider</code> 改成 <code>'supabase'</code>，填上 url 和 anonKey，
               再把 <code>owner.email</code> 填成同一个邮箱。刷新本页即可登录。
             </li>
+            <li>
+              <b>想要秒级推送？（可选）</b> —— 新版 <code>sb_publishable_</code> key 不是 JWT，
+              在 REST 和登录上完全没问题，但 Realtime 的 WebSocket 对它兼容不好
+              （官方 issue <code>supabase/realtime#1561</code>），控制台会报
+              <code>WebSocket connection ... failed</code>。
+              这种情况页面会自动降级成 20 秒轮询，<b>功能一样完整</b>。
+              要恢复实时推送，去 <b>Settings → API Keys → Legacy API keys</b> 复制
+              <code>anon</code> 那串 <code>eyJ...</code>，填进配置里的 <code>supabase.realtimeKey</code>。
+            </li>
           </ol>
 
           <pre class="sql" id="setupSql"></pre>

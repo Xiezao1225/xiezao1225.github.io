@@ -211,6 +211,10 @@
   }
 
   function boot() {
+    /* 兜底：先给徽标一个确定值。ui.js 也会自动初始化一次，这里再钉一遍，
+       保证任何后续异常都不会让页面停在"正在连接…"上。 */
+    UI.setSync(S.adapterName === 'local' ? 'local' : 'poll');
+
     cache();
 
     /* 预览看板 */
@@ -309,6 +313,8 @@
 
   function load() {
     return S.read().then(function (rec) {
+      /* 徽标放在最前面更新：后面的渲染万一抛错，也不至于把它吞掉 */
+      if (S.adapterName === 'local') UI.setSync('local');
       current = rec;
       fill(rec);
       paintPreview();
@@ -331,16 +337,20 @@
               : '未知';
           }
         });
-      } else {
-        UI.setSync('local');
       }
     }).catch(function (e) {
+      /* catch 内部也要自保：渲染兜底状态的代码本身可能再抛错，
+         那样 setSync 就永远轮不到了 —— 这正是徽标卡住的老毛病 */
       UI.setSync(S.adapterName === 'local' ? 'local' : 'poll');
-      current = S.normalize(CFG.fallback || {});
-      fill(current);
-      paintPreview();
-      UI.renderIssues(el.errBox, UI.configIssues(),
-        '读取云端状态失败：' + e.message + '。表单里显示的是配置文件的兜底值。');
+      try {
+        current = S.normalize(CFG.fallback || {});
+        fill(current);
+        paintPreview();
+        UI.renderIssues(el.errBox, UI.configIssues(),
+          '读取云端状态失败：' + e.message + '。表单里显示的是配置文件的兜底值。');
+      } catch (e2) {
+        console.error('[SRStatus admin] 渲染兜底状态时又出错了：', e2);
+      }
     });
   }
 
@@ -489,7 +499,7 @@
         }
         setTimeout(function () { flash(el.copyMsg, '', ''); }, 2400);
       });
-    });
+    }
 
     /* Ctrl / Cmd + Enter 直接保存 */
     el.editView.addEventListener('keydown', function (e) {
@@ -497,9 +507,78 @@
     });
   }
 
+  /* 启动失败时不要"静默死亡"：把异常直接摊在页面上。
+     后台页尤其需要这个 —— 以前 boot() 一抛错，整页没有任何可见反馈，
+     只有"正在连接…"和一堆静止的控件，根本无从下手排查。 */
+  function fatal(where, e) {
+    var detail = (e && (e.message || e)) + '';
+    var text = '后台脚本在 ' + where + ' 阶段出错了：' + detail
+      + '　—— 请把这句话连同 F12 Console 的报错原文一起发出来。';
+
+    /* 页面最顶部插一条醒目横幅：错误框在页面底部，很容易根本看不到 */
+    try {
+      var banner = document.createElement('div');
+      banner.className = 'admin-flag';
+      banner.style.cssText = 'border-color:rgba(255,0,60,.5);background:rgba(255,0,60,.1);'
+        + 'color:#ffd9e0;margin:16px auto -8px;width:min(1180px,94vw)';
+      var b = document.createElement('b');
+      b.textContent = '⚠ 脚本启动失败　';
+      banner.appendChild(b);
+      banner.appendChild(document.createTextNode(text));
+      var host = document.querySelector('main .wrap-wide') || document.body;
+      host.insertBefore(banner, host.firstChild);
+    } catch (e3) { /* 横幅画不出来也不能影响下面 */ }
+
+    try {
+      var box = document.getElementById('errBox');
+      if (box) {
+        box.style.display = '';
+        box.innerHTML = '';
+        var span = document.createElement('span');
+        span.textContent = text;
+        box.appendChild(span);
+        box.className = 'notice err';
+      }
+    } catch (e2) { /* 连错误框都画不出来就只能靠 console 了 */ }
+
+    console.error('[SRStatus admin] ' + where + ' 失败：', e);
+    UI.setSync(S.adapterName === 'local' ? 'local' : 'poll');
+  }
+
+  function start() {
+    /* 全局兜底：任何漏网的异常都要现形，不能只剩一个静止的页面 */
+    window.addEventListener('error', function (ev) {
+      fatal('未捕获异常 ' + (ev && (ev.filename || '')) + ':' + (ev && ev.lineno), ev && ev.error);
+    });
+    window.addEventListener('unhandledrejection', function (ev) {
+      fatal('未处理的 Promise 拒绝', ev && ev.reason);
+    });
+
+    /* 关键：bind() 必须无条件执行。
+       它负责给登录按钮挂监听 —— 之前写成 boot() 一抛错就 return，
+       结果按钮完全没反应，看起来像"页面坏了"，其实只是事件没绑上。 */
+    try {
+      boot();
+    } catch (e) {
+      fatal('初始化 boot()', e);
+    }
+    try {
+      bind();
+    } catch (e) {
+      fatal('绑定事件 bind()', e);
+    }
+    /* 启动横幅：一眼确认新代码到底加载了没有 */
+    console.log('%c[SRStatus admin] 脚本已就绪 · v3',
+      'color:#00ff88;font-weight:700',
+      '| provider=' + S.adapterName,
+      '| 可编辑=' + S.canEdit(),
+      '| preview=' + (preview ? 'ok' : '未挂载'),
+      '| 登录按钮=' + (el.loginBtn ? '已找到' : '缺失'));
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () { boot(); bind(); });
+    document.addEventListener('DOMContentLoaded', start);
   } else {
-    boot(); bind();
+    start();
   }
 })();
