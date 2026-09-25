@@ -1,623 +1,1287 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>SHEN_REN Industry | 神人工业</title>
-    <style>
-        :root {
-            --bg-color: #020205;
-            --accent-blue: #00f2ff;
-            --accent-purple: #7000ff;
-            --accent-red: #ff003c;
-            --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(0, 242, 255, 0.2);
-            --border-red: rgba(255, 0, 60, 0.3);
-        }
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-        }
-        body {
-            background-color: var(--bg-color);
-            color: #fff;
-            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            overflow: hidden;
-            position: relative;
-        }
-        /* 启动动画覆盖层 */
-        #loader {
-            position: fixed;
-            inset: 0;
-            background: linear-gradient(135deg, #020205 80%, #0a1a2b 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-            opacity: 1;
-            backdrop-filter: blur(16px);
-            pointer-events: auto;
-        }
-        .loader-box {
-            background: rgba(8, 15, 26, 0.75);
-            backdrop-filter: blur(12px);
-            padding: 48px 48px 36px 48px;
-            border-radius: 28px;
-            border: 1.5px solid var(--accent-blue);
-            box-shadow: 0 0 50px rgba(0, 242, 255, 0.3), 0 0 70px #000 inset;
-            text-align: center;
-            min-width: 340px;
-            transition: all 0.3s ease;
-        }
-        .logo-anim {
-            font-size: 2.7rem;
-            font-weight: 900;
-            color: var(--accent-purple);
-            margin-bottom: 18px;
-            letter-spacing: 10px;
-            animation: logoRotate 1.4s infinite cubic-bezier(.42,.0,.58,1);
-            text-shadow: 0 0 45px var(--accent-blue);
-            background: linear-gradient(180deg, #fff 0%, #a0f0ff 80%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        @keyframes logoRotate {
-            0%  { transform: rotate(-2deg) scale(0.98); }
-            50% { transform: scale(1.13) rotate(5deg);}
-            100%{ transform: rotate(-2deg) scale(0.98);}
-        }
-        .loading-text {
-            font-family: 'Courier New', monospace;
-            color: var(--accent-blue);
-            font-size: 1.1rem;
-            letter-spacing: 2.5px;
-            margin-bottom: 14px;
-            text-transform: uppercase;
-            animation: textPulse 1.2s infinite alternate;
-        }
-        @keyframes textPulse {
-            0% { letter-spacing: 2px; opacity: 0.9; }
-            100% { letter-spacing: 8px; color: var(--accent-purple); opacity: 1;}
-        }
-        .progress-container {
-            width: 100%;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.07);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 8px;
-        }
-        .progress-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple), #ff66aa);
-            box-shadow: 0 0 18px var(--accent-blue), 0 0 30px var(--accent-purple);
-            border-radius: 10px;
-            transition: width 0.3s ease-out;
-        }
-        .loader-info {
-            margin-top: 22px;
-            font-family: monospace;
-            color: #b0d4e6;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-            opacity: 0.85;
-        }
-        .system-ready {
-            margin-top: 20px;
-            animation: blinkReady 1.1s infinite;
-            color: #00f2ff;
-            font-weight: bold;
-            font-family: monospace;
-            font-size: 1.2rem;
-            display: none;
-            text-shadow: 0 0 12px var(--accent-blue);
-        }
-        @keyframes blinkReady {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.25; }
-        }
-        /* 背景网格 */
-        .bg-lines {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: 
-                linear-gradient(rgba(0, 242, 255, 0.06) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 242, 255, 0.06) 1px, transparent 1px);
-            background-size: 52px 52px;
-            z-index: -1;
-            pointer-events: none;
-        }
-        /* 加载完成后显示主体 */
-        body.loaded {
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-        .loaded #loader {
-            opacity: 0;
-            pointer-events: none;
-        }
-        header {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transform: translateY(35px);
-            transition: all 1s ease 0.7s;
-        }
-        .loaded header {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .hero-title {
-            font-size: clamp(2.8rem, 9vw, 6.5rem);
-            font-weight: 900;
-            background: linear-gradient(to right, #ffffff, #a0f0ff, var(--accent-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 11px;
-            text-align: center;
-            line-height: 1.2;
-            filter: drop-shadow(0 0 20px rgba(0,242,255,0.4));
-        }
-        section {
-            width: 100%;
-            max-width: 920px;
-            margin: 0 auto 80px auto;
-            padding: 42px 32px;
-            background: var(--glass);
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            backdrop-filter: blur(12px);
-            transition: transform 0.2s ease;
-        }
-        .section-title { 
-            text-align: center; 
-            margin-bottom: 42px; 
-            color: var(--accent-blue); 
-            letter-spacing: 6px;
-            font-size: 1.6rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        .wanted-section {
-            border: 1px solid var(--border-red);
-            background: rgba(255, 0, 60, 0.03);
-            box-shadow: 0 0 35px rgba(255, 0, 60, 0.15);
-        }
-        .wanted-title {
-            color: var(--accent-red) !important;
-            text-shadow: 0 0 12px rgba(255, 0, 60, 0.6);
-            animation: glitchText 2.2s infinite;
-        }
-        @keyframes glitchText {
-            0% { transform: translate(0); }
-            20% { transform: translate(-1.5px, 1.5px); }
-            40% { transform: translate(1.5px, -1px); }
-            60% { transform: translate(-1px, -1.5px); }
-            80% { transform: translate(1.5px, 1px); }
-            100% { transform: translate(0); }
-        }
-        .wanted-container {
-            display: flex;
-            align-items: center;
-            gap: 28px;
-            background: rgba(0, 0, 0, 0.35);
-            padding: 28px;
-            border: 1px dashed var(--accent-red);
-            border-radius: 14px;
-            flex-wrap: wrap;
-        }
-        .wanted-avatar {
-            width: 120px;
-            height: 120px;
-            border: 2px solid var(--accent-red);
-            background: #0a0a0a;
-            padding: 5px;
-            flex-shrink: 0;
-            filter: grayscale(0.4) contrast(1.2);
-            border-radius: 4px;
-        }
-        .wanted-info h3 {
-            font-size: 2.3rem;
-            color: var(--accent-red);
-            margin-bottom: 12px;
-            font-family: 'Courier New', monospace;
-            letter-spacing: 2px;
-        }
-        .wanted-info p {
-            color: #ffccd5;
-            font-size: 0.98rem;
-            line-height: 1.7;
-            margin-bottom: 6px;
-        }
-        .status-tag {
-            display: inline-block;
-            margin-top: 16px;
-            padding: 6px 16px;
-            background: var(--accent-red);
-            color: #fff;
-            font-weight: bold;
-            font-size: 0.85rem;
-            letter-spacing: 2.5px;
-            border-radius: 4px;
-            animation: blink 1.2s infinite;
-            text-transform: uppercase;
-        }
-        /* 已复活专用样式 */
-        .terminated-tag {
-            background: #2c2c2c !important;
-            color: #aaaaaa !important;
-            border: 1px solid #5a5a5a;
-            animation: none !important;
-            letter-spacing: 2px;
-            box-shadow: 0 0 8px rgba(255,255,255,0.1);
-        }
-        .terminated-avatar {
-            filter: grayscale(1) contrast(1.1) brightness(0.7) !important;
-            border-color: #5a5a5a !important;
-        }
-        .terminated-name {
-            color: #999 !important;
-            text-decoration: line-through;
-            text-decoration-color: var(--accent-red);
-        }
-        .architect-list, .team-content {
-            display: flex;
-            gap: 22px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .architect-item, .team-member {
-            background: rgba(18, 24, 38, 0.55);
-            padding: 22px 18px;
-            min-width: 200px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            text-align: center;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(6px);
-        }
-        .architect-item:hover { 
-            border-color: var(--accent-blue); 
-            transform: translateY(-6px); 
-            box-shadow: 0 10px 20px rgba(0,242,255,0.2);
-        }
-        .team-member img {
-            width: 70px; 
-            height: 70px;
-            border-radius: 50%;
-            border: 2px solid var(--accent-blue);
-            margin-bottom: 16px;
-            object-fit: cover;
-            background: #111;
-        }
-        footer {
-            text-align: center;
-            padding: 45px 20px 35px;
-            color: #5a5a6e;
-            font-size: 0.9rem;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            margin-top: 30px;
-        }
-        a {
-            color: var(--accent-blue);
-            text-decoration: none;
-            transition: 0.2s;
-        }
-        a:hover {
-            text-shadow: 0 0 10px var(--accent-blue);
-        }
-        @keyframes blink { 
-            50% { opacity: 0.15; } 
-        }
-        @media (max-width: 650px) {
-            .wanted-container { 
-                flex-direction: column; 
-                text-align: center; 
-            }
-            .hero-title { 
-                letter-spacing: 5px; 
-            }
-            .loader-box { 
-                min-width: 260px; 
-                padding: 30px 18px 22px 18px;
-            }
-            .wanted-avatar {
-                width: 100px;
-                height: 100px;
-            }
-        }
-            @keyframes resurrectPulse {
-                0% { opacity: 0.8; text-shadow: 0 0 25px #e788ff, 0 0 50px #9b59b6; }
-                50% { opacity: 1; text-shadow: 0 0 50px #e788ff, 0 0 80px #9b59b6, 0 0 110px #6c3483; }
-                100% { opacity: 0.8; text-shadow: 0 0 25px #e788ff, 0 0 50px #9b59b6; }
-            }
-            .resurrected-avatar {
-                filter: none !important;
-                border-color: var(--accent-purple) !important;
-            }
-            .resurrected-name {
-                text-decoration: none;
-            }
-            .resurrected-tag {
-                animation: none !important;
-                letter-spacing: 2px;
-                box-shadow: 0 0 12px rgba(231, 136, 255, 0.5);
-            }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#020205">
+<meta name="description" content="SHEN_REN Industry 神人工业 —— 人工智能与创新科技实验室。人物档案、通缉令、团队与联络入口。">
+<meta name="author" content="SHEN_REN Industry">
+<meta property="og:title" content="SHEN_REN Industry | 神人工业">
+<meta property="og:description" content="这么强？！？ —— 神人工业官方主页">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23020205'/><path d='M55 12 L26 56 h18 l-6 32 32-46H50z' fill='%2300f2ff'/></svg>">
+<title>SHEN_REN Industry | 神人工业</title>
+<style>
+/* ============================================================
+   SHEN_REN Industry · 神人工业 —— 主站首页
+   设计语言：深空黑 + 霓虹青(#00f2ff) / 电紫(#7000ff) / 警戒红(#ff003c)
+   ============================================================ */
+:root{
+  --bg:#020205;
+  --bg-2:#05060f;
+  --panel:rgba(10,16,28,.55);
+  --panel-solid:#080d18;
+  --line:rgba(0,242,255,.16);
+  --line-soft:rgba(255,255,255,.07);
+  --cyan:#00f2ff;
+  --purple:#7000ff;
+  --purple-soft:#b06bff;
+  --red:#ff003c;
+  --orange:#ff6b35;
+  --green:#5cb85c;
+  --amber:#ffd23f;
+  --text:#d7e6f2;
+  --dim:#7d8fa3;
+  --dimmer:#4d5a6b;
+  --mono:"JetBrains Mono","Cascadia Mono",Consolas,"SFMono-Regular","Courier New",monospace;
+  --sans:"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --shadow-cyan:0 18px 50px -18px rgba(0,242,255,.45);
+  --shadow-purple:0 18px 50px -18px rgba(176,107,255,.45);
+  --shadow-red:0 18px 50px -18px rgba(255,0,60,.45);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  line-height:1.6;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+body.is-booting{overflow:hidden}
+::selection{background:rgba(0,242,255,.28);color:#fff}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:4px}
+img{max-width:100%;display:block}
+a{color:var(--cyan);text-decoration:none;transition:color .25s,text-shadow .25s}
+a:hover{text-shadow:0 0 12px rgba(0,242,255,.7)}
+
+/* ---------- 通用工具 ---------- */
+.wrap{width:min(1180px,92vw);margin-inline:auto}
+.mono{font-family:var(--mono)}
+.grad-text{
+  background:linear-gradient(100deg,#fff 0%,#bff6ff 38%,var(--cyan) 70%,#7ea8ff 100%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+}
+.eyebrow{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.42em;
+  text-transform:uppercase;color:var(--dim);display:flex;align-items:center;gap:14px;
+}
+.eyebrow::before{content:"";width:34px;height:1px;background:linear-gradient(90deg,transparent,var(--cyan))}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- 背景层 ---------- */
+.bg-stack{position:fixed;inset:0;z-index:-3;pointer-events:none;overflow:hidden}
+.bg-stack::before{ /* 极光光斑 */
+  content:"";position:absolute;inset:-20%;
+  background:
+    radial-gradient(48% 42% at 16% 22%,rgba(0,242,255,.14),transparent 62%),
+    radial-gradient(50% 46% at 84% 30%,rgba(112,0,255,.17),transparent 64%),
+    radial-gradient(52% 44% at 50% 104%,rgba(255,0,60,.10),transparent 66%),
+    linear-gradient(180deg,#020205 0%,#04050d 52%,#05030c 100%);
+  animation:auraDrift 22s ease-in-out infinite alternate;
+}
+@keyframes auraDrift{to{transform:translate3d(0,-3%,0) scale(1.07)}}
+.bg-grid{
+  position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(0,242,255,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,242,255,.045) 1px,transparent 1px);
+  background-size:58px 58px;
+  mask-image:radial-gradient(ellipse 90% 70% at 50% 42%,#000 30%,transparent 100%);
+  -webkit-mask-image:radial-gradient(ellipse 90% 70% at 50% 42%,#000 30%,transparent 100%);
+}
+#particles{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.85}
+.scanlines{
+  position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.35;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px);
+  mix-blend-mode:overlay;
+}
+.vignette{
+  position:fixed;inset:0;z-index:59;pointer-events:none;
+  background:radial-gradient(ellipse 78% 68% at 50% 45%,transparent 45%,rgba(0,0,0,.72) 100%);
+}
+.sweep{
+  position:fixed;left:0;right:0;height:180px;z-index:58;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(0,242,255,.05) 45%,rgba(0,242,255,.11) 50%,transparent);
+  animation:sweepDown 9s linear infinite;
+}
+@keyframes sweepDown{0%{top:-180px}100%{top:100%}}
+
+/* ---------- 启动动画 ---------- */
+#loader{
+  position:fixed;inset:0;z-index:9999;display:grid;place-items:center;
+  background:radial-gradient(ellipse at 50% 45%,#071120 0%,#020205 62%);
+  transition:opacity .85s var(--ease),visibility .85s;
+}
+#loader.done{opacity:0;visibility:hidden}
+.boot{
+  width:min(560px,88vw);padding:38px 34px 30px;border-radius:22px;
+  background:linear-gradient(160deg,rgba(9,16,28,.92),rgba(4,6,14,.92));
+  border:1px solid var(--line);
+  box-shadow:0 0 0 1px rgba(0,242,255,.06) inset,0 30px 90px -30px rgba(0,242,255,.35);
+  position:relative;overflow:hidden;text-align:center;
+}
+.boot::after{ /* 顶部能量条 */
+  content:"";position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--cyan),var(--purple),transparent);
+  background-size:200% 100%;animation:flowLine 2.6s linear infinite;
+}
+@keyframes flowLine{to{background-position:200% 0}}
+.core{
+  width:96px;height:96px;margin:0 auto 22px;position:relative;display:grid;place-items:center;
+}
+.core i{
+  position:absolute;inset:0;border-radius:50%;
+  border:1px solid rgba(0,242,255,.28);border-top-color:var(--cyan);
+  animation:spin 1.5s linear infinite;
+}
+.core i:nth-child(2){inset:11px;border-color:rgba(112,0,255,.35);border-bottom-color:var(--purple);animation-duration:2.2s;animation-direction:reverse}
+.core i:nth-child(3){inset:22px;border-color:rgba(255,0,60,.28);border-left-color:var(--red);animation-duration:2.9s}
+.core b{
+  font-family:var(--mono);font-size:1.05rem;color:#eafcff;letter-spacing:.05em;
+  text-shadow:0 0 18px rgba(0,242,255,.9);
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.boot-brand{
+  font-family:var(--mono);font-weight:700;font-size:1.65rem;letter-spacing:.34em;
+  margin-bottom:6px;
+}
+.boot-sub{font-family:var(--mono);font-size:.68rem;letter-spacing:.34em;color:var(--dimmer);margin-bottom:24px}
+.boot-log{
+  height:112px;overflow:hidden;text-align:left;font-family:var(--mono);font-size:.76rem;
+  line-height:1.85;color:#8fd8e8;background:rgba(0,0,0,.42);
+  border:1px solid rgba(0,242,255,.12);border-radius:10px;padding:10px 14px;position:relative;
+}
+.boot-log .ok{color:#4fe08a}
+.boot-log .warn{color:var(--amber)}
+.boot-log .hl{color:var(--purple-soft)}
+.bar{height:3px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:22px}
+.bar span{
+  display:block;height:100%;width:0;border-radius:99px;
+  background:linear-gradient(90deg,var(--cyan),var(--purple),#ff66aa);
+  box-shadow:0 0 16px var(--cyan);transition:width .32s ease-out;
+}
+.boot-foot{
+  display:flex;justify-content:space-between;font-family:var(--mono);
+  font-size:.66rem;color:var(--dimmer);letter-spacing:.18em;margin-top:12px;
+}
+.skip{
+  position:absolute;right:16px;bottom:14px;background:transparent;border:1px solid rgba(255,255,255,.18);
+  color:var(--dim);font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;
+  padding:7px 14px;border-radius:99px;cursor:pointer;transition:.25s;
+}
+.skip:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 18px rgba(0,242,255,.3)}
+
+/* ---------- 顶部导航 ---------- */
+.progress{position:fixed;top:0;left:0;height:2px;z-index:150;width:0;
+  background:linear-gradient(90deg,var(--cyan),var(--purple));
+  box-shadow:0 0 14px rgba(0,242,255,.8)}
+.site-head{
+  position:sticky;top:0;z-index:130;
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  background:linear-gradient(180deg,rgba(2,2,5,.9),rgba(2,2,5,.62));
+  border-bottom:1px solid var(--line-soft);
+  transition:border-color .3s,background .3s;
+}
+.site-head.stuck{border-bottom-color:var(--line);background:linear-gradient(180deg,rgba(2,2,5,.96),rgba(2,2,5,.82))}
+.head-inner{display:flex;align-items:center;gap:22px;height:70px}
+.brand{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.brand-mark{
+  width:40px;height:40px;border-radius:11px;display:grid;place-items:center;
+  border:1px solid var(--line);background:rgba(0,242,255,.07);
+  box-shadow:0 0 22px -6px rgba(0,242,255,.7),0 0 0 1px rgba(0,242,255,.08) inset;
+}
+.brand-mark svg{width:20px;height:20px;filter:drop-shadow(0 0 6px var(--cyan))}
+.brand-txt{display:flex;flex-direction:column;line-height:1.15}
+.brand-txt b{font-family:var(--mono);font-size:.95rem;letter-spacing:.24em;color:#eafcff}
+.brand-txt small{font-size:.6rem;letter-spacing:.28em;color:var(--dimmer)}
+.menu{display:flex;gap:6px;margin-left:auto;align-items:center}
+.menu a{
+  position:relative;font-family:var(--mono);font-size:.76rem;letter-spacing:.16em;
+  color:#93a6b8;padding:9px 12px;border-radius:8px;text-transform:uppercase;
+}
+.menu a::after{
+  content:"";position:absolute;left:12px;right:12px;bottom:4px;height:1px;
+  background:var(--cyan);transform:scaleX(0);transform-origin:left;transition:transform .3s var(--ease);
+}
+.menu a:hover{color:var(--cyan);background:rgba(0,242,255,.05)}
+.menu a:hover::after{transform:scaleX(1)}
+.menu a.active{color:var(--cyan);text-shadow:0 0 12px rgba(0,242,255,.6)}
+.menu a.active::after{transform:scaleX(1)}
+.btn-cta{
+  font-family:var(--mono);font-size:.74rem;letter-spacing:.16em;padding:10px 18px;border-radius:9px;
+  border:1px solid var(--cyan);color:#04121a;background:var(--cyan);font-weight:700;
+  box-shadow:0 0 24px -6px rgba(0,242,255,.9);white-space:nowrap;
+}
+.btn-cta:hover{background:#8df6ff;color:#02121a;text-shadow:none;box-shadow:0 0 34px -4px rgba(0,242,255,1)}
+.burger{
+  display:none;margin-left:auto;width:42px;height:42px;border-radius:10px;
+  border:1px solid var(--line);background:rgba(0,242,255,.05);cursor:pointer;
+  align-items:center;justify-content:center;flex-direction:column;gap:5px;
+}
+.burger span{display:block;width:18px;height:1.5px;background:var(--cyan);transition:.3s}
+.burger.on span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.burger.on span:nth-child(2){opacity:0}
+.burger.on span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+
+/* ---------- Hero ---------- */
+.hero{
+  position:relative;min-height:calc(100vh - 70px);min-height:calc(100svh - 70px);
+  display:grid;place-items:center;
+  padding:70px 0 40px;text-align:center;overflow:hidden;
+}
+.hero::before{ /* 中心光环 */
+  content:"";position:absolute;width:min(760px,110vw);aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,242,255,.10),transparent 62%);
+  filter:blur(12px);animation:breathe 6s ease-in-out infinite;
+}
+@keyframes breathe{0%,100%{transform:scale(.94);opacity:.7}50%{transform:scale(1.06);opacity:1}}
+.hero-inner{position:relative;z-index:2;width:min(1180px,92vw)}
+.status-pill{
+  display:inline-flex;align-items:center;gap:10px;padding:7px 16px;border-radius:99px;
+  border:1px solid var(--line);background:rgba(0,242,255,.05);
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.24em;color:#9fe9f7;margin-bottom:28px;
+}
+.dot{width:7px;height:7px;border-radius:50%;background:#4fe08a;box-shadow:0 0 10px #4fe08a;animation:blink 1.6s infinite}
+.hero h1{
+  font-size:clamp(2.2rem,7.2vw,5.4rem);font-weight:900;letter-spacing:.06em;
+  line-height:1.05;margin-bottom:6px;
+}
+.hero h1 .en{display:block;letter-spacing:.10em}
+.hero-zh{
+  font-size:clamp(1rem,2.6vw,1.6rem);letter-spacing:.7em;color:#a9e9ff;
+  font-weight:300;margin:14px 0 22px;text-shadow:0 0 26px rgba(0,242,255,.55);
+}
+.type-line{
+  font-family:var(--mono);font-size:clamp(.78rem,1.7vw,1rem);color:var(--dim);
+  letter-spacing:.08em;min-height:1.7em;margin-bottom:34px;
+}
+.type-line .caret{display:inline-block;width:8px;background:var(--cyan);color:transparent;
+  margin-left:3px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:.12}}
+.hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:52px}
+.btn{
+  --c:var(--cyan);
+  --c-55:rgba(0,242,255,.55);--c-14:rgba(0,242,255,.14);--c-08:rgba(0,242,255,.08);
+  position:relative;display:inline-flex;align-items:center;gap:10px;
+  padding:14px 28px;border-radius:12px;border:1px solid var(--c-55);
+  font-family:var(--mono);font-size:.8rem;letter-spacing:.18em;color:var(--c);
+  background:var(--c-08);overflow:hidden;
+  transition:transform .35s var(--ease),box-shadow .35s,border-color .35s,background .35s;
+}
+@supports (border-color:color-mix(in srgb,red 50%,transparent)){
+  .btn{border-color:color-mix(in srgb,var(--c) 55%,transparent);
+       background:color-mix(in srgb,var(--c) 8%,transparent)}
+}
+.btn:hover,.btn:focus-visible{
+  transform:translateY(-3px);border-color:var(--c);text-shadow:0 0 12px var(--c);
+  box-shadow:0 14px 38px -14px var(--c),0 0 0 1px var(--c-14) inset;
+  background:var(--c-14);
+}
+@supports (border-color:color-mix(in srgb,red 50%,transparent)){
+  .btn:hover,.btn:focus-visible{background:color-mix(in srgb,var(--c) 14%,transparent)}
+}
+.btn::after{ /* 掠过光 */
+  content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.22),transparent);
+  transition:left .7s var(--ease);
+}
+.btn:hover::after{left:130%}
+.btn.solid{color:#04121a;background:var(--cyan);font-weight:700;border-color:var(--cyan)}
+.btn.solid:hover{background:#9df3ff;color:#03121a;text-shadow:none}
+.btn.red{--c:var(--red);--c-55:rgba(255,0,60,.55);--c-14:rgba(255,0,60,.14);--c-08:rgba(255,0,60,.08)}
+.btn.orange{--c:var(--orange);--c-55:rgba(255,107,53,.55);--c-14:rgba(255,107,53,.14);--c-08:rgba(255,107,53,.08)}
+.btn.green{--c:var(--green);--c-55:rgba(92,184,92,.55);--c-14:rgba(92,184,92,.14);--c-08:rgba(92,184,92,.08)}
+.btn svg{width:16px;height:16px;flex-shrink:0}
+.hero-stats{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  background:var(--line-soft);border:1px solid var(--line-soft);border-radius:16px;overflow:hidden;
+  backdrop-filter:blur(10px);
+}
+.hero-stats div{background:rgba(6,10,20,.66);padding:18px 12px}
+.hero-stats b{display:block;font-family:var(--mono);font-size:clamp(1rem,2.4vw,1.5rem);color:#eafcff}
+.hero-stats span{font-family:var(--mono);font-size:.62rem;letter-spacing:.2em;color:var(--dimmer)}
+.scroll-hint{
+  position:absolute;bottom:22px;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:.6rem;letter-spacing:.3em;color:var(--dimmer);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+}
+.scroll-hint i{display:block;width:1px;height:34px;background:linear-gradient(180deg,var(--cyan),transparent);animation:hint 2s ease-in-out infinite}
+@keyframes hint{0%,100%{opacity:.25;transform:scaleY(.6)}50%{opacity:1;transform:scaleY(1)}}
+
+/* ---------- 跑马灯 ---------- */
+.ticker{
+  border-block:1px solid var(--line-soft);background:rgba(4,7,14,.7);
+  overflow:hidden;position:relative;z-index:2;
+}
+.ticker-track{display:flex;width:max-content;animation:marquee 42s linear infinite}
+.ticker:hover .ticker-track{animation-play-state:paused}
+.ticker-track span{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;color:#8fa6b8;
+  padding:11px 0;white-space:nowrap;
+}
+.ticker-track span i{color:var(--cyan);font-style:normal;margin:0 22px}
+.ticker-track span em{color:var(--purple-soft);font-style:normal}
+.ticker-track span strong{color:var(--red);font-weight:600}
+@keyframes marquee{to{transform:translateX(-50%)}}
+
+/* ---------- 区块 ---------- */
+main{position:relative;z-index:2;padding-bottom:20px}
+.section{padding:96px 0;position:relative}
+.section + .section{border-top:1px solid var(--line-soft)}
+.sec-head{margin-bottom:46px;max-width:760px}
+.sec-head h2{
+  font-size:clamp(1.5rem,3.6vw,2.3rem);font-weight:800;letter-spacing:.06em;margin:16px 0 12px;
+}
+.sec-head p{color:var(--dim);font-size:.95rem}
+.sec-head.center{margin-inline:auto;text-align:center}
+.sec-head.center .eyebrow{justify-content:center}
+.sec-head.center .eyebrow::after{content:"";width:34px;height:1px;background:linear-gradient(270deg,transparent,var(--cyan))}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+
+/* ---------- 入口卡片 ---------- */
+.portals{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:20px}
+.portal{
+  --c:var(--cyan);
+  position:relative;display:block;padding:28px 26px 26px;border-radius:18px;
+  background:linear-gradient(165deg,rgba(12,19,33,.72),rgba(5,8,16,.72));
+  border:1px solid var(--line-soft);overflow:hidden;
+  transition:transform .45s var(--ease),border-color .45s,box-shadow .45s;
+}
+.portal::before{ /* 顶部扫描填充 */
+  content:"";position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--c),transparent);
+  opacity:.5;transition:opacity .4s;
+}
+.portal::after{ /* 玻璃反光 */
+  content:"";position:absolute;top:0;left:-130%;width:55%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.07),transparent);
+  transition:left .85s var(--ease);pointer-events:none;
+}
+.portal:hover{transform:translateY(-8px);border-color:var(--c);box-shadow:0 26px 60px -26px var(--c)}
+@supports (border-color:color-mix(in srgb,red 50%,transparent)){
+  .portal:hover{border-color:color-mix(in srgb,var(--c) 60%,transparent)}
+}
+.portal:hover::before{opacity:1}
+.portal:hover::after{left:140%}
+.portal-ico{
+  width:52px;height:52px;border-radius:14px;display:grid;place-items:center;margin-bottom:20px;
+  border:1px solid rgba(0,242,255,.4);
+  background:rgba(0,242,255,.1);
+  box-shadow:0 0 26px -8px var(--c);
+}
+@supports (border-color:color-mix(in srgb,red 50%,transparent)){
+  .portal-ico{border-color:color-mix(in srgb,var(--c) 40%,transparent);
+              background:color-mix(in srgb,var(--c) 10%,transparent)}
+}
+.portal-ico svg{width:24px;height:24px;stroke:var(--c);fill:none;stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 6px var(--c))}
+.portal h3{font-size:1.12rem;letter-spacing:.05em;margin-bottom:8px;color:#eef9ff}
+.portal p{font-size:.86rem;color:var(--dim);min-height:3.2em}
+.portal-meta{
+  display:flex;align-items:center;justify-content:space-between;margin-top:20px;padding-top:16px;
+  border-top:1px solid var(--line-soft);font-family:var(--mono);font-size:.64rem;
+  letter-spacing:.16em;color:var(--dimmer);
+}
+.portal-meta em{font-style:normal;color:var(--c);display:flex;align-items:center;gap:8px}
+.portal-meta em::after{content:"→";transition:transform .35s var(--ease)}
+.portal:hover .portal-meta em::after{transform:translateX(5px)}
+
+/* ---------- 通缉令 ---------- */
+.dossier{
+  --c:var(--red);
+  --c-soft:rgba(255,0,60,.32);--c-mid:rgba(255,0,60,.55);--c-chip:rgba(255,0,60,.45);
+  --c-glow:rgba(255,0,60,.5);--c-glow-2:rgba(255,0,60,.65);
+  position:relative;border-radius:18px;overflow:hidden;
+  background:
+    linear-gradient(165deg,rgba(18,8,14,.72),rgba(6,5,12,.78)),
+    repeating-linear-gradient(45deg,rgba(255,0,60,.035) 0 2px,transparent 2px 14px);
+  border:1px solid var(--c-soft);
+  box-shadow:0 0 46px -22px var(--c);
+}
+.dossier.purple{--c:var(--purple-soft);
+  --c-soft:rgba(176,107,255,.32);--c-mid:rgba(176,107,255,.55);--c-chip:rgba(176,107,255,.45);
+  --c-glow:rgba(176,107,255,.5);--c-glow-2:rgba(176,107,255,.65);
+  background:
+    linear-gradient(165deg,rgba(20,10,32,.74),rgba(7,5,15,.8)),
+    repeating-linear-gradient(45deg,rgba(176,107,255,.05) 0 2px,transparent 2px 14px)}
+.dossier + .dossier{margin-top:22px}
+.corner{position:absolute;width:22px;height:22px;border:2px solid var(--c);opacity:.75;z-index:3}
+.corner.tl{top:12px;left:12px;border-right:0;border-bottom:0;border-radius:6px 0 0 0}
+.corner.tr{top:12px;right:12px;border-left:0;border-bottom:0;border-radius:0 6px 0 0}
+.corner.bl{bottom:12px;left:12px;border-right:0;border-top:0;border-radius:0 0 0 6px}
+.corner.br{bottom:12px;right:12px;border-left:0;border-top:0;border-radius:0 0 6px 0}
+.dossier-body{position:relative;z-index:2;padding:34px 34px 30px;display:flex;gap:30px;align-items:flex-start;flex-wrap:wrap}
+.mug{
+  position:relative;flex-shrink:0;width:148px;height:148px;border-radius:14px;overflow:hidden;
+  border:1px solid var(--c-mid);background:#07070c;
+  box-shadow:0 0 30px -10px var(--c),0 0 0 6px rgba(0,0,0,.4);
+}
+.mug img{width:100%;height:100%;object-fit:cover;image-rendering:pixelated;
+  filter:saturate(.65) contrast(1.12)}
+.dossier.purple .mug img{filter:saturate(.95) contrast(1.05)}
+.mug::after{ /* 扫描线 */
+  content:"";position:absolute;inset:0;
+  background:repeating-linear-gradient(180deg,rgba(0,0,0,.22) 0 2px,transparent 2px 4px);
+  animation:mugScan 5.5s linear infinite;
+}
+@keyframes mugScan{0%{background-position-y:0}100%{background-position-y:120px}}
+.mug .live{
+  position:absolute;left:8px;bottom:8px;z-index:2;display:flex;align-items:center;gap:6px;
+  padding:3px 9px;border-radius:99px;background:rgba(0,0,0,.7);font-family:var(--mono);
+  font-size:.56rem;letter-spacing:.18em;color:#ffd9e0;border:1px solid rgba(255,0,60,.5);
+}
+.dossier.purple .mug .live{color:#f0dcff;border-color:rgba(176,107,255,.55)}
+.dossier-info{flex:1;min-width:260px}
+.dossier-info h3{
+  font-family:var(--mono);font-size:clamp(1.5rem,4vw,2.1rem);letter-spacing:.08em;
+  color:var(--c);margin-bottom:6px;text-shadow:0 0 22px var(--c-glow);
+}
+.dossier-info .deal{font-family:var(--mono);font-size:.66rem;letter-spacing:.3em;color:var(--dimmer);margin-bottom:18px}
+.fields{display:grid;gap:10px;margin-bottom:18px}
+.field{display:grid;grid-template-columns:96px 1fr;gap:14px;font-size:.9rem;align-items:baseline}
+.field dt{font-family:var(--mono);font-size:.66rem;letter-spacing:.18em;color:var(--dimmer);text-transform:uppercase}
+.field dd{color:#e8d7dc}
+.dossier.purple .field dd{color:#e4d8f2}
+.field dd .strike{text-decoration:line-through;color:#6d6d78}
+.field dd .chip{
+  display:inline-block;padding:2px 10px;border-radius:6px;font-family:var(--mono);font-size:.72rem;
+  letter-spacing:.1em;border:1px solid var(--c-chip);
+  background:rgba(255,255,255,.06);color:#fff;
+}
+@supports (border-color:color-mix(in srgb,red 50%,transparent)){
+  .field dd .chip{background:color-mix(in srgb,var(--c) 12%,transparent)}
+}
+.badge{
+  display:inline-flex;align-items:center;gap:9px;margin-top:6px;padding:7px 16px;border-radius:8px;
+  background:var(--c);color:#0a0206;font-family:var(--mono);font-weight:700;font-size:.7rem;
+  letter-spacing:.22em;text-transform:uppercase;box-shadow:0 0 26px -8px var(--c);
+  animation:pulseBadge 1.9s ease-in-out infinite;
+}
+@keyframes pulseBadge{0%,100%{box-shadow:0 0 20px -10px var(--c)}50%{box-shadow:0 0 34px -4px var(--c)}}.threat{margin-top:22px;max-width:420px}
+.threat-label{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;
+  letter-spacing:.2em;color:var(--dimmer);margin-bottom:8px}
+.threat-bar{display:flex;gap:4px}
+.threat-bar i{flex:1;height:6px;border-radius:2px;background:rgba(255,255,255,.07)}
+.threat-bar i.on{background:var(--c);box-shadow:0 0 12px -2px var(--c)}
+.stamp{
+  position:absolute;top:26px;right:30px;z-index:4;transform:rotate(-13deg);
+  font-family:var(--mono);font-weight:800;letter-spacing:.18em;font-size:.72rem;
+  padding:9px 15px;border:2px solid var(--c);color:var(--c);border-radius:8px;
+  opacity:.5;text-transform:uppercase;pointer-events:none;
+}
+.watermark{
+  position:absolute;inset:0;z-index:1;display:grid;place-items:center;pointer-events:none;
+  font-size:clamp(2.6rem,11vw,6.4rem);font-weight:900;letter-spacing:.24em;
+  color:transparent;-webkit-text-stroke:1.5px rgba(176,107,255,.30);
+  transform:rotate(-9deg);white-space:nowrap;user-select:none;
+  animation:waterPulse 4.5s ease-in-out infinite;
+}
+@keyframes waterPulse{0%,100%{opacity:.45}50%{opacity:.9}}
+.dossier.ghost{--c:#8d97a5;
+  background:linear-gradient(165deg,rgba(13,15,20,.72),rgba(6,7,11,.8));
+  box-shadow:none}
+.dossier.ghost .dossier-info h3{color:#b9c2cc;text-shadow:none}
+.dossier.ghost .mug img{filter:grayscale(.55) brightness(.8)}
+.dossier.ghost .badge{background:#2b3038;color:#c3cbd4;animation:none;box-shadow:none;font-weight:600}
+
+/* ---------- 团队 ---------- */
+.people{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px}
+.person{
+  position:relative;text-align:center;padding:30px 20px 24px;border-radius:18px;
+  background:linear-gradient(170deg,rgba(11,17,30,.7),rgba(5,7,14,.72));
+  border:1px solid var(--line-soft);transition:transform .45s var(--ease),border-color .4s,box-shadow .4s;
+  overflow:hidden;
+}
+.person::before{
+  content:"";position:absolute;left:50%;top:-60px;width:160px;height:160px;transform:translateX(-50%);
+  background:radial-gradient(circle,rgba(0,242,255,.22),transparent 68%);opacity:0;transition:opacity .45s;
+}
+.person:hover{transform:translateY(-7px);border-color:var(--line);box-shadow:var(--shadow-cyan)}
+.person:hover::before{opacity:1}
+.person .p-av{
+  position:relative;width:82px;height:82px;margin:0 auto 16px;border-radius:50%;overflow:hidden;
+  border:1px solid rgba(0,242,255,.45);background:#0a0e18;
+  box-shadow:0 0 28px -10px var(--cyan);
+}
+.person .p-av img{width:100%;height:100%;object-fit:cover;filter:saturate(.8) contrast(1.05)}
+.person .p-av::after{
+  content:"";position:absolute;inset:-3px;border-radius:50%;
+  border:1px dashed rgba(0,242,255,.35);animation:spin 14s linear infinite;
+}
+.person h4{font-size:1rem;letter-spacing:.08em;color:#eaf9ff;margin-bottom:6px}
+.person .role{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;color:var(--cyan)}
+.person .said{font-size:.8rem;color:var(--dim);margin-top:12px;font-style:italic}
+.person .bar-line{height:2px;width:34px;margin:16px auto 0;border-radius:99px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent)}
+.founder-card{border-color:rgba(176,107,255,.32)}
+.founder-card:hover{box-shadow:var(--shadow-purple);border-color:rgba(176,107,255,.6)}
+.founder-card .p-av{border-color:rgba(176,107,255,.55);box-shadow:0 0 28px -10px var(--purple-soft)}
+.founder-card .p-av::after{border-color:rgba(176,107,255,.35)}
+.founder-card .role{color:var(--purple-soft)}
+.founder-card .bar-line{background:linear-gradient(90deg,transparent,var(--purple-soft),transparent)}
+.tagline{
+  position:absolute;top:12px;right:12px;font-family:var(--mono);font-size:.55rem;
+  letter-spacing:.16em;padding:3px 8px;border-radius:99px;color:#dcc7ff;
+  border:1px solid rgba(176,107,255,.5);background:rgba(176,107,255,.12);
+}
+
+/* ---------- 联系 ---------- */
+.contact-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:20px;align-items:start}
+.panel{
+  padding:30px;border-radius:18px;border:1px solid var(--line-soft);
+  background:linear-gradient(165deg,rgba(11,17,30,.7),rgba(5,7,14,.74));
+}
+.panel h3{font-size:1.05rem;letter-spacing:.06em;margin-bottom:10px;color:#eaf9ff}
+.panel p{color:var(--dim);font-size:.9rem}
+.links{display:grid;gap:12px;margin-top:22px}
+.link-row{
+  display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;
+  border:1px solid var(--line-soft);background:rgba(255,255,255,.02);
+  transition:border-color .3s,background .3s,transform .3s var(--ease);
+}
+.link-row:hover{border-color:var(--line);background:rgba(0,242,255,.05);transform:translateX(4px);text-shadow:none}
+.link-row svg{width:18px;height:18px;stroke:var(--cyan);fill:none;stroke-width:1.6;flex-shrink:0}
+.link-row b{display:block;color:#eaf9ff;font-size:.86rem;font-weight:600;letter-spacing:.03em}
+.link-row small{font-family:var(--mono);font-size:.68rem;color:var(--dimmer);letter-spacing:.1em}
+.link-row .go{margin-left:auto;font-family:var(--mono);color:var(--dimmer);font-size:.8rem}
+.terminal{
+  font-family:var(--mono);font-size:.76rem;line-height:2;color:#9fe0ee;
+  background:rgba(0,0,0,.42);border:1px solid rgba(0,242,255,.14);border-radius:12px;
+  padding:16px 18px;margin-top:20px;overflow-x:auto;white-space:pre;
+}
+.terminal .c{color:#4fe08a}
+.terminal .k{color:var(--purple-soft)}
+
+/* ---------- 页脚 ---------- */
+.site-foot{
+  position:relative;z-index:70;border-top:1px solid var(--line-soft);
+  background:linear-gradient(180deg,rgba(3,5,12,.72),rgba(4,7,14,.92));
+  padding:54px 0 34px;margin-top:40px;
+}
+.foot-grid{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;margin-bottom:34px}
+.foot-col h5{font-family:var(--mono);font-size:.66rem;letter-spacing:.26em;color:var(--dimmer);
+  text-transform:uppercase;margin-bottom:14px}
+.foot-col a,.foot-col span{display:block;font-size:.84rem;color:var(--dim);margin-bottom:8px}
+.foot-col a:hover{color:var(--cyan)}
+.foot-bottom{
+  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  padding-top:22px;border-top:1px solid var(--line-soft);
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;color:var(--dimmer);
+}
+.foot-bottom em{font-style:normal;color:var(--purple-soft)}
+
+/* ---------- 回到顶部 ---------- */
+.to-top{
+  position:fixed;right:22px;bottom:22px;z-index:110;width:46px;height:46px;border-radius:50%;
+  border:1px solid var(--line);background:rgba(6,10,20,.82);backdrop-filter:blur(10px);
+  color:var(--cyan);cursor:pointer;display:grid;place-items:center;
+  opacity:0;visibility:hidden;transform:translateY(12px);transition:.4s var(--ease);
+}
+.to-top.on{opacity:1;visibility:visible;transform:none}
+.to-top:hover{box-shadow:0 0 26px -6px var(--cyan);border-color:var(--cyan)}
+.to-top svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2}
+
+/* ---------- 响应式 ---------- */
+@media (max-width:1000px){
+  .contact-grid{grid-template-columns:1fr}
+  .stamp{position:static;display:inline-block;margin-bottom:14px;transform:rotate(-4deg)}
+}
+@media (max-width:860px){
+  .menu{
+    position:fixed;inset:70px 0 auto;flex-direction:column;align-items:stretch;gap:2px;
+    background:rgba(3,5,12,.98);border-bottom:1px solid var(--line);
+    padding:14px 5vw 22px;margin:0;transform:translateY(-130%);transition:transform .45s var(--ease);
+    backdrop-filter:blur(20px);max-height:calc(100svh - 70px);overflow-y:auto;
+  }
+  .menu.open{transform:none}
+  .menu a{padding:15px 6px;border-bottom:1px solid var(--line-soft);font-size:.82rem}
+  .menu a::after{display:none}
+  .btn-cta{display:none}
+  .burger{display:flex}
+  .head-inner{height:64px;gap:14px}
+  .section{padding:70px 0}
+  .dossier-body{padding:26px 20px 24px;gap:22px}
+  .mug{width:116px;height:116px}
+  .hero{min-height:calc(100svh - 64px)}
+  .hero-zh{letter-spacing:.4em}
+  .scanlines{opacity:.22}
+}
+@media (max-width:560px){
+  .hero-stats{grid-template-columns:repeat(2,1fr)}
+  .field{grid-template-columns:1fr;gap:2px}
+  .boot{padding:26px 18px 22px}
+  .boot-log{font-size:.68rem;height:104px}
+  .to-top{right:14px;bottom:14px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;scroll-behavior:auto !important}
+  .reveal{opacity:1;transform:none}
+}
+</style>
 </head>
-<body>
+<body class="is-booting">
 
-    <!-- 启动动画 -->
-    <div id="loader">
-        <div class="loader-box">
-            <div class="logo-anim">神人工业</div>
-            <div class="loading-text" id="status-text">INITIALIZING SHEN_REN...</div>
-            <div class="progress-container">
-                <div class="progress-bar" id="progress"></div>
-            </div>
-            <div class="loader-info">
-                NODE_ID: 0x9178 <br>
-                ESTABLISHING SECURE PROTOCOL...
-            </div>
-            <div id="system-ready" class="system-ready">⚡ SYSTEM READY! 欢迎进入神人工业</div>
-        </div>
+<!-- ============ 启动动画 ============ -->
+<div id="loader" role="status" aria-live="polite">
+  <div class="boot">
+    <div class="core" aria-hidden="true"><i></i><i></i><i></i><b>SR</b></div>
+    <div class="boot-brand grad-text">神人工业</div>
+    <div class="boot-sub">SHEN_REN INDUSTRY · PROTOCOL ALPHA-9</div>
+    <div class="boot-log mono" id="bootLog"></div>
+    <div class="bar"><span id="bootBar"></span></div>
+    <div class="boot-foot"><span id="bootPct">0%</span><span>SECURE CHANNEL · 0x9178</span></div>
+    <button class="skip" id="skip" type="button">跳过 SKIP</button>
+  </div>
+</div>
+
+<!-- ============ 背景 ============ -->
+<div class="bg-stack" aria-hidden="true"></div>
+<div class="bg-grid" aria-hidden="true"></div>
+<canvas id="particles" aria-hidden="true"></canvas>
+<div class="sweep" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+<div class="scanlines" aria-hidden="true"></div>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<!-- ============ 导航 ============ -->
+<header class="site-head" id="siteHead">
+  <div class="wrap head-inner">
+    <a class="brand" href="index.html" aria-label="神人工业 首页">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 100 100"><path d="M58 8 L24 56 h20 l-7 36 36-52H52z" fill="#00f2ff"/></svg>
+      </span>
+      <span class="brand-txt">
+        <b>SHEN_REN</b>
+        <small>神人工业</small>
+      </span>
+    </a>
+    <nav class="menu" id="menu" aria-label="主导航">
+      <a href="#top" class="active">// 主页</a>
+      <a href="#dossiers">// 通缉令</a>
+      <a href="#architects">// 架构师</a>
+      <a href="#team">// 团队</a>
+      <a href="profile.html">// 人物档案</a>
+      <a href="#contact">// 联系</a>
+    </nav>
+    <a class="btn-cta" href="profile.html">进入档案库 →</a>
+    <button class="burger" id="burger" type="button" aria-label="切换菜单" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="hero-inner">
+      <span class="status-pill"><i class="dot" aria-hidden="true"></i>ACCESS GRANTED · 节点在线 · NODE 0x9178</span>
+      <h1 class="grad-text"><span class="en">SHEN_REN INDUSTRY</span></h1>
+      <p class="hero-zh">神 人 工 业</p>
+      <p class="type-line mono" id="typeLine" aria-label="这么强？！？"></p>
+      <div class="hero-actions">
+        <a class="btn solid" href="profile.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          进入人物档案
+        </a>
+        <a class="btn red" href="#dossiers">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2.5 20h19z"/><path d="M12 9v5M12 17h.01"/></svg>
+          查看通缉令
+        </a>
+        <a class="btn orange" href="anmuxi.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3 4 5 6.5 5 9a5 5 0 0 1-10 0c0-2.5 2-5 5-9z"/></svg>
+          安慕希超燃
+        </a>
+        <a class="btn green" href="https://mcjs.link/" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 8h8v8H8z"/></svg>
+          我的世界
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div><b data-count="9">0</b><span>核心成员</span></div>
+        <div><b data-count="1919">0</b><span>承诺神人币(亿)</span></div>
+        <div><b data-count="2">0</b><span>在册通缉目标</span></div>
+        <div><b data-count="9">0</b><span>协议版本 α-9</span></div>
+      </div>
+    </div>
+    <div class="scroll-hint" aria-hidden="true">SCROLL<i></i></div>
+  </section>
+
+  <!-- ============ 跑马灯 ============ -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track" id="tickerTrack"></div>
+  </div>
+
+  <!-- ============ 快速入口 ============ -->
+  <section class="section wrap" id="portals">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Quick Access</div>
+      <h2 class="grad-text">模块入口 · <span class="mono" style="font-size:.7em;letter-spacing:.2em">MODULES</span></h2>
+      <p>四个已开源的子系统。所有链路均已加密，点击即完成握手。</p>
+    </div>
+    <div class="portals">
+      <a class="portal reveal" href="profile.html" style="--c:#00f2ff">
+        <span class="portal-ico"><svg viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 13h6M12 10v6"/></svg></span>
+        <h3>人物档案库</h3>
+        <p>全部成员的权限等级、代号、技能标签与在职履历，支持按身份筛选。</p>
+        <span class="portal-meta"><span>profile.html</span><em>OPEN</em></span>
+      </a>
+      <a class="portal reveal" href="#dossiers" style="--c:#ff003c">
+        <span class="portal-ico"><svg viewBox="0 0 24 24"><path d="M12 3 2.5 20h19z"/><path d="M12 9v5M12 17h.01"/></svg></span>
+        <h3>通缉令</h3>
+        <p>实时同步的目标档案：罪名、悬赏状态与威胁评级，含一条已复活记录。</p>
+        <span class="portal-meta"><span>#dossiers</span><em>SCAN</em></span>
+      </a>
+      <a class="portal reveal" href="anmuxi.html" style="--c:#ff6b35">
+        <span class="portal-ico"><svg viewBox="0 0 24 24"><path d="M12 3c3.2 4.2 5.2 6.8 5.2 9.4A5.2 5.2 0 0 1 6.8 12.4C6.8 9.8 8.8 7.2 12 3z"/><path d="M9.5 13.5a2.6 2.6 0 0 0 5 .6"/></svg></span>
+        <h3>安慕希超燃</h3>
+        <p>全屏旋转沉浸页。视频环幕 + 粒子场 + 彩虹流光标题，音浪与光环同步。</p>
+        <span class="portal-meta"><span>anmuxi.html</span><em>PLAY</em></span>
+      </a>
+      <a class="portal reveal" href="https://mcjs.link/" target="_blank" rel="noopener" style="--c:#5cb85c">
+        <span class="portal-ico"><svg viewBox="0 0 24 24"><path d="M3 8.5 12 3l9 5.5v7L12 21l-9-5.5z"/><path d="M3 8.5 12 14l9-5.5M12 14v7"/></svg></span>
+        <h3>我的世界</h3>
+        <p>服务器入口与联机指引。刷石机、甘蔗机、刷铁机在此 24 小时无人值守。</p>
+        <span class="portal-meta"><span>mcjs.link</span><em>JOIN</em></span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ 通缉令 ============ -->
+  <section class="section wrap" id="dossiers">
+    <div class="sec-head reveal">
+      <div class="eyebrow">System Alert · Wanted</div>
+      <h2 class="grad-text">通缉令 · <span class="mono" style="font-size:.7em;letter-spacing:.2em">WANTED LIST</span></h2>
+      <p>以下档案由神人工业安全科直接签发。信誉分低于阈值者，请勿在服务器内提及“善魂”。</p>
     </div>
 
-    <div class="bg-lines"></div>
+    <!-- dj_yao · 已结案 -->
+    <article class="dossier ghost reveal">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <span class="stamp">CASE CLOSED</span>
+      <div class="dossier-body">
+        <div class="mug">
+          <img src="https://minotar.net/armor/bust/dj_yao/160.png" alt="dj_yao 的 Minecraft 头像" loading="lazy" width="160" height="160">
+          <span class="live">● 已解除通缉</span>
+        </div>
+        <div class="dossier-info">
+          <h3>dj_yao</h3>
+          <div class="deal">FILE NO. SR-0917-DJ · TARGET ZERO</div>
+          <dl class="fields">
+            <div class="field"><dt>原罪名</dt><dd>搞。我的。善魂。</dd></div>
+            <div class="field"><dt>当前状态</dt><dd><span class="chip">算了（FORGET IT）</span></dd></div>
+            <div class="field"><dt>悬赏状态</dt><dd><span class="strike">已撤销 · DISMISSED</span></dd></div>
+          </dl>
+          <span class="badge" style="background:#2b3038;color:#c3cbd4;animation:none">∅ 案件已归档 · 不再追缉</span>
+          <div class="threat">
+            <div class="threat-label"><span>THREAT LEVEL</span><span>04 / 10</span></div>
+            <div class="threat-bar" data-threat="4"></div>
+          </div>
+        </div>
+      </div>
+    </article>
 
-    <header>
-        <p style="letter-spacing: 6px; color: var(--accent-blue); margin-bottom: 22px; font-weight: 300;">ACCESS GRANTED</p>
-        <h1 class="hero-title">SHEN_REN Industry</h1>
-        <!-- 在 header 内部，hero-title 下方添加 -->
-        <div style="margin-top: 32px; display: flex; gap: 18px; flex-wrap: wrap; justify-content: center;">
-            <a href="profile.html" style="
-                display: inline-block;
-                padding: 14px 34px;
-                border: 1.5px solid var(--accent-blue);
-                color: var(--accent-blue);
-                text-decoration: none;
-                font-family: monospace;
-                letter-spacing: 4px;
-                font-size: 1rem;
-                transition: all 0.3s;
-                border-radius: 6px;
-                position: relative;
-                overflow: hidden;
-                background: rgba(0, 242, 255, 0.03);
-            " onmouseover="this.style.boxShadow='0 0 30px rgba(0,242,255,0.4)'; this.style.transform='translateY(-3px)'; this.style.background='rgba(0,242,255,0.1)';" 
-               onmouseout="this.style.boxShadow='none'; this.style.transform='translateY(0)'; this.style.background='rgba(0,242,255,0.03)';">
-                📁 进入人物档案
-            </a>
-            <a href="profile.html#wanted" style="
-                display: inline-block;
-                padding: 14px 34px;
-                border: 1.5px solid var(--accent-red);
-                color: var(--accent-red);
-                text-decoration: none;
-                font-family: monospace;
-                letter-spacing: 4px;
-                font-size: 1rem;
-                transition: all 0.3s;
-                border-radius: 6px;
-                background: rgba(255, 0, 60, 0.03);
-                animation: btnPulse 2s infinite;
-            " onmouseover="this.style.boxShadow='0 0 30px rgba(255,0,60,0.5)'; this.style.transform='translateY(-3px)';" 
-               onmouseout="this.style.boxShadow='none'; this.style.transform='translateY(0)';">
-                ⚠ 查看通缉令
-            </a>
-            <a href="anmuxi.html" style="
-                display: inline-block;
-                padding: 14px 34px;
-                border: 1.5px solid #ff6b35;
-                color: #ff6b35;
-                text-decoration: none;
-                font-family: monospace;
-                letter-spacing: 4px;
-                font-size: 1rem;
-                transition: all 0.3s;
-                border-radius: 6px;
-                background: rgba(255, 107, 53, 0.05);
-                animation: btnBurn 2.5s infinite;
-            " onmouseover="this.style.boxShadow='0 0 30px rgba(255,107,53,0.6)'; this.style.transform='translateY(-3px) scale(1.05)';" 
-               onmouseout="this.style.boxShadow='none'; this.style.transform='translateY(0) scale(1)';">
-                🔥 安慕希超燃
-            </a>
-            <a href="https://mcjs.link/" style="
-                display: inline-block;
-                padding: 14px 34px;
-                border: 1.5px solid #5cb85c;
-                color: #5cb85c;
-                text-decoration: none;
-                font-family: monospace;
-                letter-spacing: 4px;
-                font-size: 1rem;
-                transition: all 0.3s;
-                border-radius: 6px;
-                background: rgba(92, 184, 92, 0.05);
-                animation: btnGrass 3s infinite;
-            " onmouseover="this.style.boxShadow='0 0 30px rgba(92,184,92,0.6)'; this.style.transform='translateY(-3px) scale(1.05)';" 
-               onmouseout="this.style.boxShadow='none'; this.style.transform='translateY(0) scale(1)';">
-                🎮 我的世界
-            </a>
+    <!-- MC_dogs · 已复活 -->
+    <article class="dossier purple reveal">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <span class="stamp">RESURRECTED</span>
+      <div class="watermark" aria-hidden="true">已 复 活</div>
+      <div class="dossier-body">
+        <div class="mug">
+          <img src="https://minotar.net/armor/bust/MC_dogs/160.png" alt="MC_dogs 的 Minecraft 头像" loading="lazy" width="160" height="160">
+          <span class="live">● 信号已恢复</span>
         </div>
-        
-        <!-- 按钮脉冲动画（放在原有 style 标签内） -->
-        <style>
-            @keyframes btnPulse {
-                0%, 100% { box-shadow: 0 0 8px rgba(255,0,60,0.3); }
-                50% { box-shadow: 0 0 24px rgba(255,0,60,0.7); }
-            }
-            @keyframes btnBurn {
-                0%, 100% { box-shadow: 0 0 8px rgba(255,107,53,0.4); }
-                50% { box-shadow: 0 0 28px rgba(255,107,53,0.8), 0 0 50px rgba(255,0,60,0.3); }
-            }
-            @keyframes btnGrass {
-                0%, 100% { box-shadow: 0 0 8px rgba(92,184,92,0.4); }
-                50% { box-shadow: 0 0 28px rgba(92,184,92,0.8), 0 0 50px rgba(92,184,92,0.3); }
-            }
-        </style>
-        <p style="color: #6c7a8a; margin-top: 24px; font-family: monospace; font-size: 1.2rem;">&lt; 这么强？！？ /&gt;</p>
-    </header>
-    
-    <!-- dj_yao 通缉 (保持原样) -->
-    <section class="wanted-section">
-        <h2 class="section-title wanted-title">🤷‍♂️ SYSTEM ALERT: FORGET IT</h2>
-        <div class="wanted-container">
-            <img src="https://minotar.net/armor/bust/dj_yao/100.png" alt="dj_yao" class="wanted-avatar">
-            <div class="wanted-info">
-                <h3>dj_yao</h3>
-                <p><strong>原罪名：</strong><span style="color:#ff8888; font-weight:bold;">搞。我的。善魂。</span></p>
-                <p><strong>当前状态：</strong><span style="color:#cccccc; font-weight:bold; background:#2a2a2a; padding:2px 8px; border-radius:4px;">算了 (FORGET IT)</span></p>
-                <p><strong>悬赏状态：</strong> <span style="text-decoration: line-through; color:#777;">已撤销</span></p>
-                <span class="status-tag">TARGET ACTIVE / 极度危险</span>
-            </div>
+        <div class="dossier-info">
+          <h3>MC_dogs</h3>
+          <div class="deal">FILE NO. SR-0918-MD · TARGET RESURRECTED</div>
+          <dl class="fields">
+            <div class="field"><dt>原罪名</dt><dd>说我是给、试图在服务器内发动降维打击。</dd></div>
+            <div class="field"><dt>当前状态</dt><dd><span class="chip">已复活（RESURRECTED）</span></dd></div>
+            <div class="field"><dt>悬赏状态</dt><dd>已恢复 · 目标已回归</dd></div>
+          </dl>
+          <span class="badge">✨ TARGET RESURRECTED · 已复活</span>
+          <div class="threat">
+            <div class="threat-label"><span>THREAT LEVEL</span><span>08 / 10</span></div>
+            <div class="threat-bar" data-threat="8"></div>
+          </div>
         </div>
-    </section>
-    
-<!-- MC_dogs 状态已修改为"已复活" —— 替换原 section -->
-<section class="wanted-section" style="border-color: var(--accent-purple); background: rgba(60, 20, 80, 0.15); box-shadow: 0 0 30px rgba(231, 136, 255, 0.25); position: relative; overflow: hidden;">
-    
-    <!-- 已复活水印/覆盖层 -->
-    <div style="
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) rotate(-15deg);
-        font-size: clamp(3rem, 12vw, 7rem);
-        font-weight: 900;
-        color: rgba(231, 136, 255, 0.85);
-        text-shadow: 0 0 30px #e788ff, 0 0 60px #9b59b6, 0 0 90px #6c3483;
-        letter-spacing: 16px;
-        white-space: nowrap;
-        pointer-events: none;
-        z-index: 10;
-        font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-        animation: resurrectPulse 2s infinite;
-        background: rgba(0,0,0,0.15);
-        padding: 0 30px;
-        border-radius: 8px;
-    ">已复活</div>
+      </div>
+    </article>
+  </section>
 
-    <!-- 原有的标题 -->
-    <h2 class="section-title wanted-title" style="color: var(--accent-purple) !important; text-shadow: 0 0 12px rgba(231, 136, 255, 0.6); position: relative; z-index: 5; animation: none;">✨ 目标状态更新 · RESURRECTED</h2>
-    
-    <div class="wanted-container" style="border-color: var(--accent-purple); background: rgba(30, 15, 40, 0.55); position: relative; z-index: 5; backdrop-filter: blur(4px);">
-        <img src="https://minotar.net/armor/bust/MC_dogs/100.png" alt="MC_dogs" class="wanted-avatar resurrected-avatar">
-        <div class="wanted-info">
-            <h3 class="resurrected-name" style="color: var(--accent-purple) !important; text-decoration: none;">MC_dogs</h3>
-            <p><strong>原罪名：</strong>说我是给、试图在服务器内发动降维打击。</p>
-            <p><strong>当前状态：</strong><span style="color:#e788ff; font-weight:bold; background:rgba(231,136,255,0.1); padding:2px 10px; border-radius:4px; border:1px solid var(--accent-purple);">已复活 (RESURRECTED)</span></p>
-            <p><strong>悬赏状态：</strong> <span style="color: var(--accent-purple);">已恢复</span> · 目标已回归</p>
-            <span class="status-tag resurrected-tag" style="background: var(--accent-purple); color: #fff; border:1px solid #e788ff;">✨ TARGET RESURRECTED · 已复活</span>
-        </div>
+  <!-- ============ 关于 ============ -->
+  <section class="section wrap" id="about">
+    <div class="sec-head reveal">
+      <div class="eyebrow">About Us</div>
+      <h2 class="grad-text">关于神人 · <span class="mono" style="font-size:.7em;letter-spacing:.2em">WHO WE ARE</span></h2>
     </div>
-</section>
-    
-    <section>
-        <h2 class="section-title">// 关于神人</h2>
-        <div style="line-height: 1.9; color: #d6faff; font-size: 1.05rem;">
-            <p>我们是<span style="color:var(--accent-blue);font-weight:bold;">SHEN_REN Industry</span>，专注于人工智能与创新科技的结合探索。</p>
-            <p>实验室汇聚前沿算法、深度学习、数据分析、创意设计等多领域人才，推动智能科技与现实应用的边界。</p>
-            <br>
-            <p><strong>愿景：</strong> 让未来的智能更可控、更开放、更有温度。</p>
-            <a href="#" style="color: var(--accent-blue); text-decoration: none; display: inline-block; margin-top: 18px; font-weight: 500;">查看个人简介 →</a>
+    <div class="contact-grid">
+      <div class="panel reveal">
+        <p style="font-size:1.02rem;line-height:1.95;color:#cfe8f5">
+          我们是 <b style="color:var(--cyan)">SHEN_REN Industry</b>，专注于人工智能与创新科技的结合探索。
+          实验室汇聚前沿算法、深度学习、数据分析、创意设计等多领域人才，推动智能科技与现实应用的边界。
+        </p>
+        <p style="margin-top:18px;font-size:1.02rem;line-height:1.95;color:#cfe8f5">
+          <b style="color:var(--purple-soft)">愿景：</b>让未来的智能更可控、更开放、更有温度。
+        </p>
+        <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap">
+          <a class="btn" href="profile.html">查看个人简介 →</a>
+          <a class="btn" href="https://github.com/" target="_blank" rel="noopener" style="--c:#b06bff">GitHub 主页 ↗</a>
         </div>
-    </section>
+      </div>
+      <div class="panel reveal">
+        <h3>系统摘要 · SYSTEM SUMMARY</h3>
+        <p>一条不太重要但看起来很专业的运行日志。</p>
+        <div class="terminal">[<span class="c">OK</span>] neural-core ......... <span class="k">online</span>
+[<span class="c">OK</span>] 降维打击防护 ......... <span class="k">armed</span>
+[<span class="c">OK</span>] 刷石机流水线 ......... <span class="k">24/7</span>
+[<span class="c">OK</span>] 善魂完整性校验 ....... <span class="k">passing</span>
+[<span class="c">OK</span>] 通缉名单同步 ......... <span class="k">2 targets</span>
+[<span class="warn">!!</span>] dj_yao ............... <span class="k">算了</span></div>
+      </div>
+    </div>
+  </section>
 
-    <section>
-        <h2 class="section-title">// OUR ARCHITECTS</h2>
-        <div class="architect-list">
-            <div class="architect-item">
-                <strong style="color: var(--accent-blue); font-size: 1.2rem;">YonmkoQWQ</strong><br>
-                <span style="font-size: 0.9rem; opacity: 0.8;">神人工业创始人😱😱😱</span>
-            </div>
-            <div class="architect-item">
-                <strong style="color: var(--accent-blue); font-size: 1.2rem;">Miky_BIW</strong><br>
-                <span style="font-size: 0.9rem; opacity: 0.8;">神人来了</span>
-            </div>
-            <div class="architect-item">
-                <strong style="color: var(--accent-blue); font-size: 1.2rem;">xiezao</strong><br>
-                <span style="font-size: 0.9rem; opacity: 0.8;">我去</span>
-            </div>
+  <!-- ============ 架构师 ============ -->
+  <section class="section wrap" id="architects">
+    <div class="sec-head center reveal">
+      <div class="eyebrow">Our Architects</div>
+      <h2 class="grad-text">核心架构师 · <span class="mono" style="font-size:.7em;letter-spacing:.2em">CORE</span></h2>
+      <p>他们负责让服务器不崩，以及让崩了的时候看起来像计划的一部分。</p>
+    </div>
+    <div class="people">
+      <div class="person founder-card reveal">
+        <span class="tagline">FOUNDER</span>
+        <div class="p-av"><img src="https://minotar.net/helm/YonmkoQWQ/160.png" alt="YonmkoQWQ 头像" loading="lazy" width="160" height="160" onerror="this.src='https://minotar.net/helm/MHF_Steve/160.png'"></div>
+        <h4>YonmkoQWQ</h4>
+        <div class="role">CREATOR · 创始人</div>
+        <p class="said">“神人工业创始人😱😱😱”</p>
+        <div class="bar-line"></div>
+      </div>
+      <div class="person founder-card reveal">
+        <span class="tagline">CO-FOUNDER</span>
+        <div class="p-av"><img src="https://minotar.net/helm/Miky_BIW/160.png" alt="Miky_BIW 头像" loading="lazy" width="160" height="160" onerror="this.src='https://minotar.net/helm/MHF_Steve/160.png'"></div>
+        <h4>Miky_BIW</h4>
+        <div class="role">OPERATIONS · 联合创始人</div>
+        <p class="said">“神人来了”</p>
+        <div class="bar-line"></div>
+      </div>
+      <div class="person reveal">
+        <div class="p-av"><img src="https://minotar.net/helm/xiezao/160.png" alt="xiezao 头像" loading="lazy" width="160" height="160" onerror="this.src='https://minotar.net/helm/MHF_Steve/160.png'"></div>
+        <h4>xiezao</h4>
+        <div class="role">ARCHITECT · 核心架构师</div>
+        <p class="said">“我去”</p>
+        <div class="bar-line"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 团队 ============ -->
+  <section class="section wrap" id="team">
+    <div class="sec-head center reveal">
+      <div class="eyebrow">Team Members</div>
+      <h2 class="grad-text">团队成员 · <span class="mono" style="font-size:.7em;letter-spacing:.2em">AUTOMATION</span></h2>
+      <p>三台永动机。它们不需要工资，只需要区块加载。</p>
+    </div>
+    <div class="people">
+      <div class="person reveal">
+        <div class="p-av"><img src="https://minotar.net/helm/MHF_Cobblestone/160.png" alt="刷石机 代表头像" loading="lazy" width="160" height="160" onerror="this.src='https://randomuser.me/api/portraits/men/31.jpg'"></div>
+        <h4>刷石机</h4>
+        <div class="role">负责 刷石</div>
+        <p class="said">产能：∞ / 天，从不堵料。</p>
+        <div class="bar-line"></div>
+      </div>
+      <div class="person reveal">
+        <div class="p-av"><img src="https://minotar.net/helm/MHF_SugarCane/160.png" alt="甘蔗机 代表头像" loading="lazy" width="160" height="160" onerror="this.src='https://randomuser.me/api/portraits/women/24.jpg'"></div>
+        <h4>甘蔗机</h4>
+        <div class="role">负责 甘蔗</div>
+        <p class="said">骨粉自由，纸张自由，附魔自由。</p>
+        <div class="bar-line"></div>
+      </div>
+      <div class="person reveal">
+        <div class="p-av"><img src="https://minotar.net/helm/MHF_IronGolem/160.png" alt="刷铁机 代表头像" loading="lazy" width="160" height="160" onerror="this.src='https://randomuser.me/api/portraits/men/78.jpg'"></div>
+        <h4>刷铁机</h4>
+        <div class="role">负责 刷铁</div>
+        <p class="said">铁傀儡表示：我只是路过。</p>
+        <div class="bar-line"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 联系 ============ -->
+  <section class="section wrap" id="contact">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Contact</div>
+      <h2 class="grad-text">联系我们 · <span class="mono" style="font-size:.7em;letter-spacing:.2em">HANDSHAKE</span></h2>
+      <p>感兴趣加入、合作或交流，任选一条信道发起握手。通常 24 小时内响应。</p>
+    </div>
+    <div class="contact-grid">
+      <div class="panel reveal">
+        <div class="links">
+          <a class="link-row" href="mailto:neuralcore.lab@example.com">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+            <span><b>邮件 · E-MAIL</b><small>neuralcore.lab@example.com</small></span>
+            <span class="go">→</span>
+          </a>
+          <a class="link-row" href="https://github.com/" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-4 1.5-4-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12 12 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>
+            <span><b>GitHub · 代码仓库</b><small>github.com/SHEN-REN-Industry</small></span>
+            <span class="go">↗</span>
+          </a>
+          <a class="link-row" href="https://mcjs.link/" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5 12 3l9 5.5v7L12 21l-9-5.5z"/><path d="M3 8.5 12 14l9-5.5M12 14v7"/></svg>
+            <span><b>Minecraft 服务器</b><small>mcjs.link · 白名单制</small></span>
+            <span class="go">↗</span>
+          </a>
         </div>
-    </section>
+      </div>
+      <div class="panel reveal">
+        <h3>招聘频道 · RECRUITING</h3>
+        <p>长期缺人。会写代码、会搭红石、或者只是能稳定上线，都算人才。</p>
+        <div class="terminal">&gt; apply --role=<span class="k">"架构师"</span>
+&gt; require: 好奇心 &gt; 简历
+&gt; 待遇: 神人币 + 服务器 OP
+&gt; 备注: <span class="c">不招收降维打击爱好者</span></div>
+        <a class="btn" href="mailto:neuralcore.lab@example.com?subject=%E7%94%B3%E8%AF%B7%E5%8A%A0%E5%85%A5%E7%A5%9E%E4%BA%BA%E5%B7%A5%E4%B8%9A" style="margin-top:22px">投递申请 →</a>
+      </div>
+    </div>
+  </section>
 
-    <section>
-        <h2 class="section-title">// 团队成员</h2>
-        <div class="team-content">
-            <div class="team-member">
-                <img src="https://randomuser.me/api/portraits/men/31.jpg" alt="刷石机">
-                <strong style="display: block; color: var(--accent-blue);">刷石机</strong>
-                <p style="font-size: 0.85rem; color: #888;">负责 刷石</p>
-            </div>
-            <div class="team-member">
-                <img src="https://randomuser.me/api/portraits/women/24.jpg" alt="甘蔗机">
-                <strong style="display: block; color: var(--accent-blue);">甘蔗机</strong>
-                <p style="font-size: 0.85rem; color: #888;">负责 甘蔗</p>
-            </div>
-            <div class="team-member">
-                <img src="https://randomuser.me/api/portraits/men/78.jpg" alt="刷铁机">
-                <strong style="display: block; color: var(--accent-blue);">刷铁机</strong>
-                <p style="font-size: 0.85rem; color: #888;">负责 刷铁</p>
-            </div>
+  <!-- ============ 页脚 ============ -->
+  <footer class="site-foot">
+    <div class="wrap">
+      <div class="foot-grid">
+        <div class="foot-col">
+          <h5>SHEN_REN Industry</h5>
+          <span style="max-width:280px;line-height:1.8">神人工业 —— 让未来的智能更可控、更开放、更有温度。</span>
         </div>
-    </section>
-
-    <section>
-        <h2 class="section-title">// 联系我们</h2>
-        <div style="text-align: center;">
-            <p>感兴趣加入、合作或交流，请邮件联系：</p>
-            <a href="mailto:neuralcore.lab@example.com" style="color: var(--accent-blue); font-weight: 500;">neuralcore.lab@example.com</a>
-            <p style="margin-top: 12px;">或关注我们的 <a href="#" style="color: var(--accent-blue);">GitHub 主页</a></p>
+        <div class="foot-col">
+          <h5>导航</h5>
+          <a href="#portals">模块入口</a>
+          <a href="#dossiers">通缉令</a>
+          <a href="profile.html">人物档案</a>
         </div>
-    </section>
+        <div class="foot-col">
+          <h5>子系统</h5>
+          <a href="anmuxi.html">安慕希超燃</a>
+          <a href="https://mcjs.link/" target="_blank" rel="noopener">我的世界</a>
+          <a href="oldindex.html">初代主页（存档）</a>
+        </div>
+        <div class="foot-col">
+          <h5>联系</h5>
+          <a href="mailto:neuralcore.lab@example.com">邮件联系</a>
+          <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+          <a href="#contact">加入我们</a>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© 2026 <em>SHEN_REN Industry</em> 神人工业 · ALL RIGHTS RESERVED</span>
+        <span>PROTOCOL ALPHA-9 · 状态更新: MC_dogs 已复活</span>
+      </div>
+    </div>
+  </footer>
+</main>
 
-    <footer>
-        © 2026 SHEN_REN Industry 神人工业 | <span style="color: var(--accent-purple);">Protocol Alpha-9</span> | 状态更新: MC_dogs 已复活
-    </footer>
+<button class="to-top" id="toTop" type="button" aria-label="回到顶部">
+  <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
 
-    <script>
-        (function() {
-            window.addEventListener('load', () => {
-                const progress = document.getElementById('progress');
-                const statusText = document.getElementById('status-text');
-                const systemReady = document.getElementById('system-ready');
-                let width = 0;
-                const messages = [
-                    "INITIALIZING SHEN_REN...",
-                    "CONNECTING NODES...",
-                    "DECRYPTING ASSETS...",
-                    "SYNCING CORE...",
-                    "SYSTEM READY!"
-                ];
-                
-                const interval = setInterval(() => {
-                    if (width >= 100) {
-                        clearInterval(interval);
-                        statusText.style.display = "none";
-                        systemReady.style.display = "block";
-                        setTimeout(() => {
-                            document.body.classList.add('loaded');
-                        }, 650);
-                    } else {
-                        width += Math.random() * 14;
-                        if (width > 100) width = 100;
-                        progress.style.width = width + '%';
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-                        if (width > 12 && width < 38) statusText.innerText = messages[1];
-                        else if (width >= 42 && width < 68) statusText.innerText = messages[2];
-                        else if (width >= 72 && width < 94) statusText.innerText = messages[3];
-                        else if (width >= 98) statusText.innerText = messages[4];
-                    }
-                }, 145);
-            });
-        })();
-    </script>
+  /* ================= 启动动画 ================= */
+  var loader = document.getElementById("loader");
+  var logBox = document.getElementById("bootLog");
+  var bar = document.getElementById("bootBar");
+  var pct = document.getElementById("bootPct");
+  var bootDone = false;
+
+  var lines = [
+    "> BOOT SHEN_REN INDUSTRY v9.17",
+    "> mounting /core ............ <span class='ok'>OK</span>",
+    "> loading personnel.db ...... <span class='ok'>9 records</span>",
+    "> verifying 善魂 integrity ... <span class='ok'>PASS</span>",
+    "> scanning wanted list ...... <span class='warn'>2 targets</span>",
+    "> MC_dogs status ............ <span class='hl'>RESURRECTED</span>",
+    "> dj_yao  verdict ........... <span class='hl'>算了</span>",
+    "> establishing uplink ....... <span class='ok'>READY</span>"
+  ];
+
+  function boot(){
+    var i = 0, p = 0;
+    var timer = setInterval(function(){
+      if(bootDone){ clearInterval(timer); return; }
+      if(i < lines.length){
+        var row = document.createElement("div");
+        row.innerHTML = lines[i];
+        logBox.appendChild(row);
+        if(logBox.children.length > 5) logBox.removeChild(logBox.firstChild);
+        i++;
+      }
+      p = Math.min(100, p + 12 + Math.random() * 8);
+      bar.style.width = p + "%";
+      pct.textContent = Math.floor(p) + "%";
+      if(p >= 100){
+        clearInterval(timer);
+        setTimeout(finish, 480);
+      }
+    }, 210);
+  }
+
+  function finish(){
+    if(bootDone) return;
+    bootDone = true;
+    loader.classList.add("done");
+    document.body.classList.remove("is-booting");
+    setTimeout(function(){ if(loader.parentNode) loader.parentNode.removeChild(loader); }, 1000);
+    startType();
+  }
+
+  document.getElementById("skip").addEventListener("click", finish);
+  if(reduce){
+    bootDone = true;
+    loader.classList.add("done");
+    document.body.classList.remove("is-booting");
+    if(loader.parentNode) loader.parentNode.removeChild(loader);
+  } else {
+    boot();
+    // 兜底：无论如何 6 秒后放行
+    setTimeout(finish, 6000);
+  }
+
+  /* ================= 打字机 ================= */
+  var typeEl = document.getElementById("typeLine");
+  var phrases = [
+    "// 这么强？！？",
+    "// 神人工业 · 一切正常运行",
+    "// 已拦截 1 次降维打击，归档 1 份通缉令",
+    "// mcjs.link 已就绪，欢迎回家"
+  ];
+  function startType(){
+    if(reduce || !typeEl){ if(typeEl) typeEl.textContent = phrases[0]; return; }
+    var pi = 0, ci = 0, del = false;
+    var caret = document.createElement("i");
+    caret.className = "caret";
+    typeEl.textContent = "";
+    typeEl.appendChild(caret);
+    (function tick(){
+      var txt = phrases[pi];
+      if(!del){
+        ci++;
+        if(ci > txt.length){ del = true; return setTimeout(tick, 1700); }
+      } else {
+        ci--;
+        if(ci < 0){ del = false; pi = (pi + 1) % phrases.length; ci = 0; }
+      }
+      caret.remove();
+      typeEl.textContent = txt.slice(0, ci);
+      typeEl.appendChild(caret);
+      setTimeout(tick, del ? 26 : 62 + Math.random() * 60);
+    })();
+  }
+
+  /* ================= 跑马灯内容 ================= */
+  var track = document.getElementById("tickerTrack");
+  if(track){
+    var items = [
+      "系统状态 <i>//</i> 全部节点 <em>ONLINE</em>",
+      "协议版本 <i>//</i> ALPHA-9",
+      "通缉名单 <i>//</i> <strong>2 TARGETS</strong>",
+      "MC_dogs <i>//</i> <em>RESURRECTED</em>",
+      "dj_yao <i>//</i> 算了 · FORGET IT",
+      "刷石机 <i>//</i> 产能 ∞",
+      "善魂完整性 <i>//</i> <em>PASSING</em>",
+      "降维打击防护 <i>//</i> ARMED",
+      "服务器 <i>//</i> mcjs.link · OPEN"
+    ];
+    var half = items.map(function(t){ return "<span>" + t + "</span>"; }).join("");
+    track.innerHTML = half + half; // 复制一份实现无缝循环
+  }
+
+  /* ================= 威胁等级条 ================= */
+  document.querySelectorAll(".threat-bar").forEach(function(el){
+    var n = parseInt(el.getAttribute("data-threat"), 10) || 0;
+    for(var i = 1; i <= 10; i++){
+      var b = document.createElement("i");
+      if(i <= n) b.className = "on";
+      el.appendChild(b);
+    }
+  });
+
+  /* ================= 粒子场 ================= */
+  var cv = document.getElementById("particles");
+  if(cv && !reduce){
+    var ctx = cv.getContext("2d");
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var W = 0, H = 0, ps = [], raf = null, pageVisible = true;
+
+    function resize(){
+      W = cv.clientWidth; H = cv.clientHeight;
+      cv.width = W * dpr; cv.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var target = Math.min(76, Math.round(W * H / 22000));
+      ps = [];
+      for(var i = 0; i < target; i++){
+        ps.push({
+          x: Math.random() * W, y: Math.random() * H,
+          vx: (Math.random() - .5) * .22, vy: (Math.random() - .5) * .22,
+          r: Math.random() * 1.5 + .5,
+          purple: Math.random() > .72
+        });
+      }
+    }
+
+    function frame(){
+      ctx.clearRect(0, 0, W, H);
+      for(var i = 0; i < ps.length; i++){
+        var p = ps[i];
+        p.x += p.vx; p.y += p.vy;
+        if(p.x < -20) p.x = W + 20; if(p.x > W + 20) p.x = -20;
+        if(p.y < -20) p.y = H + 20; if(p.y > H + 20) p.y = -20;
+        ctx.beginPath();
+        ctx.fillStyle = p.purple ? "rgba(176,107,255,.75)" : "rgba(0,242,255,.8)";
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        // 近邻连线
+        for(var j = i + 1; j < ps.length; j++){
+          var q = ps[j], dx = p.x - q.x, dy = p.y - q.y, d2 = dx * dx + dy * dy;
+          if(d2 < 15000){
+            ctx.beginPath();
+            ctx.strokeStyle = "rgba(0,242,255," + (0.16 * (1 - d2 / 15000)).toFixed(3) + ")";
+            ctx.lineWidth = 1;
+            ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y);
+            ctx.stroke();
+          }
+        }
+      }
+      raf = requestAnimationFrame(frame);
+    }
+
+    function start(){ if(!raf && pageVisible) raf = requestAnimationFrame(frame); }
+    function stop(){ if(raf){ cancelAnimationFrame(raf); raf = null; } }
+
+    resize();
+    start();
+    var rt;
+    window.addEventListener("resize", function(){
+      clearTimeout(rt); rt = setTimeout(resize, 180);
+    });
+    document.addEventListener("visibilitychange", function(){
+      pageVisible = !document.hidden;
+      if(pageVisible){ start(); } else { stop(); }
+    });
+  }
+
+  /* ================= 导航：滚动进度 / 吸顶 / 回到顶部 / 高亮 ================= */
+  var head = document.getElementById("siteHead");
+  var barTop = document.getElementById("progress");
+  var toTop = document.getElementById("toTop");
+  var menu = document.getElementById("menu");
+  var burger = document.getElementById("burger");
+  var navLinks = Array.prototype.slice.call(menu ? menu.querySelectorAll("a") : []);
+  var sections = navLinks.map(function(a){
+    var id = a.getAttribute("href");
+    return (id && id.charAt(0) === "#") ? document.querySelector(id) : null;
+  });
+
+  function onScroll(){
+    var y = window.scrollY || document.documentElement.scrollTop;
+    var max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    if(barTop) barTop.style.width = Math.min(100, (y / max) * 100) + "%";
+    if(head) head.classList.toggle("stuck", y > 8);
+    if(toTop) toTop.classList.toggle("on", y > 520);
+
+    // 当前区块高亮
+    var active = 0;
+    for(var i = 0; i < sections.length; i++){
+      var s = sections[i];
+      if(s && s.getBoundingClientRect().top <= 140) active = i;
+    }
+    navLinks.forEach(function(a, i){ a.classList.toggle("active", i === active); });
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  if(burger){
+    burger.addEventListener("click", function(){
+      var open = menu.classList.toggle("open");
+      burger.classList.toggle("on", open);
+      burger.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    // 点击导航项后收起移动端菜单
+    menu.querySelectorAll("a").forEach(function(a){
+      a.addEventListener("click", function(){
+        menu.classList.remove("open");
+        burger.classList.remove("on");
+        burger.setAttribute("aria-expanded", "false");
+      });
+    });
+  }
+
+  if(toTop){
+    toTop.addEventListener("click", function(){
+      window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+    });
+  }
+
+  /* ================= 滚动进场 ================= */
+  var reveals = document.querySelectorAll(".reveal");
+  if("IntersectionObserver" in window && !reduce){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add("in");
+          io.unobserve(e.target);
+        }
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: .12 });
+    reveals.forEach(function(el, i){
+      el.style.transitionDelay = ((i % 4) * 70) + "ms";
+      io.observe(el);
+    });
+  } else {
+    reveals.forEach(function(el){ el.classList.add("in"); });
+  }
+
+  /* ================= 数字滚动 ================= */
+  var counters = document.querySelectorAll("[data-count]");
+  function runCount(el){
+    var end = parseInt(el.getAttribute("data-count"), 10) || 0;
+    if(reduce){ el.textContent = end.toLocaleString(); return; }
+    var t0 = null, dur = 1300;
+    function step(ts){
+      if(!t0) t0 = ts;
+      var k = Math.min(1, (ts - t0) / dur);
+      var v = Math.round(end * (1 - Math.pow(1 - k, 3)));
+      el.textContent = v.toLocaleString();
+      if(k < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  if("IntersectionObserver" in window){
+    var io2 = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ runCount(e.target); io2.unobserve(e.target); }
+      });
+    }, { threshold: .5 });
+    counters.forEach(function(el){ io2.observe(el); });
+  } else {
+    counters.forEach(runCount);
+  }
+
+  /* ================= 控制台彩蛋 ================= */
+  try{
+    console.log("%c神人工业 SHEN_REN INDUSTRY","color:#00f2ff;font-size:20px;font-weight:900;text-shadow:0 0 12px #00f2ff");
+    console.log("%c这么强？！？  已复活 : MC_dogs   算了 : dj_yao","color:#b06bff;font-size:12px");
+  }catch(e){}
+})();
+</script>
 </body>
 </html>
