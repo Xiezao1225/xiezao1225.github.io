@@ -1,193 +1,998 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <!-- Cyberpunk theme head snippet: add inside <head> -->
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Audiowide&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/cyberpunk.css">
-<script src="assets/js/neon.js" defer></script>
-<!-- optional meta for mobile -->
-<meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>状态 — CheeseStudio</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#020205">
+<meta name="robots" content="noindex">
+<meta name="description" content="xiezao 的实时状态 —— 神人工业。别人访问只读，只有本人可以编辑。">
+<meta property="og:title" content="xiezao 的状态 | 神人工业">
+<meta property="og:description" content="实时在线状态 · 档期 · 最近在玩">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23020205'/><circle cx='50' cy='50' r='20' fill='%2300ff88'/></svg>">
+<title>状态 | xiezao · 神人工业</title>
 
-  <!-- Tailwind -->
-  <script src="https://cdn.tailwindcss.com" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;900&display=swap" rel="stylesheet">
 
-  <style type="text/tailwindcss">
-    @layer utilities {
-      .frosted {
-        background-color: rgba(255,255,255,0.02) !important;
-        background-image: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)) !important;
-        -webkit-backdrop-filter: blur(10px) saturate(120%);
-        backdrop-filter: blur(10px) saturate(120%);
-        border: 1px solid rgba(255,255,255,0.04);
-      }
-      .shadow-glass {
-        box-shadow: 0 10px 40px rgba(2,6,23,0.6);
-      }
-      .card-hover {
-        transition: transform .28s cubic-bezier(.2,.9,.2,1), box-shadow .28s;
-      }
-      .card-hover:hover { transform: translateY(-6px) scale(1.01); }
-      .cheese-icon::before { content: "🧀"; display:inline-block; margin-right:8px; }
-    }
-  </style>
+<style>
+/* ============================================================================
+   神人工业 · 状态页
+   沿用首页设计语言：深空黑 + 霓虹青/紫/红 + 单色终端字
+   状态色：alive #00ff88 / free #00f2ff / busy #ffd23f / sleep #b06bff / offline #6b7684
+   ========================================================================== */
+:root{
+  --bg:#020205;
+  --panel:rgba(10,16,28,.55);
+  --line:rgba(0,242,255,.16);
+  --line-soft:rgba(255,255,255,.07);
+  --cyan:#00f2ff;
+  --purple:#7000ff;
+  --purple-soft:#b06bff;
+  --red:#ff003c;
+  --amber:#ffd23f;
+  --green:#00ff88;
+  --text:#d7e6f2;
+  --dim:#7d8fa3;
+  --dimmer:#4d5a6b;
+  --mono:"JetBrains Mono","Cascadia Mono",Consolas,"SFMono-Regular","Courier New",monospace;
+  --sans:"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  --display:"Orbitron","Segoe UI",var(--sans);
+  --ease:cubic-bezier(.22,1,.36,1);
+  --state:#6b7684;              /* 由 JS 覆盖 */
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.65;
+  min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;
+}
+::selection{background:rgba(0,242,255,.28);color:#fff}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:4px}
+a{color:var(--cyan);text-decoration:none;transition:color .25s,text-shadow .25s}
+a:hover{text-shadow:0 0 12px rgba(0,242,255,.7)}
+button{font:inherit;cursor:pointer}
 
-  <style>
-    html { scroll-behavior: smooth; }
-    body {
-      min-height:100vh;
-      margin:0;
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      background: linear-gradient(135deg,#071426 0%,#0b1f2e 50%,#121212 100%);
-      color: #e6eef8;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-    }
+/* ---------------- 背景 ---------------- */
+.bg-stack{position:fixed;inset:0;z-index:-3;pointer-events:none;overflow:hidden}
+.bg-stack::before{
+  content:"";position:absolute;inset:-20%;
+  background:
+    radial-gradient(46% 40% at 18% 20%,rgba(0,242,255,.13),transparent 62%),
+    radial-gradient(48% 44% at 84% 26%,rgba(112,0,255,.16),transparent 64%),
+    radial-gradient(52% 44% at 50% 106%,rgba(0,255,136,.07),transparent 66%),
+    linear-gradient(180deg,#020205,#04050d 55%,#05030c);
+  animation:aura 20s ease-in-out infinite alternate;
+}
+@keyframes aura{to{transform:translate3d(0,-3%,0) scale(1.06)}}
+.bg-grid{
+  position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(0,242,255,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,242,255,.045) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 92% 76% at 50% 34%,#000 28%,transparent 100%);
+  -webkit-mask-image:radial-gradient(ellipse 92% 76% at 50% 34%,#000 28%,transparent 100%);
+}
+.scanlines{
+  position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.32;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px);
+  mix-blend-mode:overlay;
+}
+.sweep{
+  position:fixed;left:0;right:0;height:170px;z-index:58;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(0,242,255,.045) 45%,rgba(0,242,255,.1) 50%,transparent);
+  animation:sweepDown 10s linear infinite;
+}
+@keyframes sweepDown{0%{top:-170px}100%{top:100%}}
 
-    /* focus ring */
-    :focus { outline: 3px solid rgba(255,183,77,0.16); outline-offset: 2px; }
+/* ---------------- 布局 ---------------- */
+.wrap{width:min(940px,92vw);margin-inline:auto}
+.mono{font-family:var(--mono)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
-    @media (prefers-reduced-motion:reduce) {
-      .card-hover { transition: none !important; }
-    }
-  </style>
+/* ---------------- 头部 ---------------- */
+.site-head{
+  position:sticky;top:0;z-index:130;
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  background:linear-gradient(180deg,rgba(2,2,5,.92),rgba(2,2,5,.64));
+  border-bottom:1px solid var(--line-soft);
+}
+.head-inner{display:flex;align-items:center;gap:20px;height:68px}
+.brand{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.brand-mark{
+  width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+  border:1px solid rgba(0,255,136,.35);background:rgba(0,255,136,.07);
+  box-shadow:0 0 22px -6px rgba(0,255,136,.7);
+}
+.brand-mark svg{width:19px;height:19px}
+.brand-txt{display:flex;flex-direction:column;line-height:1.15}
+.brand-txt b{font-family:var(--mono);font-size:.92rem;letter-spacing:.22em;color:#eafcff}
+.brand-txt small{font-size:.6rem;letter-spacing:.26em;color:var(--dimmer)}
+.head-nav{margin-left:auto;display:flex;gap:6px;align-items:center}
+.head-nav a{
+  font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;color:#93a6b8;
+  padding:9px 12px;border-radius:8px;text-transform:uppercase;position:relative;
+}
+.head-nav a:hover{color:var(--cyan);background:rgba(0,242,255,.05);text-shadow:none}
+.head-nav a.on{color:var(--green);text-shadow:0 0 12px rgba(0,255,136,.6)}
+.live-chip{
+  display:inline-flex;align-items:center;gap:8px;padding:6px 13px;border-radius:99px;
+  border:1px solid var(--line-soft);background:rgba(255,255,255,.03);
+  font-family:var(--mono);font-size:.62rem;letter-spacing:.18em;color:var(--dim);
+  white-space:nowrap;
+}
+.live-chip i{width:7px;height:7px;border-radius:50%;background:var(--dimmer);flex-shrink:0}
+.live-chip i.on{background:var(--green);box-shadow:0 0 10px var(--green);animation:blip 1.8s infinite}
+.live-chip i.poll{background:var(--amber);box-shadow:0 0 10px var(--amber)}
+@keyframes blip{50%{opacity:.3}}
+
+/* ---------------- 主区 ---------------- */
+main{padding:52px 0 40px}
+.page-tag{
+  display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:.68rem;
+  letter-spacing:.36em;text-transform:uppercase;color:var(--dim);margin-bottom:22px;
+}
+.page-tag::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+
+/* ---------------- 状态主板 ---------------- */
+.board{
+  position:relative;border-radius:22px;overflow:hidden;
+  background:linear-gradient(165deg,rgba(11,17,30,.72),rgba(5,7,14,.8));
+  border:1px solid var(--line-soft);
+  box-shadow:0 34px 90px -40px var(--state),0 0 0 1px rgba(255,255,255,.02) inset;
+  transition:box-shadow .6s var(--ease),border-color .6s;
+}
+.board::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--state),transparent);
+  opacity:.9;
+}
+.board::after{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.55;
+  background:radial-gradient(60% 46% at 12% 0%,rgba(0,242,255,.08),transparent 70%);
+}
+@supports (color:color-mix(in srgb,red 50%,transparent)){
+  .board::after{background:radial-gradient(60% 46% at 12% 0%,color-mix(in srgb,var(--state) 16%,transparent),transparent 70%)}
+}
+.board-inner{position:relative;z-index:2;padding:36px 34px 30px}
+
+.who{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:30px}
+.who-av{
+  width:66px;height:66px;border-radius:16px;overflow:hidden;flex-shrink:0;
+  border:1px solid var(--line);background:#0a0e18;
+  box-shadow:0 0 26px -8px var(--state);
+}
+.who-av img{width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
+.who-txt h1{font-family:var(--display);font-size:1.32rem;letter-spacing:.1em;color:#eefaff}
+.who-txt p{font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;color:var(--dimmer);margin-top:3px}
+.who-meta{margin-left:auto;text-align:right}
+.who-meta .upd{font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;color:var(--dim)}
+.who-meta .upd b{color:#cfe6f5;font-weight:600}
+.who-meta .abs{font-family:var(--mono);font-size:.6rem;color:var(--dimmer);margin-top:3px}
+
+/* 状态大字 */
+.state-row{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:6px}
+.state-badge{
+  display:inline-flex;align-items:center;gap:14px;padding:14px 26px;border-radius:16px;
+  border:1px solid rgba(0,242,255,.35);
+  background:rgba(0,242,255,.08);
+}
+@supports (color:color-mix(in srgb,red 50%,transparent)){
+  .state-badge{
+    border-color:color-mix(in srgb,var(--state) 45%,transparent);
+    background:color-mix(in srgb,var(--state) 10%,transparent);
+  }
+}
+.beacon{position:relative;width:14px;height:14px;flex-shrink:0}
+.beacon i{
+  position:absolute;inset:0;border-radius:50%;background:var(--state);
+  box-shadow:0 0 14px var(--state);
+}
+.beacon::after{
+  content:"";position:absolute;inset:0;border-radius:50%;border:1px solid var(--state);
+  animation:ping 2s cubic-bezier(0,0,.2,1) infinite;
+}
+@keyframes ping{0%{transform:scale(1);opacity:.85}80%,100%{transform:scale(2.6);opacity:0}}
+.state-badge b{
+  font-family:var(--display);font-size:clamp(1.5rem,4.6vw,2.3rem);font-weight:900;
+  letter-spacing:.14em;color:var(--state);line-height:1;
+  text-shadow:0 0 26px rgba(0,242,255,.5);
+}
+@supports (color:color-mix(in srgb,red 50%,transparent)){
+  .state-badge b{text-shadow:0 0 26px color-mix(in srgb,var(--state) 60%,transparent)}
+}
+.state-badge span{font-family:var(--mono);font-size:.62rem;letter-spacing:.2em;color:var(--dim);display:block;margin-top:5px}
+.stale-flag{
+  display:none;align-items:center;gap:8px;padding:5px 13px;border-radius:99px;
+  border:1px solid rgba(255,210,63,.4);background:rgba(255,210,63,.08);
+  font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;color:var(--amber);
+}
+.stale-flag.show{display:inline-flex}
+
+/* 档期 */
+.avail{margin:24px 0 4px}
+.avail-head{
+  display:flex;justify-content:space-between;font-family:var(--mono);font-size:.62rem;
+  letter-spacing:.18em;color:var(--dimmer);margin-bottom:9px;
+}
+.avail-head b{color:var(--state);font-weight:600}
+.avail-track{display:flex;gap:6px}
+.avail-track i{
+  flex:1;height:7px;border-radius:3px;background:rgba(255,255,255,.06);
+  transition:background .5s,box-shadow .5s;
+}
+.avail-track i.on{background:var(--state);box-shadow:0 0 14px -2px var(--state)}
+
+/* 信息格 */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:26px}
+.cell{
+  padding:18px 20px;border-radius:14px;border:1px solid var(--line-soft);
+  background:rgba(255,255,255,.02);transition:border-color .3s,background .3s;
+}
+.cell:hover{border-color:var(--line);background:rgba(0,242,255,.035)}
+.cell dt{
+  font-family:var(--mono);font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--dimmer);margin-bottom:7px;display:flex;align-items:center;gap:8px;
+}
+.cell dt svg{width:13px;height:13px;stroke:var(--state);fill:none;stroke-width:1.7}
+.cell dd{font-size:.95rem;color:#e2f1fa;word-break:break-word}
+.cell dd.empty{color:var(--dimmer);font-style:italic}
+.cell.wide{grid-column:1 / -1}
+.cell.mood dd{font-style:italic;color:#cfe6f5}
+
+/* 骨架态 */
+.skeleton{
+  background:linear-gradient(90deg,rgba(255,255,255,.05) 25%,rgba(255,255,255,.11) 37%,rgba(255,255,255,.05) 63%);
+  background-size:400% 100%;animation:shimmer 1.4s ease infinite;border-radius:6px;
+  color:transparent !important;min-height:1.1em;display:block;
+}
+@keyframes shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
+
+/* 提示条 */
+.notice{
+  display:flex;align-items:flex-start;gap:12px;margin-top:24px;padding:15px 18px;border-radius:13px;
+  border:1px solid rgba(0,242,255,.18);background:rgba(0,242,255,.045);
+  font-size:.84rem;color:#a9cfe0;
+}
+.notice svg{width:16px;height:16px;stroke:var(--cyan);fill:none;stroke-width:1.7;flex-shrink:0;margin-top:3px}
+.notice b{color:#dff6ff}
+.notice.warn{border-color:rgba(255,210,63,.3);background:rgba(255,210,63,.06)}
+.notice.warn svg{stroke:var(--amber)}
+.notice.err{border-color:rgba(255,0,60,.35);background:rgba(255,0,60,.07)}
+.notice.err svg{stroke:#ff6b8a}
+
+/* ---------------- 历史日志 ---------------- */
+.log-card{
+  margin-top:22px;border-radius:18px;border:1px solid var(--line-soft);
+  background:linear-gradient(165deg,rgba(10,16,28,.6),rgba(5,7,14,.68));overflow:hidden;
+}
+.log-card h2{
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--dim);padding:16px 22px;border-bottom:1px solid var(--line-soft);
+  display:flex;align-items:center;gap:10px;
+}
+.log-list{list-style:none}
+.log-list li{
+  display:flex;align-items:baseline;gap:16px;padding:13px 22px;
+  border-bottom:1px solid rgba(255,255,255,.035);font-size:.87rem;
+}
+.log-list li:last-child{border-bottom:0}
+.log-list time{font-family:var(--mono);font-size:.66rem;color:var(--dimmer);letter-spacing:.1em;flex-shrink:0;min-width:104px}
+.log-list .dot-s{width:8px;height:8px;border-radius:50%;background:var(--dimmer);flex-shrink:0}
+.log-list .txt{color:#c9dced}
+
+/* ---------------- 编辑面板 ---------------- */
+.panel-tools{display:flex;justify-content:center;margin-top:30px}
+.btn{
+  --c:var(--cyan);
+  position:relative;display:inline-flex;align-items:center;gap:9px;
+  padding:12px 24px;border-radius:11px;border:1px solid rgba(0,242,255,.5);
+  font-family:var(--mono);font-size:.76rem;letter-spacing:.16em;color:var(--cyan);
+  background:rgba(0,242,255,.07);overflow:hidden;
+  transition:transform .35s var(--ease),box-shadow .35s,border-color .35s,background .35s;
+}
+.btn:hover{transform:translateY(-2px);border-color:var(--cyan);box-shadow:0 12px 32px -14px var(--cyan);background:rgba(0,242,255,.13);text-shadow:0 0 10px var(--cyan)}
+.btn::after{
+  content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.2),transparent);
+  transition:left .7s var(--ease);
+}
+.btn:hover::after{left:130%}
+.btn.solid{color:#03140d;background:var(--green);border-color:var(--green);font-weight:700}
+.btn.solid:hover{background:#7dffc4;text-shadow:none;box-shadow:0 12px 32px -12px var(--green)}
+.btn.ghost{--c:var(--dim);color:var(--dim);border-color:var(--line-soft);background:rgba(255,255,255,.02)}
+.btn.ghost:hover{color:#cfe6f5;border-color:var(--line);box-shadow:none;text-shadow:none}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7}
+
+.owner{
+  margin-top:26px;border-radius:20px;border:1px solid var(--line);overflow:hidden;
+  background:linear-gradient(165deg,rgba(12,19,33,.82),rgba(5,8,16,.86));
+  display:none;
+}
+.owner.open{display:block;animation:panelIn .45s var(--ease)}
+@keyframes panelIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.owner-head{
+  display:flex;align-items:center;gap:12px;padding:17px 24px;
+  border-bottom:1px solid var(--line-soft);background:rgba(0,242,255,.04);
+}
+.owner-head h2{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan)}
+.owner-head .who-am-i{margin-left:auto;font-family:var(--mono);font-size:.64rem;color:var(--dim);letter-spacing:.1em}
+.owner-body{padding:26px 24px 28px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.f{margin-bottom:17px}
+.f label{
+  display:block;font-family:var(--mono);font-size:.63rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--dim);margin-bottom:8px;
+}
+.f input[type=text],.f input[type=email],.f input[type=password],.f select,.f textarea{
+  width:100%;padding:11px 14px;border-radius:10px;
+  border:1px solid var(--line-soft);background:rgba(0,0,0,.4);color:#e6f4ff;
+  font-family:var(--sans);font-size:.92rem;transition:border-color .25s,box-shadow .25s;
+}
+.f textarea{resize:vertical;min-height:76px;line-height:1.6}
+.f input:focus,.f select:focus,.f textarea:focus{
+  border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,242,255,.12);outline:none;
+}
+.f select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--cyan) 50%),linear-gradient(135deg,var(--cyan) 50%,transparent 50%);background-position:calc(100% - 19px) 50%,calc(100% - 14px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+.f .hint{font-size:.74rem;color:var(--dimmer);margin-top:7px;line-height:1.55}
+.f .hint code{font-family:var(--mono);color:var(--purple-soft);background:rgba(176,107,255,.1);padding:1px 5px;border-radius:4px}
+.owner-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px}
+.save-msg{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em}
+.save-msg.ok{color:var(--green)}
+.save-msg.err{color:#ff6b8a}
+.save-msg.busy{color:var(--amber)}
+
+/* 快选状态 */
+.quick{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px}
+.quick button{
+  padding:8px 15px;border-radius:99px;border:1px solid var(--line-soft);
+  background:rgba(255,255,255,.02);color:var(--dim);
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;transition:.25s;
+}
+.quick button:hover{color:#e6f4ff;border-color:var(--line)}
+
+/* ---------------- 页脚 ---------------- */
+.site-foot{
+  position:relative;z-index:70;margin-top:46px;padding:30px 0 40px;
+  border-top:1px solid var(--line-soft);
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;color:var(--dimmer);
+}
+.foot-inner{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.site-foot em{font-style:normal;color:var(--purple-soft)}
+
+/* ---------------- 响应式 ---------------- */
+@media (max-width:760px){
+  .head-nav{display:none}
+  .board-inner{padding:26px 20px 22px}
+  .grid{grid-template-columns:1fr}
+  .field-row{grid-template-columns:1fr}
+  .who-meta{margin-left:0;text-align:left}
+  .avail-track i:nth-child(n+5){display:none}
+  main{padding:34px 0 30px}
+  .state-badge{width:100%;justify-content:center}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
+}
+</style>
 </head>
-<body class="antialiased">
-  <header class="fixed w-full top-4 left-0 z-40">
-    <div class="max-w-4xl mx-auto px-4">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-lg bg-yellow-300 flex items-center justify-center">
-            <span class="text-dark text-xl">🧀</span>
+<body>
+
+<div class="bg-stack" aria-hidden="true"></div>
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="sweep" aria-hidden="true"></div>
+<div class="scanlines" aria-hidden="true"></div>
+
+<!-- ================= 头部 ================= -->
+<header class="site-head">
+  <div class="wrap head-inner">
+    <a class="brand" href="index.html" aria-label="返回神人工业首页">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#00ff88" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/>
+        </svg>
+      </span>
+      <span class="brand-txt"><b>STATUS</b><small>状态页 · 神人工业</small></span>
+    </a>
+    <nav class="head-nav" aria-label="站内导航">
+      <a href="index.html">// 主页</a>
+      <a href="profile.html">// 人物档案</a>
+      <a href="status.html" class="on" aria-current="page">// 状态</a>
+    </nav>
+    <span class="live-chip" id="liveChip" title="同步方式"><i id="liveDot"></i><span id="liveTxt">正在连接…</span></span>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="page-tag">Live Status · 实时状态</div>
+
+    <!-- ================= 状态主板 ================= -->
+    <section class="board" id="board" aria-live="polite">
+      <div class="board-inner">
+
+        <div class="who">
+          <div class="who-av"><img id="ownerAvatar" src="" alt="" width="66" height="66"></div>
+          <div class="who-txt">
+            <h1 id="ownerName">———</h1>
+            <p id="ownerTitle">———</p>
           </div>
-          <div>
-            <div class="text-white font-semibold">CheeseStudio</div>
-            <div class="text-xs text-gray-300">状态页</div>
+          <div class="who-meta">
+            <div class="upd">上次更新 <b id="updatedRel">———</b></div>
+            <div class="abs" id="updatedAbs"></div>
           </div>
         </div>
 
-        <nav class="hidden sm:flex items-center space-x-3 text-sm text-gray-300">
-          <span class="cheese-icon"></span>
-          <span class="text-gray-400">提示：别人进入网页的时候不算入我的状态</span>
-        </nav>
+        <div class="state-row">
+          <div class="state-badge">
+            <span class="beacon" aria-hidden="true"><i></i></span>
+            <span>
+              <b id="stateText">读取中</b>
+              <span id="stateEn">LOADING</span>
+            </span>
+          </div>
+          <span class="stale-flag" id="staleFlag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:13px;height:13px"><path d="M12 8v5M12 16h.01"/><circle cx="12" cy="12" r="9"/></svg>
+            这条状态已经放了一段时间了
+          </span>
+        </div>
+
+        <div class="avail">
+          <div class="avail-head"><span>可打扰程度 · AVAILABILITY</span><b id="availText">———</b></div>
+          <div class="avail-track" id="availTrack" aria-hidden="true"></div>
+        </div>
+
+        <dl class="grid">
+          <div class="cell wide">
+            <dt><svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M12 20h9M3 20h4M4 20V8l8-5 8 5v12"/></svg>当前在做什么</dt>
+            <dd id="fActivity" class="skeleton">读取中</dd>
+          </div>
+          <div class="cell mood">
+            <dt><svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M9 10h.01M15 10h.01M8 15a5 5 0 0 0 8 0"/><circle cx="12" cy="12" r="9"/></svg>心情 / 一句话</dt>
+            <dd id="fMood" class="skeleton">读取中</dd>
+          </div>
+          <div class="cell">
+            <dt><svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M4 6h16v10H4z"/><path d="M8 20h8"/></svg>最近在玩 / 在听</dt>
+            <dd id="fMedia" class="skeleton">读取中</dd>
+          </div>
+        </dl>
+
+        <div class="notice" id="notice">
+          <svg viewBox="0 0 24 24" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+          <span><b>这里只显示 xiezao 本人主动设置的状态。</b>别人进入这个网页<b>不会</b>影响它，也不代表我在线 —— 页面只负责转述，不负责探测。</span>
+        </div>
+
+        <div class="panel-tools">
+          <button class="btn" id="ownerToggle" type="button" aria-expanded="false" aria-controls="ownerPanel">
+            <svg viewBox="0 0 24 24" stroke-linecap="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            <span id="ownerToggleTxt">我是本人 · 编辑状态</span>
+          </button>
+        </div>
+
+        <!-- ================= 编辑面板（默认隐藏） ================= -->
+        <section class="owner" id="ownerPanel" aria-label="状态编辑面板">
+
+          <!-- 未登录：登录 -->
+          <div id="loginView">
+            <div class="owner-head">
+              <h2>Owner Access</h2>
+              <span class="who-am-i" id="providerName">———</span>
+            </div>
+            <div class="owner-body">
+              <div class="notice" id="loginTip">
+                <svg viewBox="0 0 24 24" stroke-linecap="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                <span id="loginTipTxt">登录后才能写入。写入权限由后端校验，不是靠前端藏起来。</span>
+              </div>
+              <div class="field-row" style="margin-top:20px">
+                <div class="f" id="emailWrap">
+                  <label for="email">邮箱</label>
+                  <input type="email" id="email" autocomplete="username" placeholder="you@example.com">
+                </div>
+                <div class="f">
+                  <label for="password" id="pwLabel">密码</label>
+                  <input type="password" id="password" autocomplete="current-password" placeholder="••••••••">
+                </div>
+              </div>
+              <div class="owner-actions">
+                <button class="btn solid" id="loginBtn" type="button">登录</button>
+                <span class="save-msg" id="loginMsg"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 已登录：编辑器 -->
+          <div id="editView" style="display:none">
+            <div class="owner-head">
+              <h2>Edit Status</h2>
+              <span class="who-am-i" id="whoAmI"></span>
+            </div>
+            <div class="owner-body">
+              <div class="quick" id="quickBtns"></div>
+              <div class="field-row">
+                <div class="f">
+                  <label for="eState">状态</label>
+                  <select id="eState"></select>
+                </div>
+                <div class="f">
+                  <label for="eAvail">档期 / 可打扰程度</label>
+                  <select id="eAvail"></select>
+                </div>
+              </div>
+              <div class="f">
+                <label for="eActivity">当前在做什么</label>
+                <input type="text" id="eActivity" maxlength="80" placeholder="例如：正在重构首页，别指望我回消息">
+              </div>
+              <div class="f">
+                <label for="eMood">心情 / 一句话吐槽</label>
+                <textarea id="eMood" maxlength="160" placeholder="例如：今天不想动，但代码自己动起来了"></textarea>
+              </div>
+              <div class="field-row">
+                <div class="f">
+                  <label for="eMediaKind">最近在</label>
+                  <select id="eMediaKind">
+                    <option value="none">没有 / 不显示</option>
+                    <option value="game">玩游戏</option>
+                    <option value="music">听歌</option>
+                    <option value="video">看视频</option>
+                  </select>
+                </div>
+                <div class="f">
+                  <label for="eMediaTitle">名称</label>
+                  <input type="text" id="eMediaTitle" maxlength="70" placeholder="例如：Minecraft · mcjs.link">
+                </div>
+              </div>
+              <div class="f">
+                <label for="eMediaDetail">补充一句（可留空）</label>
+                <input type="text" id="eMediaDetail" maxlength="90" placeholder="例如：在刷石机旁边挂机">
+              </div>
+
+              <div class="owner-actions">
+                <button class="btn solid" id="saveBtn" type="button">
+                  <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+                  保存并同步
+                </button>
+                <button class="btn ghost" id="reloadBtn" type="button">重新读取</button>
+                <button class="btn ghost" id="signOutBtn" type="button">退出登录</button>
+                <span class="save-msg" id="saveMsg"></span>
+              </div>
+
+              <p class="f" style="margin:18px 0 0">
+                <span class="hint">
+                  保存后会写入后端，其他人的页面通过 <span class="mono" id="syncModeTxt">订阅</span> 立刻收到新状态，无需刷新。
+                  状态存在云端，<b>关了标签页也还在</b>。
+                </span>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= 全局错误 ================= -->
+        <div class="notice err" id="errBox" style="display:none">
+          <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M12 3 2.5 20h19z"/><path d="M12 9v5M12 17h.01"/></svg>
+          <span id="errTxt"></span>
+        </div>
       </div>
-    </div>
-  </header>
+    </section>
 
-  <main class="min-h-screen flex items-center justify-center px-4 pt-28 pb-12">
-    <div class="w-full max-w-3xl">
-      <section class="frosted shadow-glass rounded-2xl p-8 card-hover">
-        <div class="flex flex-col md:flex-row items-center gap-6">
-          <div class="flex-shrink-0">
-            <div class="w-28 h-28 rounded-xl bg-gradient-to-br from-yellow-300 to-yellow-400 flex items-center justify-center text-4xl">
-              🧀
-            </div>
-          </div>
+    <!-- ================= 历史日志 ================= -->
+    <section class="log-card" id="logCard" style="display:none">
+      <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#00f2ff" stroke-width="1.7" stroke-linecap="round" style="width:14px;height:14px"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        状态变更记录 · RECENT
+      </h2>
+      <ul class="log-list" id="logList"></ul>
+    </section>
 
-          <div class="flex-1 text-center md:text-left">
-            <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-2">我的在线状态</h1>
-            <p id="subtitle" class="text-sm text-gray-300 mb-6">页面会根据你本人是否在本机打开此页面来显示状态（仅限本机）。</p>
+    <footer class="site-foot">
+      <div class="foot-inner">
+        <span>© 2026 <em>SHEN_REN Industry</em> · status.html</span>
+        <span>后端：<em id="footProvider">local</em> · 别人只读，只有本人可写</span>
+      </div>
+    </footer>
+  </div>
+</main>
 
-            <div class="inline-flex items-center space-x-4">
-              <div id="statusCard" class="px-8 py-6 rounded-lg border border-gray-700 w-48 text-center">
-                <div id="statusText" class="text-4xl font-extrabold">私了</div>
-                <div id="statusHint" class="text-xs text-gray-400 mt-1">非本人访问</div>
-              </div>
+<script src="assets/js/status.config.js"></script>
+<script src="assets/js/status.core.js"></script>
+<script>
+(function () {
+  'use strict';
 
-              <div class="flex flex-col space-y-2">
-                <button id="ownerToggle" class="px-4 py-2 bg-yellow-300 text-dark rounded-md font-medium hover:brightness-95 focus:ring-4 focus:ring-yellow-400/20">上线（本机）</button>
-                <button id="clearBtn" class="px-4 py-2 border border-gray-700 text-gray-200 rounded-md hover:border-gray-500">下线（本机）</button>
-              </div>
-            </div>
+  var S = window.SRStatus;
+  var CFG = S.config;
 
-            <p class="text-xs text-gray-400 mt-4">
-              使用说明：
-              <ul class="list-disc ml-5 mt-2 text-xs text-gray-400">
-                <li>若你本人在本机打开此页面并点击“上线（本机）”，页面会在本机显示“活着”。</li>
-                <li>其他人访问该页面时依然只会看到“私了”。</li>
-                <li>你也可以通过在地址栏添加 ?me=1 来临时上线（打开后地址栏会被清理）。</li>
-              </ul>
-            </p>
-          </div>
-        </div>
-      </section>
+  var STATE_META = {
+    alive:   { zh: '活着',   en: 'ALIVE',   color: '#00ff88', avail: 5 },
+    free:    { zh: '有空',   en: 'FREE',    color: '#00f2ff', avail: 5 },
+    busy:    { zh: '忙',     en: 'BUSY',    color: '#ffd23f', avail: 2 },
+    sleep:   { zh: '睡了',   en: 'SLEEP',   color: '#b06bff', avail: 1 },
+    offline: { zh: '没上线', en: 'OFFLINE', color: '#6b7684', avail: 0 }
+  };
+  var AVAIL_META = {
+    open:    { zh: '可以来打扰', bars: 5 },
+    private: { zh: '看情况，别太急', bars: 3 },
+    dnd:     { zh: '别来，真的', bars: 1 }
+  };
+  var QUICK = [
+    { state: 'alive',   avail: 'open',    activity: '在线，随时可聊',        mood: '' },
+    { state: 'busy',    avail: 'dnd',     activity: '正在写代码，勿扰',      mood: '别催，快了' },
+    { state: 'free',    avail: 'open',    activity: '摸鱼中，来个人一起玩',  mood: '' },
+    { state: 'sleep',   avail: 'dnd',     activity: '睡了',                  mood: '有事留言，明天看' },
+    { state: 'offline', avail: 'private', activity: '',                      mood: '' }
+  ];
 
-      <footer class="mt-8 text-center text-xs text-gray-400">
-        注意：此功能基于本地会话（sessionStorage），无需后端。若希望跨设备显示，请告诉我，我可以改为使用后端或第三方存储。
-      </footer>
-    </div>
-  </main>
+  /* ------------------------------------------------------------ DOM 速查 */
+  function $(id) { return document.getElementById(id); }
+  var el = {
+    board: $('board'), stateText: $('stateText'), stateEn: $('stateEn'),
+    ownerName: $('ownerName'), ownerTitle: $('ownerTitle'), ownerAvatar: $('ownerAvatar'),
+    updatedRel: $('updatedRel'), updatedAbs: $('updatedAbs'), staleFlag: $('staleFlag'),
+    availText: $('availText'), availTrack: $('availTrack'),
+    fActivity: $('fActivity'), fMood: $('fMood'), fMedia: $('fMedia'),
+    liveDot: $('liveDot'), liveTxt: $('liveTxt'),
+    ownerToggle: $('ownerToggle'), ownerToggleTxt: $('ownerToggleTxt'),
+    ownerPanel: $('ownerPanel'), loginView: $('loginView'), editView: $('editView'),
+    email: $('email'), emailWrap: $('emailWrap'), password: $('password'), pwLabel: $('pwLabel'),
+    loginBtn: $('loginBtn'), loginMsg: $('loginMsg'), loginTip: $('loginTip'), loginTipTxt: $('loginTipTxt'),
+    providerName: $('providerName'), footProvider: $('footProvider'),
+    quickBtns: $('quickBtns'),
+    eState: $('eState'), eAvail: $('eAvail'), eActivity: $('eActivity'), eMood: $('eMood'),
+    eMediaKind: $('eMediaKind'), eMediaTitle: $('eMediaTitle'), eMediaDetail: $('eMediaDetail'),
+    saveBtn: $('saveBtn'), saveMsg: $('saveMsg'), reloadBtn: $('reloadBtn'),
+    signOutBtn: $('signOutBtn'), whoAmI: $('whoAmI'), syncModeTxt: $('syncModeTxt'),
+    logCard: $('logCard'), logList: $('logList'),
+    errBox: $('errBox'), errTxt: $('errTxt')
+  };
 
-  <script>
-    (function () {
-      // Owner flag is stored in sessionStorage so it only affects the current browser session/tab.
-      const KEY = 'cheese_owner_active_v1';
-      const params = new URLSearchParams(window.location.search);
+  var current = null;
+  var tz = CFG.timezone || undefined;
 
-      // If URL contains ?me=1, set session flag and clean URL
-      if (params.get('me') === '1') {
-        try { sessionStorage.setItem(KEY, '1'); } catch (e) { /* ignore */ }
-        // remove query param without reloading
-        params.delete('me');
-        const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '') + window.location.hash;
-        history.replaceState({}, '', newUrl);
+  /* ------------------------------------------------------------ 渲染 */
+
+  function setText(node, value, fallback) {
+    node.classList.remove('skeleton');
+    var v = (value || '').trim();
+    if (v) { node.textContent = v; node.classList.remove('empty'); }
+    else { node.textContent = fallback || '未填写'; node.classList.add('empty'); }
+  }
+
+  function render(rec) {
+    current = rec;
+    var meta = STATE_META[rec.state] || STATE_META.offline;
+
+    /* 主题色 */
+    document.documentElement.style.setProperty('--state', meta.color);
+
+    el.stateText.textContent = meta.zh;
+    el.stateEn.textContent = meta.en + ' · ' + rec.state.toUpperCase();
+
+    /* 档期条 */
+    var am = AVAIL_META[rec.availability] || AVAIL_META.private;
+    el.availText.textContent = am.zh;
+    var bars = el.availTrack.querySelectorAll('i');
+    if (!bars.length) {
+      for (var i = 0; i < 5; i++) el.availTrack.appendChild(document.createElement('i'));
+      bars = el.availTrack.querySelectorAll('i');
+    }
+    for (var j = 0; j < bars.length; j++) {
+      bars[j].classList.toggle('on', j < am.bars);
+    }
+
+    /* 四个字段 */
+    setText(el.fActivity, rec.activity, '他没写自己在干嘛');
+    setText(el.fMood, rec.mood, '没留话');
+
+    if (rec.media && rec.media.kind !== 'none' && rec.media.title) {
+      var kindZh = { game: '🎮', music: '🎵', video: '📺' }[rec.media.kind] || '•';
+      var text = kindZh + ' ' + rec.media.title + (rec.media.detail ? ' —— ' + rec.media.detail : '');
+      setText(el.fMedia, text, '');
+      el.fMedia.classList.remove('empty');
+    } else {
+      el.fMedia.textContent = '暂时没有';
+      el.fMedia.classList.add('empty');
+    }
+
+    /* 时间 */
+    el.updatedRel.textContent = S.relativeTime(rec.updatedAt, tz);
+    el.updatedAbs.textContent = S.absoluteTime(rec.updatedAt, tz);
+    var stale = false;
+    if (rec.updatedAt) {
+      var mins = (Date.now() - Date.parse(rec.updatedAt)) / 60000;
+      stale = !isNaN(mins) && mins > (CFG.staleAfterMinutes || 180);
+    }
+    el.staleFlag.classList.toggle('show', stale);
+
+    /* 身份 */
+    var o = CFG.owner || {};
+    if (o.name) el.ownerName.textContent = o.name;
+    if (o.title) el.ownerTitle.textContent = o.title + (o.handle ? ' · ' + o.handle : '');
+    if (o.avatar) { el.ownerAvatar.src = o.avatar; el.ownerAvatar.alt = (o.name || '') + ' 的头像'; }
+
+    /* 表单回填（只有在没在编辑时才覆盖，避免打断输入） */
+    if (!el.editView.contains(document.activeElement)) fillForm(rec);
+    renderLog();
+  }
+
+  function fillForm(rec) {
+    el.eState.value = rec.state;
+    el.eAvail.value = rec.availability;
+    el.eActivity.value = rec.activity || '';
+    el.eMood.value = rec.mood || '';
+    el.eMediaKind.value = (rec.media && rec.media.kind) || 'none';
+    el.eMediaTitle.value = (rec.media && rec.media.title) || '';
+    el.eMediaDetail.value = (rec.media && rec.media.detail) || '';
+  }
+
+  function renderLog() {
+    var logs = CFG.log || [];
+    if (!logs.length) { el.logCard.style.display = 'none'; return; }
+    el.logCard.style.display = '';
+    el.logList.innerHTML = '';
+    logs.slice().sort(function (a, b) { return Date.parse(b.at) - Date.parse(a.at); })
+      .slice(0, 8)
+      .forEach(function (item) {
+        var meta = STATE_META[item.state] || STATE_META.offline;
+        var li = document.createElement('li');
+        var time = document.createElement('time');
+        time.textContent = S.relativeTime(item.at, tz);
+        time.title = S.absoluteTime(item.at, tz);
+        var dot = document.createElement('span');
+        dot.className = 'dot-s';
+        dot.style.background = meta.color;
+        dot.style.boxShadow = '0 0 10px ' + meta.color;
+        var txt = document.createElement('span');
+        txt.className = 'txt';
+        txt.textContent = item.text || meta.zh;
+        li.appendChild(time); li.appendChild(dot); li.appendChild(txt);
+        el.logList.appendChild(li);
+      });
+  }
+
+  function showError(msg) {
+    el.errBox.style.display = '';
+    el.errTxt.textContent = msg;
+  }
+  function clearError() { el.errBox.style.display = 'none'; }
+
+  /* 把配置里的坑摊开讲：尤其是那条藏在数据库里的 RLS 邮箱 */
+  function showConfigIssues(extra) {
+    var issues = (S.configIssues ? S.configIssues() : []).filter(function (it) {
+      return it.level !== 'info';   /* info 级别的提示不占地方 */
+    });
+    var parts = issues.map(function (it) {
+      return (it.level === 'error' ? '⛔ ' : '⚠️ ') + it.text;
+    });
+    if (extra) parts.push('ℹ️ ' + extra);
+    if (!parts.length) { clearError(); return; }
+    el.errBox.style.display = '';
+    el.errTxt.innerHTML = parts.map(function (p) {
+      var d = document.createElement('div');
+      d.textContent = p;
+      return d.innerHTML;
+    }).join('<br>');
+  }
+
+  function setSync(mode) {
+    /* mode: 'realtime' | 'poll' | 'local' */
+    el.liveDot.className = mode === 'realtime' ? 'on' : (mode === 'poll' ? 'poll' : '');
+    el.liveTxt.textContent =
+      mode === 'realtime' ? '实时同步中' :
+      mode === 'poll' ? '轮询同步中' : '本地模式';
+    el.syncModeTxt.textContent = mode === 'realtime' ? 'Realtime 推送' : (mode === 'poll' ? '定时轮询' : '本地文件');
+  }
+
+  /* ------------------------------------------------------------ 启动 */
+
+  function boot() {
+    el.footProvider.textContent = S.adapterName;
+    el.providerName.textContent = S.adapterName === 'supabase' ? 'SUPABASE AUTH' :
+      (S.adapterName === 'jsonbin' ? 'JSONBIN KEY' : 'LOCAL MODE');
+
+    /* 状态下拉 */
+    Object.keys(STATE_META).forEach(function (k) {
+      var o = document.createElement('option');
+      o.value = k; o.textContent = STATE_META[k].zh + '（' + STATE_META[k].en + '）';
+      el.eState.appendChild(o);
+    });
+    Object.keys(AVAIL_META).forEach(function (k) {
+      var o = document.createElement('option');
+      o.value = k; o.textContent = AVAIL_META[k].zh;
+      el.eAvail.appendChild(o);
+    });
+
+    /* 快选按钮 */
+    QUICK.forEach(function (q) {
+      var meta = STATE_META[q.state];
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = meta.zh + (q.activity ? ' · ' + q.activity.slice(0, 6) : '');
+      b.style.borderColor = meta.color + '66';
+      b.style.color = meta.color;
+      b.addEventListener('click', function () {
+        el.eState.value = q.state;
+        el.eAvail.value = q.avail;
+        el.eActivity.value = q.activity;
+        el.eMood.value = q.mood;
+        el.eMediaKind.value = 'none';
+        el.eMediaTitle.value = '';
+        el.eMediaDetail.value = '';
+        flash(el.saveMsg, '已套用快捷状态，记得点保存', 'busy');
+      });
+      el.quickBtns.appendChild(b);
+    });
+
+    /* 提供方差异 */
+    if (S.adapterName === 'jsonbin') {
+      el.emailWrap.style.display = 'none';
+      el.pwLabel.textContent = 'JSONBin Master Key';
+      el.password.setAttribute('placeholder', '$2a$10$...');
+      el.password.setAttribute('autocomplete', 'off');
+      el.loginTipTxt.textContent = '填入 JSONBin 的 Master Key。注意：它会被保存在本机浏览器里，'
+        + '而且这个页面的写权限完全依赖它 —— 安全性低于 Supabase 方案。';
+      setSync('poll');
+    } else if (S.adapterName === 'supabase') {
+      /* 不预先谎报"实时同步中"——等 WebSocket 真正握手成功再由适配器通知 */
+      setSync('poll');
+      el.loginTipTxt.textContent = '用你 Supabase 里建的那个邮箱账号登录。'
+        + '写权限由数据库 RLS 策略核对邮箱来保证 —— 别人就算注册了账号也改不动。';
+    } else {
+      el.loginBtn.textContent = '查看如何开启同步';
+      el.password.setAttribute('placeholder', 'local 模式不需要密码');
+      el.loginTipTxt.textContent = '当前 provider 是 local：状态固定来自 assets/js/status.config.js 里的 fallback，'
+        + '页面无法写入云端。想开启真·实时同步，请把 provider 改成 supabase 或 jsonbin（见 SETUP-STATUS.md）。';
+      setSync('local');
+    }
+
+    /* 首次读取 */
+    S.read().then(function (rec) {
+      render(rec);
+      clearError();
+      showConfigIssues();
+      if (S.adapterName !== 'local') {
+        S.subscribe(function (fresh) {
+          /* 适配器会推送 {_mode:'realtime'|'poll'} 用来播报同步方式 */
+          if (fresh && fresh._mode) { setSync(fresh._mode); return; }
+          render(fresh);
+        });
       }
+    }).catch(function (e) {
+      render(window.SRStatus.normalize((CFG.fallback || {})));
+      setSync(S.adapterName === 'local' ? 'local' : 'poll');
+      showConfigIssues('读取云端状态失败：' + e.message
+        + '（现在显示的是配置文件里的兜底状态。如果还没在 Supabase 跑建表 SQL，这是正常的。）');
+    });
 
-      const statusTextEl = document.getElementById('statusText');
-      const statusHintEl = document.getElementById('statusHint');
-      const ownerToggle = document.getElementById('ownerToggle');
-      const clearBtn = document.getElementById('clearBtn');
+    /* 每 30 秒刷新相对时间 + 过期标记 */
+    setInterval(function () { if (current) render(current); }, 30000);
 
-      function updateUI() {
-        const isOwner = sessionStorage.getItem(KEY) === '1';
-        if (isOwner) {
-          statusTextEl.textContent = '活着';
-          statusTextEl.classList.remove('text-red-400');
-          statusTextEl.classList.add('text-green-300');
-          statusHintEl.textContent = '本人在本机打开页面';
-          ownerToggle.textContent = '已上线（本机）';
-          ownerToggle.disabled = false;
-          clearBtn.disabled = false;
-        } else {
-          statusTextEl.textContent = '私了';
-          statusTextEl.classList.remove('text-green-300');
-          statusTextEl.classList.add('text-red-400');
-          statusHintEl.textContent = '非本人访问';
-          ownerToggle.textContent = '上线（本机）';
-          ownerToggle.disabled = false;
-          clearBtn.disabled = false;
-        }
+    /* 编辑权限回填 */
+    refreshOwnerUI();
+  }
+
+  /* ------------------------------------------------------------ 编辑面板 */
+
+  function refreshOwnerUI() {
+    var can = S.canEdit();
+    el.loginView.style.display = can ? 'none' : '';
+    el.editView.style.display = can ? '' : 'none';
+    if (can) {
+      var who = S.email() || (S.adapterName === 'jsonbin' ? 'Master Key 已保存' : '已登录');
+      el.whoAmI.textContent = who;
+      el.ownerToggleTxt.textContent = '编辑状态（已授权）';
+    } else {
+      el.ownerToggleTxt.textContent = '我是本人 · 编辑状态';
+    }
+  }
+
+  el.ownerToggle.addEventListener('click', function () {
+    var open = el.ownerPanel.classList.toggle('open');
+    el.ownerToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) {
+      refreshOwnerUI();
+      (S.canEdit() ? el.eActivity : el.email).focus({ preventScroll: true });
+    }
+  });
+
+  function flash(node, text, kind) {
+    node.textContent = text;
+    node.className = 'save-msg ' + (kind || '');
+  }
+
+  el.loginBtn.addEventListener('click', function () {
+    var email = el.email.value.trim();
+    var secret = el.password.value;
+
+    /* local 模式：直接引导去看文档 */
+    if (S.adapterName === 'local' && !CFG.supabase.url && !CFG.jsonbin.binId) {
+      window.open('SETUP-STATUS.md', '_blank');
+      flash(el.loginMsg, '见 SETUP-STATUS.md，三步就能开起来', 'busy');
+      return;
+    }
+    if (S.adapterName === 'supabase' && !email) {
+      flash(el.loginMsg, '请填邮箱', 'err'); return;
+    }
+    if (!secret) { flash(el.loginMsg, '请填密码 / Key', 'err'); return; }
+
+    el.loginBtn.disabled = true;
+    flash(el.loginMsg, '登录中…', 'busy');
+
+    S.signIn(email, secret).then(function () {
+      el.password.value = '';
+      flash(el.loginMsg, '✓ 登录成功', 'ok');
+      refreshOwnerUI();
+      return S.read().then(render);
+    }).catch(function (e) {
+      flash(el.loginMsg, '✗ ' + e.message, 'err');
+    }).then(function () {
+      el.loginBtn.disabled = false;
+    });
+  });
+
+  el.saveBtn.addEventListener('click', function () {
+    var patch = {
+      state: el.eState.value,
+      availability: el.eAvail.value,
+      activity: el.eActivity.value.trim(),
+      mood: el.eMood.value.trim(),
+      media: {
+        kind: el.eMediaKind.value,
+        title: el.eMediaTitle.value.trim(),
+        detail: el.eMediaDetail.value.trim()
       }
+    };
+    if (patch.media.kind !== 'none' && !patch.media.title) {
+      flash(el.saveMsg, '✗ 选了「最近在玩/在听」就得填个名称', 'err');
+      return;
+    }
 
-      // Toggle online for this session/tab
-      ownerToggle.addEventListener('click', () => {
-        const isOwner = sessionStorage.getItem(KEY) === '1';
-        if (!isOwner) {
-          try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
-        } else {
-          // already online — keep as-is or allow toggling off
-          try { sessionStorage.removeItem(KEY); } catch (e) {}
-        }
-        updateUI();
-      });
+    el.saveBtn.disabled = true;
+    flash(el.saveMsg, '同步中…', 'busy');
 
-      // Explicit clear
-      clearBtn.addEventListener('click', () => {
-        try { sessionStorage.removeItem(KEY); } catch (e) {}
-        updateUI();
-      });
+    S.save(patch).then(function (fresh) {
+      render(fresh);
+      flash(el.saveMsg, '✓ 已同步 · ' + new Date().toLocaleTimeString('zh-CN'), 'ok');
+    }).catch(function (e) {
+      flash(el.saveMsg, '✗ ' + e.message, 'err');
+    }).then(function () {
+      el.saveBtn.disabled = false;
+    });
+  });
 
-      // When the tab/window is closed/unloaded, remove the key so that reopening doesn't show stale state.
-      // (sessionStorage normally clears on tab close, but we also clear on unload to be explicit)
-      window.addEventListener('beforeunload', () => {
-        try { sessionStorage.removeItem(KEY); } catch (e) {}
-      });
+  el.reloadBtn.addEventListener('click', function () {
+    flash(el.saveMsg, '读取中…', 'busy');
+    S.read().then(function (rec) {
+      render(rec);
+      flash(el.saveMsg, '✓ 已重新读取', 'ok');
+      clearError();
+    }).catch(function (e) {
+      flash(el.saveMsg, '✗ ' + e.message, 'err');
+    });
+  });
 
-      // Initialize
-      updateUI();
-    })();
-  </script>
+  el.signOutBtn.addEventListener('click', function () {
+    S.signOut().then(function () {
+      refreshOwnerUI();
+      flash(el.loginMsg, '已退出登录', 'ok');
+      S.read().then(render).catch(function () {});
+    });
+  });
+
+  /* Ctrl/Cmd + Enter 保存 */
+  el.editView.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') el.saveBtn.click();
+  });
+
+  /* 未登录时回车直接提交登录 */
+  el.loginView.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') el.loginBtn.click();
+  });
+
+  /* 别人点开编辑面板时，不做任何"看起来能改"的假象：直接说明白 */
+  boot();
+})();
+</script>
 </body>
 </html>
