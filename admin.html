@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#020205">
+<!-- 后台页不进搜索引擎 -->
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23020205'/><rect x='24' y='46' width='52' height='34' rx='8' fill='%23ffd23f'/><path d='M36 46v-10a14 14 0 0 1 28 0v10' fill='none' stroke='%23ffd23f' stroke-width='7'/></svg>">
+<title>后台 · 状态管理 | 神人工业</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;900&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/board.css">
+<link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body>
+
+<div class="bg-stack" aria-hidden="true"></div>
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="sweep" aria-hidden="true"></div>
+<div class="scanlines" aria-hidden="true"></div>
+
+<header class="site-head">
+  <div class="wrap-wide head-inner">
+    <a class="brand" href="index.html" aria-label="返回神人工业首页">
+      <span class="brand-mark" aria-hidden="true" style="border-color:rgba(255,210,63,.4);background:rgba(255,210,63,.08);box-shadow:0 0 22px -6px rgba(255,210,63,.7)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#ffd23f" stroke-width="1.8" stroke-linecap="round">
+          <rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+        </svg>
+      </span>
+      <span class="brand-txt"><b>ADMIN</b><small>状态后台 · 神人工业</small></span>
+    </a>
+    <nav class="head-nav" aria-label="站内导航">
+      <a href="index.html">// 主页</a>
+      <a href="status.html">// 公开状态页</a>
+      <a href="admin.html" class="on" aria-current="page">// 后台</a>
+    </nav>
+    <span class="live-chip" id="liveChip" title="同步方式"><i id="liveDot"></i><span id="liveTxt">正在连接…</span></span>
+  </div>
+</header>
+
+<main>
+  <div class="wrap-wide">
+
+    <div class="page-tag">Admin Console · 状态管理</div>
+
+    <div class="admin-flag">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2.5 20h19z"/><path d="M12 9v5M12 17h.01"/></svg>
+      <span>
+        这是<b>后台页</b>，请不要把它当作状态页分享出去。别人打开也无所谓 ——
+        权限由数据库的 RLS 策略核对邮箱，不是靠这页没有入口。
+        对外请用 <a href="status.html" id="previewLink" data-href="status.html">公开状态页</a>。
+      </span>
+    </div>
+
+    <!-- ================= 未登录 ================= -->
+    <section class="card" id="loginView">
+      <div class="card-head">
+        <h2>Owner Access</h2>
+        <span class="aside" id="providerName">———</span>
+      </div>
+      <div class="card-body">
+        <div class="notice">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          <span id="loginTipTxt">登录后才能写入。写权限由后端校验，不是靠前端藏起来 —— 别人就算打开这一页，没有你的账号也改不动任何东西。</span>
+        </div>
+
+        <div class="field-row" style="margin-top:20px">
+          <div class="f" id="emailWrap">
+            <label for="email">邮箱</label>
+            <input type="email" id="email" autocomplete="username" placeholder="you@example.com">
+          </div>
+          <div class="f">
+            <label for="password" id="pwLabel">密码</label>
+            <input type="password" id="password" autocomplete="current-password" placeholder="••••••••">
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn solid" id="loginBtn" type="button">登录</button>
+          <span class="msg" id="loginMsg"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 后端还没配好：就地说明 ================= -->
+    <section class="card" id="setupCard" style="display:none">
+      <div class="card-head">
+        <h2>还没接上后端 · Setup</h2>
+        <span class="aside error" id="setupState">检测中…</span>
+      </div>
+      <div class="card-body">
+        <p style="font-family:var(--mono);font-size:.7rem;letter-spacing:.16em;color:var(--dim)">
+          当前 provider：<b id="setupProvider" style="color:var(--amber)">—</b>
+        </p>
+
+        <div class="actions" style="margin:16px 0 6px">
+          <button class="btn warn" id="testBtn" type="button">测试后端连通性</button>
+          <span class="msg" id="setupMsg"></span>
+        </div>
+
+        <details style="margin-top:16px">
+          <summary style="cursor:pointer;font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;color:var(--amber)">
+            展开：Supabase 配置步骤 + 建表 SQL
+          </summary>
+
+          <ol class="steps">
+            <li>
+              <b>建项目</b> —— 注册 supabase.com → New project。
+              数据库密码单独设一个，别和登录密码混用。
+            </li>
+            <li>
+              <b>跑 SQL</b> —— SQL Editor → New query，把下面整段粘进去 Run。
+              策略里的邮箱必须和你接下来要用来登录的邮箱<b>完全一致</b>，这是"只有你能编辑"的唯一保障。
+            </li>
+            <li>
+              <b>建账号</b> —— Authentication → Users → Add user，邮箱同上，
+              <b>务必勾 Auto Confirm User</b>（QQ 邮箱收验证信常延迟或被丢进垃圾箱，勾了直接绕开）。
+            </li>
+            <li>
+              <b>抄两个值</b> —— Project Settings → API：
+              <code>Project URL</code> 只到主域名为止（<b>不要</b>带 <code>/rest/v1</code>），
+              再复制 <code>anon public</code> / <code>Publishable key</code>。
+              ⚠️ <b>绝对不要</b>复制 <code>service_role</code> / <code>Secret key</code>，那个能绕过所有策略。
+            </li>
+            <li>
+              <b>填进配置</b> —— 打开 <code>assets/js/status.config.js</code>，
+              把 <code>provider</code> 改成 <code>'supabase'</code>，填上 url 和 anonKey，
+              再把 <code>owner.email</code> 填成同一个邮箱。刷新本页即可登录。
+            </li>
+          </ol>
+
+          <pre class="sql" id="setupSql"></pre>
+          <div class="actions" style="margin-top:12px">
+            <button class="btn ghost" id="copySqlBtn" type="button">复制 SQL</button>
+            <span class="msg" id="copyMsg"></span>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ================= 已登录 ================= -->
+    <div id="editView" style="display:none">
+
+      <div class="work">
+
+        <!-- ---------- 左：编辑表单 ---------- -->
+        <section class="card" style="margin-top:0">
+          <div class="card-head">
+            <h2>Edit Status</h2>
+            <span class="aside" id="whoAmI"></span>
+          </div>
+          <div class="card-body">
+
+            <div class="quick" id="quickBtns"></div>
+
+            <div class="field-row">
+              <div class="f">
+                <label for="eState">状态</label>
+                <select id="eState"></select>
+              </div>
+              <div class="f">
+                <label for="eAvail">档期 / 可打扰程度</label>
+                <select id="eAvail"></select>
+              </div>
+            </div>
+
+            <div class="f">
+              <label for="eActivity">当前在做什么 <span class="counter" id="countActivity">0/80</span></label>
+              <input type="text" id="eActivity" maxlength="80" placeholder="例如：正在重构首页，别指望我回消息">
+            </div>
+
+            <div class="f">
+              <label for="eMood">心情 / 一句话吐槽 <span class="counter" id="countMood">0/160</span></label>
+              <textarea id="eMood" maxlength="160" placeholder="例如：今天不想动，但代码自己动起来了"></textarea>
+            </div>
+
+            <div class="field-row">
+              <div class="f">
+                <label for="eMediaKind">最近在</label>
+                <select id="eMediaKind">
+                  <option value="none">没有 / 不显示</option>
+                  <option value="game">玩游戏</option>
+                  <option value="music">听歌</option>
+                  <option value="video">看视频</option>
+                </select>
+              </div>
+              <div class="f">
+                <label for="eMediaTitle">名称</label>
+                <input type="text" id="eMediaTitle" maxlength="70" placeholder="例如：Minecraft · mcjs.link">
+              </div>
+            </div>
+
+            <div class="f">
+              <label for="eMediaDetail">补充一句（可留空）</label>
+              <input type="text" id="eMediaDetail" maxlength="90" placeholder="例如：在刷石机旁边挂机">
+            </div>
+
+            <div class="actions">
+              <button class="btn solid" id="saveBtn" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+                保存并同步
+              </button>
+              <button class="btn ghost" id="reloadBtn" type="button">重新读取</button>
+              <button class="btn ghost" id="signOutBtn" type="button">退出登录</button>
+              <span class="dirty-flag" id="dirtyFlag"><i></i>有未保存的改动</span>
+              <span class="msg" id="saveMsg"></span>
+            </div>
+
+            <p class="f" style="margin:18px 0 0">
+              <span class="hint">
+                保存后写入后端，别人开着的页面会通过 <b>Realtime 推送</b>立刻收到新状态，无需刷新。
+                状态存在云端，<b>关了标签页也还在</b>。—— 顺手提示：<code>Ctrl / Cmd + Enter</code> 可以直接保存。
+              </span>
+            </p>
+
+          </div>
+        </section>
+
+        <!-- ---------- 右：实时预览 ---------- -->
+        <aside class="side">
+          <div class="side-label">Live Preview · 发布后长这样</div>
+          <div data-sr-board data-compact id="previewMount"></div>
+          <p class="side-note">
+            预览用的是<code>board.js</code>，和公开页是<strong>同一份组件</strong> ——
+            所以这里看到的排版、配色、字段顺序，就是别人看到的，不存在"后台好看上线变样"。
+          </p>
+        </aside>
+
+      </div>
+
+      <!-- ---------- 审计 / 账号信息 ---------- -->
+      <div class="work" style="margin-top:22px">
+        <section class="card">
+          <div class="card-head"><h2>账号 · 后端</h2></div>
+          <div class="card-body">
+            <div class="notice">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+              <span>
+                当前身份 <b id="whoAmI2">———</b>，后端 <b id="footProvider">local</b>，
+                上次更新 <b id="metaUpdated">———</b>。
+                这个账号只能改<strong>你自己那一条</strong>状态记录，这是数据库 RLS 策略决定的，
+                换成别的账号登录会直接被拒。
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" id="logCard" style="display:none">
+          <div class="card-head"><h2>状态变更记录</h2></div>
+          <ul class="log-list" id="logList"></ul>
+        </section>
+      </div>
+
+    </div>
+
+    <!-- ================= 配置 / 读取提示 ================= -->
+    <div class="notice err" id="errBox" style="display:none;margin-top:22px"></div>
+
+    <footer class="site-foot">
+      <div class="foot-inner">
+        <span>© 2026 <em>SHEN_REN Industry</em> · admin.html</span>
+        <span><a href="status.html">← 回到公开状态页</a></span>
+      </div>
+    </footer>
+
+  </div>
+</main>
+
+<script src="assets/js/status.config.js"></script>
+<script src="assets/js/status.core.js"></script>
+<script src="assets/js/board.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+/* ============================================================================
+ * 神人工业 · 后台管理页样式
+ * ----------------------------------------------------------------------------
+ * 只放公开页没有的东西：登录卡、编辑表单、两栏工作区、实时预览框。
+ * 看板本身和背景/头部/页脚/按钮全部复用 tokens.css + board.css。
+ * ==========================================================================*/
+
+main{padding:40px 0 30px}
+
+/* ---------------- 页标 ---------------- */
+.page-tag{
+  display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:.68rem;
+  letter-spacing:.36em;text-transform:uppercase;color:var(--dim);margin-bottom:22px;
+}
+.page-tag::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+
+/* 后台专属：顶部一条"这不是公开页"的警示线 */
+.admin-flag{
+  display:flex;align-items:center;gap:12px;padding:13px 18px;border-radius:13px;margin-bottom:24px;
+  border:1px solid rgba(255,210,63,.28);background:rgba(255,210,63,.055);
+  font-size:.83rem;color:#e2d9b4;
+}
+.admin-flag svg{width:16px;height:16px;stroke:var(--amber);fill:none;stroke-width:1.7;flex-shrink:0}
+.admin-flag b{color:var(--amber)}
+.admin-flag a{color:var(--amber);border-bottom:1px dashed rgba(255,210,63,.5)}
+
+/* ---------------- 卡片 ---------------- */
+.card{
+  border-radius:20px;border:1px solid var(--line);
+  background:linear-gradient(165deg,rgba(12,19,33,.82),rgba(5,8,16,.86));
+  overflow:hidden;
+}
+.card + .card{margin-top:22px}
+.card-head{
+  display:flex;align-items:center;gap:12px;padding:17px 24px;
+  border-bottom:1px solid var(--line-soft);background:rgba(0,242,255,.04);
+}
+.card-head h2{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan)}
+.card-head .aside{margin-left:auto;font-family:var(--mono);font-size:.64rem;color:var(--dim);letter-spacing:.1em}
+.card-body{padding:26px 24px 28px}
+
+/* ---------------- 表单 ---------------- */
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.f{margin-bottom:17px}
+.f label{
+  display:block;font-family:var(--mono);font-size:.63rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--dim);margin-bottom:8px;
+}
+.f input[type=text],.f input[type=email],.f input[type=password],.f select,.f textarea{
+  width:100%;padding:11px 14px;border-radius:10px;
+  border:1px solid var(--line-soft);background:rgba(0,0,0,.4);color:#e6f4ff;
+  font-family:var(--sans);font-size:.92rem;transition:border-color .25s,box-shadow .25s;
+}
+.f textarea{resize:vertical;min-height:84px;line-height:1.6}
+.f input:focus,.f select:focus,.f textarea:focus{
+  border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,242,255,.12);outline:none;
+}
+.f select{
+  appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--cyan) 50%),
+                   linear-gradient(135deg,var(--cyan) 50%,transparent 50%);
+  background-position:calc(100% - 19px) 50%,calc(100% - 14px) 50%;
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat;
+}
+.f .hint{font-size:.74rem;color:var(--dimmer);margin-top:7px;line-height:1.55}
+.f .hint code{font-family:var(--mono);color:var(--purple-soft);background:rgba(176,107,255,.1);padding:1px 5px;border-radius:4px}
+.counter{float:right;font-family:var(--mono);font-size:.6rem;color:var(--dimmer);letter-spacing:.1em;text-transform:none}
+
+/* 快捷状态 */
+.quick{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:22px}
+.quick button{
+  padding:8px 15px;border-radius:99px;border:1px solid var(--line-soft);
+  background:rgba(255,255,255,.02);color:var(--dim);
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;transition:.25s;
+}
+.quick button:hover{color:#e6f4ff;border-color:var(--line);transform:translateY(-1px)}
+.quick button.on{background:rgba(255,255,255,.06)}
+
+/* ---------------- 操作区 ---------------- */
+.actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px}
+.msg{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em}
+.msg.ok{color:var(--green)}
+.msg.err{color:#ff6b8a}
+.msg.busy{color:var(--amber)}
+.msg.warn{color:var(--amber)}
+.dirty-flag{
+  display:none;align-items:center;gap:7px;font-family:var(--mono);font-size:.66rem;
+  letter-spacing:.12em;color:var(--amber);
+}
+.dirty-flag.show{display:inline-flex}
+.dirty-flag i{width:6px;height:6px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber)}
+
+/* ---------------- 两栏工作区 ---------------- */
+.work{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:22px;align-items:start}
+.side{position:sticky;top:92px}
+.side .side-label{
+  font-family:var(--mono);font-size:.63rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--dim);margin-bottom:12px;display:flex;align-items:center;gap:10px;
+}
+.side .side-label::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+.side .side-note{
+  margin-top:16px;font-size:.78rem;color:var(--dimmer);line-height:1.7;
+}
+.side .side-note code{font-family:var(--mono);color:var(--purple-soft)}
+
+/* ---------------- 建表说明（后端没配好时才显示） ---------------- */
+.card-head .aside.error{color:var(--amber)}
+
+.steps{
+  margin:16px 0 0 20px;padding:0;list-style:decimal;
+  font-size:.86rem;line-height:1.85;color:#c9dced;
+}
+.steps li{margin-bottom:14px;padding-left:6px}
+.steps li::marker{color:var(--cyan);font-family:var(--mono);font-size:.8rem}
+.steps b{color:#eafcff}
+.steps code{
+  font-family:var(--mono);font-size:.78rem;color:var(--purple-soft);
+  background:rgba(176,107,255,.1);padding:1px 6px;border-radius:4px;
+}
+
+.sql{
+  margin-top:16px;padding:18px;border-radius:12px;overflow-x:auto;
+  background:rgba(0,0,0,.5);border:1px solid rgba(0,242,255,.14);
+  font-family:var(--mono);font-size:.74rem;line-height:1.75;color:#9fe0ee;
+  white-space:pre;tab-size:2;
+}
+
+details summary{outline:none}
+details summary:hover{text-shadow:0 0 10px rgba(255,210,63,.5)}
+details[open] summary{margin-bottom:4px}
+
+/* ---------------- 历史记录 ---------------- */
+.log-list{list-style:none}
+.log-list li{
+  display:flex;align-items:baseline;gap:16px;padding:13px 24px;
+  border-bottom:1px solid rgba(255,255,255,.035);font-size:.87rem;
+}
+.log-list li:last-child{border-bottom:0}
+.log-list time{font-family:var(--mono);font-size:.66rem;color:var(--dimmer);letter-spacing:.1em;flex-shrink:0;min-width:104px}
+.log-list .dot-s{width:8px;height:8px;border-radius:50%;background:var(--dimmer);flex-shrink:0}
+.log-list .txt{color:#c9dced}
+
+/* ---------------- 响应式 ---------------- */
+@media (max-width:980px){
+  .work{grid-template-columns:1fr}
+  .side{position:static}
+  .side .side-label{margin-top:6px}
+}
+@media (max-width:760px){
+  .field-row{grid-template-columns:1fr}
+  .card-body{padding:22px 18px 24px}
+  main{padding:26px 0 24px}
+}

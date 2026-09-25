@@ -518,6 +518,56 @@
 
   var OWNER_EMAIL_RE = /auth\.jwt\(\)\s*->>\s*'email'\s*=\s*'([^']+)'/;
 
+  /* 后端是否真的配全了。admin.html 靠它决定要不要显示那张建表说明卡。 */
+  function backendReady() {
+    if (CFG.provider === 'supabase') {
+      return !!(SUPA.url && SUPA.anonKey) &&
+        /^https:\/\/[a-z0-9-]+\.supabase\.(co|in)$/i.test(supabaseBase());
+    }
+    if (CFG.provider === 'jsonbin') {
+      return !!(JB.binId && JB.readKey);
+    }
+    return false;
+  }
+
+  /* 直接在状态页上验后端：告诉用户 key 和表到底通不通，省得去猜。 */
+  async function testBackend() {
+    if (CFG.provider !== 'supabase') {
+      throw new Error('这个自检目前只针对 Supabase。');
+    }
+    var url = supabaseBase() + '/rest/v1/' + encodeURIComponent(SUPA.table || 'status') + '?select=*&id=eq.1';
+    var res = await fetch(url, {
+      headers: { 'apikey': SUPA.anonKey, 'Accept': 'application/json' },
+      cache: 'no-store'
+    });
+    var text = await res.text();
+    var body = null;
+    try { body = text ? JSON.parse(text) : null; } catch (e) { body = text; }
+
+    if (res.status === 200) {
+      return {
+        ok: true,
+        hasRow: !!(body && body.length),
+        message: (body && body.length)
+          ? '连通 ✅ 表已建好，而且已经有数据了。'
+          : '连通 ✅ 表已建好，只是还没有数据行 —— 登录后保存一次就会写入。'
+      };
+    }
+    if (res.status === 401 || res.status === 403) {
+      return { ok: false, message: 'HTTP ' + res.status + '：key 被拒绝了，多半是 anonKey 抄错，或者它已被 Rotate。' };
+    }
+    if (res.status === 404) {
+      return { ok: false, message: 'HTTP 404：url 里可能多了 /rest/v1 之类的后缀，或者表名不是 status。' };
+    }
+    if (res.status === 400 && body && body.code === '42P01') {
+      return { ok: false, message: '表还不存在（42P01）—— 建表 SQL 还没跑。' };
+    }
+    if (body && body.code === '42501') {
+      return { ok: false, message: '表建了但读不了（42501）—— SELECT 策略那段漏跑了。' };
+    }
+    return { ok: false, message: 'HTTP ' + res.status + '：' + (text || '').slice(0, 200) };
+  }
+
   function configIssues() {
     var issues = [];
 
@@ -589,6 +639,8 @@
     signOut: function () { return adapter.signOut(); },
     configIssues: configIssues,
     detectOwnerEmail: detectOwnerEmail,
+    backendReady: backendReady,
+    testBackend: testBackend,
     baseUrl: supabaseBase,
     on: function (fn) { listeners.push(fn); return function () { listeners = listeners.filter(function (f) { return f !== fn; }); }; },
     _emit: emit,

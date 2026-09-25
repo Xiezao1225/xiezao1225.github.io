@@ -1,0 +1,201 @@
+/* ============================================================================
+ * 神人工业 · 设计变量与全局重置
+ * ----------------------------------------------------------------------------
+ * 这是全站的设计 token。豆包原来引用的 assets/css/cyberpunk.css 是个不存在的
+ * 404 文件 —— 这个才是真的。
+ *
+ * 被 status.html（公开页）和 admin.html（后台）共用。
+ * 改这里的颜色，两个页面同时变。
+ * ==========================================================================*/
+
+:root{
+  /* 基底 */
+  --bg:#020205;
+  --panel:rgba(10,16,28,.55);
+  --line:rgba(0,242,255,.16);
+  --line-soft:rgba(255,255,255,.07);
+
+  /* 强调色 */
+  --cyan:#00f2ff;
+  --purple:#7000ff;
+  --purple-soft:#b06bff;
+  --red:#ff003c;
+  --amber:#ffd23f;
+  --green:#00ff88;
+
+  /* 文字 */
+  --text:#d7e6f2;
+  --dim:#7d8fa3;
+  --dimmer:#4d5a6b;
+
+  /* 字体 */
+  --mono:"JetBrains Mono","Cascadia Mono",Consolas,"SFMono-Regular","Courier New",monospace;
+  --sans:"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  --display:"Orbitron","Segoe UI",var(--sans);
+
+  --ease:cubic-bezier(.22,1,.36,1);
+
+  /* 状态色（由 JS 按当前状态覆盖）
+     alive #00ff88 / free #00f2ff / busy #ffd23f / sleep #b06bff / offline #6b7684 */
+  --state:#6b7684;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.65;
+  min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;
+}
+::selection{background:rgba(0,242,255,.28);color:#fff}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:4px}
+a{color:var(--cyan);text-decoration:none;transition:color .25s,text-shadow .25s}
+a:hover{text-shadow:0 0 12px rgba(0,242,255,.7)}
+button{font:inherit;cursor:pointer}
+img{max-width:100%;display:block}
+
+/* ---------------- 通用工具 ---------------- */
+.wrap{width:min(940px,92vw);margin-inline:auto}
+.wrap-wide{width:min(1180px,94vw);margin-inline:auto}
+.mono{font-family:var(--mono)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------------- 背景层 ---------------- */
+.bg-stack{position:fixed;inset:0;z-index:-3;pointer-events:none;overflow:hidden}
+.bg-stack::before{
+  content:"";position:absolute;inset:-20%;
+  background:
+    radial-gradient(46% 40% at 18% 20%,rgba(0,242,255,.13),transparent 62%),
+    radial-gradient(48% 44% at 84% 26%,rgba(112,0,255,.16),transparent 64%),
+    radial-gradient(52% 44% at 50% 106%,rgba(0,255,136,.07),transparent 66%),
+    linear-gradient(180deg,#020205,#04050d 55%,#05030c);
+  animation:aura 20s ease-in-out infinite alternate;
+}
+@keyframes aura{to{transform:translate3d(0,-3%,0) scale(1.06)}}
+.bg-grid{
+  position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(0,242,255,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,242,255,.045) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 92% 76% at 50% 34%,#000 28%,transparent 100%);
+  -webkit-mask-image:radial-gradient(ellipse 92% 76% at 50% 34%,#000 28%,transparent 100%);
+}
+.scanlines{
+  position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.32;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px);
+  mix-blend-mode:overlay;
+}
+.sweep{
+  position:fixed;left:0;right:0;height:170px;z-index:58;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(0,242,255,.045) 45%,rgba(0,242,255,.1) 50%,transparent);
+  animation:sweepDown 10s linear infinite;
+}
+@keyframes sweepDown{0%{top:-170px}100%{top:100%}}
+
+/* ---------------- 按钮 ---------------- */
+.btn{
+  --c:var(--cyan);
+  position:relative;display:inline-flex;align-items:center;gap:9px;
+  padding:12px 24px;border-radius:11px;border:1px solid rgba(0,242,255,.5);
+  font-family:var(--mono);font-size:.76rem;letter-spacing:.16em;color:var(--cyan);
+  background:rgba(0,242,255,.07);overflow:hidden;white-space:nowrap;
+  transition:transform .35s var(--ease),box-shadow .35s,border-color .35s,background .35s,color .25s;
+}
+.btn:hover{transform:translateY(-2px);border-color:var(--cyan);box-shadow:0 12px 32px -14px var(--cyan);background:rgba(0,242,255,.13);text-shadow:0 0 10px var(--cyan)}
+.btn::after{
+  content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.2),transparent);
+  transition:left .7s var(--ease);
+}
+.btn:hover::after{left:130%}
+.btn.solid{color:#03140d;background:var(--green);border-color:var(--green);font-weight:700}
+.btn.solid:hover{background:#7dffc4;text-shadow:none;box-shadow:0 12px 32px -12px var(--green)}
+.btn.ghost{--c:var(--dim);color:var(--dim);border-color:var(--line-soft);background:rgba(255,255,255,.02)}
+.btn.ghost:hover{color:#cfe6f5;border-color:var(--line);box-shadow:none;text-shadow:none;background:rgba(255,255,255,.05)}
+/* .warn 用变量驱动，老浏览器也不依赖 color-mix */
+.btn.warn{--c:var(--amber);color:var(--c);border-color:rgba(255,210,63,.45);background:rgba(255,210,63,.07)}
+.btn.warn:hover{
+  color:#fff3cc;border-color:var(--c);text-shadow:0 0 10px var(--c);
+  box-shadow:0 12px 32px -14px var(--c);background:rgba(255,210,63,.14);
+}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;flex-shrink:0}
+
+/* ---------------- 提示条 ---------------- */
+.notice{
+  display:flex;align-items:flex-start;gap:12px;padding:15px 18px;border-radius:13px;
+  border:1px solid rgba(0,242,255,.18);background:rgba(0,242,255,.045);
+  font-size:.84rem;color:#a9cfe0;
+}
+.notice svg{width:16px;height:16px;stroke:var(--cyan);fill:none;stroke-width:1.7;flex-shrink:0;margin-top:3px}
+.notice b{color:#dff6ff}
+.notice.warn{border-color:rgba(255,210,63,.3);background:rgba(255,210,63,.06)}
+.notice.warn svg{stroke:var(--amber)}
+.notice.err{border-color:rgba(255,0,60,.35);background:rgba(255,0,60,.07)}
+.notice.err svg{stroke:#ff6b8a}
+
+/* ---------------- 骨架屏 ---------------- */
+.skeleton{
+  background:linear-gradient(90deg,rgba(255,255,255,.05) 25%,rgba(255,255,255,.11) 37%,rgba(255,255,255,.05) 63%);
+  background-size:400% 100%;animation:shimmer 1.4s ease infinite;border-radius:6px;
+  color:transparent !important;min-height:1.1em;display:block;
+}
+@keyframes shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
+
+/* ---------------- 同步方式徽标 ---------------- */
+.live-chip{
+  display:inline-flex;align-items:center;gap:8px;padding:6px 13px;border-radius:99px;
+  border:1px solid var(--line-soft);background:rgba(255,255,255,.03);
+  font-family:var(--mono);font-size:.62rem;letter-spacing:.18em;color:var(--dim);
+  white-space:nowrap;
+}
+.live-chip i{width:7px;height:7px;border-radius:50%;background:var(--dimmer);flex-shrink:0}
+.live-chip i.on{background:var(--green);box-shadow:0 0 10px var(--green);animation:blip 1.8s infinite}
+.live-chip i.poll{background:var(--amber);box-shadow:0 0 10px var(--amber)}
+@keyframes blip{50%{opacity:.3}}
+
+/* ---------------- 吸顶头部 ---------------- */
+.site-head{
+  position:sticky;top:0;z-index:130;
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  background:linear-gradient(180deg,rgba(2,2,5,.92),rgba(2,2,5,.64));
+  border-bottom:1px solid var(--line-soft);
+}
+.head-inner{display:flex;align-items:center;gap:20px;height:68px}
+.brand{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.brand-mark{
+  width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+  border:1px solid rgba(0,255,136,.35);background:rgba(0,255,136,.07);
+  box-shadow:0 0 22px -6px rgba(0,255,136,.7);flex-shrink:0;
+}
+.brand-mark svg{width:19px;height:19px}
+.brand-txt{display:flex;flex-direction:column;line-height:1.15}
+.brand-txt b{font-family:var(--mono);font-size:.92rem;letter-spacing:.22em;color:#eafcff}
+.brand-txt small{font-size:.6rem;letter-spacing:.26em;color:var(--dimmer)}
+.head-nav{margin-left:auto;display:flex;gap:6px;align-items:center}
+.head-nav a{
+  font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;color:#93a6b8;
+  padding:9px 12px;border-radius:8px;text-transform:uppercase;white-space:nowrap;
+}
+.head-nav a:hover{color:var(--cyan);background:rgba(0,242,255,.05);text-shadow:none}
+.head-nav a.on{color:var(--green);text-shadow:0 0 12px rgba(0,255,136,.6)}
+
+/* ---------------- 页脚 ---------------- */
+.site-foot{
+  position:relative;z-index:70;margin-top:46px;padding:30px 0 40px;
+  border-top:1px solid var(--line-soft);
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;color:var(--dimmer);
+}
+.foot-inner{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.site-foot em{font-style:normal;color:var(--purple-soft)}
+
+/* ---------------- 响应式 ---------------- */
+@media (max-width:760px){
+  .head-nav{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+  }
+}
