@@ -4,8 +4,8 @@
  * 这是全站的设计 token。豆包原来引用的 assets/css/cyberpunk.css 是个不存在的
  * 404 文件 —— 这个才是真的。
  *
- * 被 status.html（公开页）和 admin.html（后台）共用。
- * 改这里的颜色，两个页面同时变。
+ * 被 index.html（首页）、status.html（公开页）和 admin.html（后台）共用。
+ * 改这里的颜色，三个页面同时变。
  * ==========================================================================*/
 
 :root{
@@ -21,7 +21,9 @@
   --purple-soft:#b06bff;
   --red:#ff003c;
   --amber:#ffd23f;
-  --green:#00ff88;
+  --green:#00ff88;          /* 状态绿：在线 / 已存活 / 成功 */
+  --green-mc:#5cb85c;       /* Minecraft 草绿：首页「我的世界」入口，别和状态绿混用 */
+  --orange:#ff6b35;
 
   /* 文字 */
   --text:#d7e6f2;
@@ -34,6 +36,23 @@
   --display:"Orbitron","Segoe UI",var(--sans);
 
   --ease:cubic-bezier(.22,1,.36,1);
+
+  /* 动效 token：时长与曲线全站统一，组件里别再写魔法数字。
+     入场用 animation，交互用 transition —— 两套互不覆盖。 */
+  --dur-1:.18s;                              /* 微交互：hover / focus / 颜色 */
+  --dur-2:.34s;                              /* 交互：按钮、卡片抬升 */
+  --dur-3:.72s;                              /* 入场：滚动揭示 */
+  --dur-4:1.1s;                              /* 大场面：开场编排 */
+  --ease-out:cubic-bezier(.16,1,.3,1);       /* 快出慢停，最像"专业动效" */
+  --ease-inout:cubic-bezier(.65,0,.35,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);/* 轻微回弹，只用在缩放上 */
+  --ease-drawer:cubic-bezier(.32,.72,0,1);   /* 抽屉/面板：起步快、末段极缓（iOS 手感） */
+
+  /* 层次与阴影 */
+  --bg-2:#05060f;
+  --panel-solid:#080d18;
+  --shadow-cyan:0 18px 50px -18px rgba(0,242,255,.45);
+  --shadow-purple:0 18px 50px -18px rgba(176,107,255,.45);
 
   /* 状态色（由 JS 按当前状态覆盖）
      alive #00ff88 / free #00f2ff / busy #ffd23f / sleep #b06bff / offline #6b7684 */
@@ -154,31 +173,9 @@ img{max-width:100%;display:block}
 .live-chip i.poll{background:var(--amber);box-shadow:0 0 10px var(--amber)}
 @keyframes blip{50%{opacity:.3}}
 
-/* ---------------- 吸顶头部 ---------------- */
-.site-head{
-  position:sticky;top:0;z-index:130;
-  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
-  background:linear-gradient(180deg,rgba(2,2,5,.92),rgba(2,2,5,.64));
-  border-bottom:1px solid var(--line-soft);
-}
-.head-inner{display:flex;align-items:center;gap:20px;height:68px}
-.brand{display:flex;align-items:center;gap:12px;flex-shrink:0}
-.brand-mark{
-  width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
-  border:1px solid rgba(0,255,136,.35);background:rgba(0,255,136,.07);
-  box-shadow:0 0 22px -6px rgba(0,255,136,.7);flex-shrink:0;
-}
-.brand-mark svg{width:19px;height:19px}
-.brand-txt{display:flex;flex-direction:column;line-height:1.15}
-.brand-txt b{font-family:var(--mono);font-size:.92rem;letter-spacing:.22em;color:#eafcff}
-.brand-txt small{font-size:.6rem;letter-spacing:.26em;color:var(--dimmer)}
-.head-nav{margin-left:auto;display:flex;gap:6px;align-items:center}
-.head-nav a{
-  font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;color:#93a6b8;
-  padding:9px 12px;border-radius:8px;text-transform:uppercase;white-space:nowrap;
-}
-.head-nav a:hover{color:var(--cyan);background:rgba(0,242,255,.05);text-shadow:none}
-.head-nav a.on{color:var(--green);text-shadow:0 0 12px rgba(0,255,136,.6)}
+/* ---------------- 页头 ---------------- */
+/* 页头组件（.site-head / .head-inner / .brand / .menu / .btn-cta / .burger）
+   已统一到 assets/css/header.css，全站四页共用同一份实现。 */
 
 /* ---------------- 页脚 ---------------- */
 .site-foot{
@@ -190,12 +187,13 @@ img{max-width:100%;display:block}
 .site-foot em{font-style:normal;color:var(--purple-soft)}
 
 /* ---------------- 响应式 ---------------- */
-@media (max-width:760px){
-  .head-nav{display:none}
-}
+
+/* 说明：跨文档转场（@view-transition / vtIn / vtOut）与其余通用动效
+   统一放在 assets/css/motion.css —— 这里只保留 token 与组件基础样式。 */
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{
     animation-duration:.001ms !important;animation-iteration-count:1 !important;
-    transition-duration:.001ms !important;
+    animation-delay:0ms !important;transition-duration:.001ms !important;
   }
 }

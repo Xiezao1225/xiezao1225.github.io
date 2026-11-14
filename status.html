@@ -17,16 +17,40 @@
 
 <link rel="stylesheet" href="assets/css/tokens.css">
 <link rel="stylesheet" href="assets/css/board.css">
+<link rel="stylesheet" href="assets/css/motion.css">
+<!-- 全站统一页头（与首页共用同一份实现） -->
+<link rel="stylesheet" href="assets/css/header.css">
+
+<!-- 无 JS 时（motion.js 不会加 .in）不要让 .reveal 把内容藏起来 -->
+<noscript><style>.reveal{opacity:1 !important;transform:none !important}</style></noscript>
 </head>
 <body>
+
+<!-- 页面转场遮罩：黑屏 + 镂空的「神」（内联 SVG：同一个字形既挖洞又作白字） -->
+<div class="sr-veil" aria-hidden="true">
+  <svg class="sr-veil-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" focusable="false">
+    <defs>
+      <mask id="srHanMask" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+        <rect width="100" height="100" fill="#fff"/>
+        <text x="50" y="50" text-anchor="middle" dominant-baseline="central" font-size="34" font-weight="900"
+              fill="#000" font-family="PingFang SC,Hiragino Sans GB,Microsoft YaHei,Noto Sans CJK SC,sans-serif">神</text>
+      </mask>
+    </defs>
+    <rect class="sr-veil-cover" width="100" height="100" fill="#050507" mask="url(#srHanMask)"/>
+    <text class="sr-veil-white" x="50" y="50" text-anchor="middle" dominant-baseline="central" font-size="34"
+          font-weight="900" font-family="PingFang SC,Hiragino Sans GB,Microsoft YaHei,Noto Sans CJK SC,sans-serif">神</text>
+  </svg>
+</div>
+
+<div class="sr-progress" id="progress" aria-hidden="true"></div>
 
 <div class="bg-stack" aria-hidden="true"></div>
 <div class="bg-grid" aria-hidden="true"></div>
 <div class="sweep" aria-hidden="true"></div>
 <div class="scanlines" aria-hidden="true"></div>
 
-<header class="site-head">
-  <div class="wrap head-inner">
+<header class="site-head" style="--head-w:min(940px,92vw);--mark:#00ff88">
+  <div class="head-inner">
     <a class="brand" href="index.html" aria-label="返回神人工业首页">
       <span class="brand-mark" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="#00ff88" stroke-width="1.8" stroke-linecap="round">
@@ -36,24 +60,25 @@
       </span>
       <span class="brand-txt"><b>STATUS</b><small>状态页 · 神人工业</small></span>
     </a>
-    <nav class="head-nav" aria-label="站内导航">
+    <nav class="menu" id="menu" aria-label="站内导航">
       <a href="index.html">// 主页</a>
       <a href="profile.html">// 人物档案</a>
-      <a href="status.html" class="on" aria-current="page">// 状态</a>
+      <a href="status.html" class="active" aria-current="page">// 状态</a>
     </nav>
     <span class="live-chip" id="liveChip" title="同步方式"><i id="liveDot"></i><span id="liveTxt">正在连接…</span></span>
+    <button class="burger" id="burger" type="button" aria-label="切换菜单" aria-expanded="false"><span></span><span></span><span></span></button>
   </div>
 </header>
 
 <main>
   <div class="wrap">
-    <div class="page-tag">Live Status · 实时状态</div>
+    <div class="page-tag reveal">Live Status · 实时状态</div>
 
     <!-- ============ 状态看板（由 board.js 渲染） ============ -->
-    <div data-sr-board data-live></div>
+    <div class="reveal" data-sr-board data-live></div>
 
     <!-- ============ 说明 ============ -->
-    <div class="notice" style="margin-top:24px">
+    <div class="notice reveal" style="margin-top:24px">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
       <span>
         <b>这里只显示 xiezao 本人主动设置的状态。</b>别人进入这个网页<b>不会</b>影响它，也不代表我在线
@@ -78,5 +103,6 @@
 <script src="assets/js/board.js"></script>
 <script src="assets/js/ui.js"></script>
 <script src="assets/js/status.js"></script>
+<script src="assets/js/motion.js"></script>
 </body>
 </html>

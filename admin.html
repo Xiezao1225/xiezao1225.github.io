@@ -17,39 +17,64 @@
 <link rel="stylesheet" href="assets/css/tokens.css">
 <link rel="stylesheet" href="assets/css/board.css">
 <link rel="stylesheet" href="assets/css/admin.css">
+<link rel="stylesheet" href="assets/css/motion.css">
+<!-- 全站统一页头（与首页共用同一份实现） -->
+<link rel="stylesheet" href="assets/css/header.css">
+
+<!-- 无 JS 时（motion.js 不会加 .in）不要让 .reveal 把内容藏起来 -->
+<noscript><style>.reveal{opacity:1 !important;transform:none !important}</style></noscript>
 </head>
 <body>
+
+<!-- 页面转场遮罩：黑屏 + 镂空的「神」（内联 SVG：同一个字形既挖洞又作白字） -->
+<div class="sr-veil" aria-hidden="true">
+  <svg class="sr-veil-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" focusable="false">
+    <defs>
+      <mask id="srHanMask" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+        <rect width="100" height="100" fill="#fff"/>
+        <text x="50" y="50" text-anchor="middle" dominant-baseline="central" font-size="34" font-weight="900"
+              fill="#000" font-family="PingFang SC,Hiragino Sans GB,Microsoft YaHei,Noto Sans CJK SC,sans-serif">神</text>
+      </mask>
+    </defs>
+    <rect class="sr-veil-cover" width="100" height="100" fill="#050507" mask="url(#srHanMask)"/>
+    <text class="sr-veil-white" x="50" y="50" text-anchor="middle" dominant-baseline="central" font-size="34"
+          font-weight="900" font-family="PingFang SC,Hiragino Sans GB,Microsoft YaHei,Noto Sans CJK SC,sans-serif">神</text>
+  </svg>
+</div>
+
+<div class="sr-progress" id="progress" aria-hidden="true"></div>
 
 <div class="bg-stack" aria-hidden="true"></div>
 <div class="bg-grid" aria-hidden="true"></div>
 <div class="sweep" aria-hidden="true"></div>
 <div class="scanlines" aria-hidden="true"></div>
 
-<header class="site-head">
-  <div class="wrap-wide head-inner">
+<header class="site-head" style="--head-w:min(1180px,94vw);--mark:#ffd23f">
+  <div class="head-inner">
     <a class="brand" href="index.html" aria-label="返回神人工业首页">
-      <span class="brand-mark" aria-hidden="true" style="border-color:rgba(255,210,63,.4);background:rgba(255,210,63,.08);box-shadow:0 0 22px -6px rgba(255,210,63,.7)">
+      <span class="brand-mark" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="#ffd23f" stroke-width="1.8" stroke-linecap="round">
           <rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>
         </svg>
       </span>
       <span class="brand-txt"><b>ADMIN</b><small>状态后台 · 神人工业</small></span>
     </a>
-    <nav class="head-nav" aria-label="站内导航">
+    <nav class="menu" id="menu" aria-label="站内导航">
       <a href="index.html">// 主页</a>
       <a href="status.html">// 公开状态页</a>
-      <a href="admin.html" class="on" aria-current="page">// 后台</a>
+      <a href="admin.html" class="active" aria-current="page">// 后台</a>
     </nav>
     <span class="live-chip" id="liveChip" title="同步方式"><i id="liveDot"></i><span id="liveTxt">正在连接…</span></span>
+    <button class="burger" id="burger" type="button" aria-label="切换菜单" aria-expanded="false"><span></span><span></span><span></span></button>
   </div>
 </header>
 
 <main>
   <div class="wrap-wide">
 
-    <div class="page-tag">Admin Console · 状态管理</div>
+    <div class="page-tag reveal">Admin Console · 状态管理</div>
 
-    <div class="admin-flag">
+    <div class="admin-flag reveal">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2.5 20h19z"/><path d="M12 9v5M12 17h.01"/></svg>
       <span>
         这是<b>后台页</b>，请不要把它当作状态页分享出去。别人打开也无所谓 ——
@@ -59,7 +84,7 @@
     </div>
 
     <!-- ================= 未登录 ================= -->
-    <section class="card" id="loginView">
+    <section class="card reveal" data-spot id="loginView">
       <div class="card-head">
         <h2>Owner Access</h2>
         <span class="aside" id="providerName">———</span>
@@ -89,7 +114,7 @@
     </section>
 
     <!-- ================= 后端还没配好：就地说明 ================= -->
-    <section class="card" id="setupCard" style="display:none">
+    <section class="card reveal" data-spot id="setupCard" style="display:none">
       <div class="card-head">
         <h2>还没接上后端 · Setup</h2>
         <span class="aside error" id="setupState">检测中…</span>
@@ -159,7 +184,7 @@
       <div class="work">
 
         <!-- ---------- 左：编辑表单 ---------- -->
-        <section class="card" style="margin-top:0">
+        <section class="card reveal" data-spot style="margin-top:0">
           <div class="card-head">
             <h2>Edit Status</h2>
             <span class="aside" id="whoAmI"></span>
@@ -245,7 +270,7 @@
 
       <!-- ---------- 审计 / 账号信息 ---------- -->
       <div class="work" style="margin-top:22px">
-        <section class="card">
+        <section class="card reveal" data-spot>
           <div class="card-head"><h2>账号 · 后端</h2></div>
           <div class="card-body">
             <div class="notice">
@@ -260,7 +285,7 @@
           </div>
         </section>
 
-        <section class="card" id="logCard" style="display:none">
+        <section class="card reveal" data-spot id="logCard" style="display:none">
           <div class="card-head"><h2>状态变更记录</h2></div>
           <ul class="log-list" id="logList"></ul>
         </section>
@@ -286,5 +311,6 @@
 <script src="assets/js/board.js"></script>
 <script src="assets/js/ui.js"></script>
 <script src="assets/js/admin.js"></script>
+<script src="assets/js/motion.js"></script>
 </body>
 </html>

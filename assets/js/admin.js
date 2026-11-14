@@ -107,6 +107,27 @@
     node.className = 'msg ' + (kind || '');
   }
 
+  /* 登录失败时把"下一步该干什么"摊在登录卡片里。
+     只用 loginMsg 一行写不下这些多步指引。 */
+  function showLoginHelp(text) {
+    var box = document.getElementById('loginHelp');
+    if (!box) return;
+    box.style.display = '';
+    box.className = 'notice warn';
+    box.innerHTML = '';
+    var span = document.createElement('span');
+    span.style.whiteSpace = 'pre-line';
+    span.textContent = text;
+    box.appendChild(span);
+  }
+
+  function hideLoginHelp() {
+    var box = document.getElementById('loginHelp');
+    if (!box) return;
+    box.style.display = 'none';
+    box.innerHTML = '';
+  }
+
   /* ------------------------------------------------------------- 视图切换 */
 
   function refreshViews() {
@@ -397,6 +418,14 @@
       if (S.adapterName === 'supabase' && !email) { flash(el.loginMsg, '请填邮箱', 'err'); return; }
       if (!secret) { flash(el.loginMsg, '请填密码 / Key', 'err'); return; }
 
+      /* 邮箱和配置里那份不一致时提前提醒：RLS 策略核对的是配置里的邮箱，
+         就算登录成功，保存那一步也会被拒。趁早说清楚，省一轮来回。 */
+      var expected = (CFG.owner && CFG.owner.email) || '';
+      if (expected && S.sameEmail && !S.sameEmail(email, expected)) {
+        flash(el.loginMsg, '⚠ 这个邮箱和 status.config.js 里配的 owner.email（' + expected
+          + '）不一样。登录也许能成，但保存会被数据库的 RLS 策略拒绝。', 'warn');
+      }
+
       el.loginBtn.disabled = true;
       flash(el.loginMsg, '登录中…', 'busy');
 
@@ -406,7 +435,12 @@
         refreshViews();
         return load();
       }).catch(function (e) {
+        /* 把"下一步该干什么"一起显示出来，而不是只甩一个 HTTP 400 */
+        var hint = S.authErrorHint ? S.authErrorHint(e, S.adapterName, expected) : null;
         flash(el.loginMsg, '✗ ' + e.message, 'err');
+        if (hint) {
+          showLoginHelp(hint);
+        }
       }).then(function () {
         el.loginBtn.disabled = false;
       });

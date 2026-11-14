@@ -1,0 +1,145 @@
+/* ============================================================================
+ * 神人工业 · 全站统一页头
+ * ----------------------------------------------------------------------------
+ * 之前每个页面各写一套：首页用 .site-head + .menu + .btn-cta，status/admin 用
+ * tokens.css 里的 .head-nav，profile 干脆自己写了个 <header> + ⚡ emoji logo。
+ * 现在统一到这里，四页共用同一份实现。
+ *
+ * 结构：
+ *   <header class="site-head">
+ *     <div class="head-inner">
+ *       <a class="brand">…</a>
+ *       <nav class="menu" id="menu">…</nav>
+ *       <a class="btn-cta">…</a>            ← 可选
+ *       <button class="burger" id="burger"> ← 可选，配合 motion.js 的抽屉
+ *     </div>
+ *   </header>
+ *
+ * 自包含：所有变量都带兜底值，引不引 tokens.css 都长一样。
+ * 换色标：给页面根元素或 .site-head 写 --mark（默认青）。
+ * 调宽度：内容列比 1180 窄的页面写 --head-w，页头就能和正文左对齐。
+ * ==========================================================================*/
+
+:root{
+  --head-w:min(1180px,92vw);
+  --head-h:70px;
+  --mark:var(--cyan,#00f2ff);
+}
+
+.site-head{
+  position:sticky;top:0;z-index:130;
+  /* 静止时完全透明，滚动后才浮现玻璃——iOS 导航栏的做法，
+     比一条常驻的深色条安静得多 */
+  background:transparent;
+  border-bottom:1px solid transparent;
+  transition:background var(--dur-2,.34s),border-color var(--dur-2,.34s);
+  view-transition-name:sr-head;   /* 跨页导航时页头原地形变 */
+}
+.site-head.stuck{
+  background:rgba(10,10,12,.72);
+  border-bottom-color:rgba(255,255,255,.08);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+}
+.head-inner{
+  width:var(--head-w);margin-inline:auto;
+  display:flex;align-items:center;gap:22px;height:var(--head-h);
+  transition:height var(--dur-2,.34s) var(--ease,cubic-bezier(.22,1,.36,1));
+}
+/* 收窄只在大屏生效：抽屉菜单的定位依赖 --head-h，移动端保持固定高度更稳 */
+@media (min-width:1121px){
+  .site-head.stuck .head-inner{height:calc(var(--head-h) - 12px)}
+}
+
+/* ---------- 品牌锁定 ---------- */
+.brand{display:flex;align-items:center;gap:12px;flex-shrink:0;text-decoration:none}
+.brand-mark{
+  width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex-shrink:0;
+  border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04);
+  box-shadow:none;
+}
+.brand-mark svg{width:18px;height:18px;opacity:.9}
+.brand-txt{display:flex;flex-direction:column;line-height:1.15}
+.brand-txt b{font-family:var(--sans,system-ui,sans-serif);font-size:.92rem;font-weight:600;
+  letter-spacing:.12em;color:var(--text,#f5f5f7)}
+.brand-txt small{font-size:.62rem;letter-spacing:.06em;color:var(--dimmer,#6e6e76)}
+/* 支持 color-mix 时，边框带一点页面色标（status 绿 / admin 琥珀 / 首页青） */
+@supports (border-color:color-mix(in srgb,red 30%,transparent)){
+  .brand-mark{border-color:color-mix(in srgb,var(--mark) 24%,transparent)}
+}
+
+/* ---------- 主导航 ---------- */
+.menu{display:flex;gap:2px;margin-left:auto;align-items:center}
+.menu a{
+  position:relative;font-family:var(--sans,system-ui,sans-serif);
+  font-size:.82rem;font-weight:500;letter-spacing:.02em;color:var(--dim,#a1a1a6);
+  padding:8px 12px;border-radius:8px;white-space:nowrap;text-decoration:none;
+  transition:color var(--dur-2,.34s),background var(--dur-2,.34s);
+}
+.menu a::after{
+  content:"";position:absolute;left:12px;right:12px;bottom:2px;height:1px;
+  background:currentColor;opacity:.5;transform:scaleX(0);transform-origin:left;
+  transition:transform var(--dur-2,.34s) var(--ease,cubic-bezier(.22,1,.36,1));
+}
+.menu a:hover{color:var(--text,#f5f5f7);background:rgba(255,255,255,.05)}
+.menu a:hover::after,
+.menu a.active::after{transform:scaleX(1)}
+.menu a.active{color:var(--text,#f5f5f7)}
+
+/* ---------- 主行动按钮 ---------- */
+.btn-cta{
+  font-family:var(--sans,system-ui,sans-serif);font-size:.82rem;font-weight:600;letter-spacing:0;
+  padding:9px 16px;border-radius:9px;white-space:nowrap;text-decoration:none;
+  border:1px solid transparent;color:#0a0a0c;background:var(--text,#f5f5f7);
+  box-shadow:none;
+  transition:background var(--dur-2,.34s),color var(--dur-2,.34s),transform var(--dur-1,.18s);
+}
+.btn-cta:hover{color:#0a0a0c;background:#fff;box-shadow:none}
+.btn-cta:active{transform:scale(.975)}
+
+/* ---------- 汉堡按钮 ---------- */
+.burger{
+  display:none;margin-left:auto;width:42px;height:42px;border-radius:10px;cursor:pointer;
+  border:1px solid var(--line,rgba(0,242,255,.16));background:rgba(0,242,255,.05);
+  align-items:center;justify-content:center;flex-direction:column;gap:5px;
+}
+.burger span{display:block;width:18px;height:1.5px;background:var(--mark);
+  transition:transform var(--dur-2,.34s),opacity var(--dur-2,.34s)}
+.burger.on span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.burger.on span:nth-child(2){opacity:0}
+.burger.on span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+
+/* ---------- 窄屏：导航收进抽屉 ----------
+   断点取 1120px：7 个导航项 + 品牌 + 按钮大约需要 990px，
+   原来的 860px 断点在 860~1080px 之间会挤到文字换行。 */
+@media (max-width:1120px){
+  .menu{
+    position:fixed;inset:var(--head-h) 0 auto;flex-direction:column;align-items:stretch;gap:2px;
+    margin:0;padding:14px 5vw 22px;background:rgba(12,12,15,.96);
+    border-bottom:1px solid rgba(255,255,255,.10);
+    /* visibility 一起过渡：收起时彻底移出无障碍树和 Tab 顺序，
+       只靠 transform 的话键盘还能聚焦到屏幕外的链接 */
+    transform:translateY(-130%);visibility:hidden;
+    transition:transform .45s var(--ease-drawer,cubic-bezier(.32,.72,0,1)),visibility .45s;
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    max-height:calc(100svh - var(--head-h));overflow-y:auto;
+  }
+  .menu.open{transform:none;visibility:visible}
+  .menu a{padding:15px 6px;border-bottom:1px solid var(--line-soft,rgba(255,255,255,.07));
+    font-size:.82rem;white-space:normal}
+  .menu a::after{display:none}
+  .btn-cta{display:none}
+  .burger{display:flex}
+  /* 导航收进抽屉后，让状态徽标接管右对齐 */
+  .head-inner > .live-chip{margin-left:auto}
+}
+@media (max-width:560px){
+  :root{--head-h:64px}
+  .head-inner{gap:14px}
+  .brand-mark{width:36px;height:36px;border-radius:10px}
+}
+
+/* ---------- 减少动态效果 ---------- */
+@media (prefers-reduced-motion:reduce){
+  .head-inner,.menu,.menu a::after,.burger span{transition-duration:.001ms !important}
+}

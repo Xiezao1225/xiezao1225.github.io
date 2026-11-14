@@ -11,55 +11,69 @@
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23020205'/><path d='M55 12 L26 56 h18 l-6 32 32-46H50z' fill='%2300f2ff'/></svg>">
 <title>SHEN_REN Industry | 神人工业</title>
+
+<!-- 设计 token：全站唯一来源（颜色 / 字体 / 缓动 + 全局重置） -->
+<link rel="stylesheet" href="assets/css/tokens.css">
+<!-- 全站共享动效层（滚动揭示 / 指针光斑 / 页头收缩 / 进度条 / 跨页转场） -->
+<link rel="stylesheet" href="assets/css/motion.css">
+<!-- 全站统一页头（首页 / 人物档案 / 状态 / 后台 四页共用） -->
+<link rel="stylesheet" href="assets/css/header.css">
+<!-- 液态玻璃：卡片表面的折射（assets/js/liquid-glass.js 生成贴图） -->
+<link rel="stylesheet" href="assets/css/liquid-glass.css">
+<!-- 彩蛋：1% 概率出现的"跟着鼠标的玻璃卡 + 红圈"（assets/js/cursor-egg.js） -->
+<link rel="stylesheet" href="assets/css/cursor-egg.css">
+
+<!-- 无 JS 时放行首屏：否则 #loader 的遮罩和 .reveal 的 opacity:0 会把整页锁死 -->
+<noscript><style>
+  #loader{display:none !important}
+  body.is-booting{overflow:auto !important}
+  .reveal{opacity:1 !important;transform:none !important}
+</style></noscript>
+
+<!-- 启动动画播放策略：改这里一处即可
+     store:"session" = 每个标签页/会话只在首次加载播放（默认）
+     store:"once"    = 整个浏览器只播放一次，之后永不播放 -->
+<script>
+(function(){
+  var STORE = "session", KEY = "sr_booted";
+  var cfg = { store: STORE, key: KEY, skip: false };
+  try{
+    var st = STORE === "once" ? window.localStorage : window.sessionStorage;
+    cfg.skip = st.getItem(KEY) === "1";
+  }catch(e){ cfg.skip = false; }   /* 存储不可用（隐私模式等）→ 照常播放 */
+  window.__SR_BOOT = cfg;
+  /* 非首次加载：在 CSS 层面就干掉遮罩，避免"闪一下启动画面" */
+  if(cfg.skip){ document.documentElement.className += " skip-boot"; }
+})();
+</script>
+
+<!-- 保险丝：主脚本语法错误 / 被拦截时，7 秒后强制放行首屏 -->
+<script>
+window.setTimeout(function(){
+  var b = document.body;
+  if(!b || !b.classList.contains("is-booting")) return;
+  var l = document.getElementById("loader");
+  if(l){ l.classList.add("done"); if(l.parentNode) l.parentNode.removeChild(l); }
+  b.classList.remove("is-booting");
+  var rs = document.querySelectorAll(".reveal");
+  for(var i = 0; i < rs.length; i++){ rs[i].classList.add("in"); }
+  var t = document.getElementById("typeLine");
+  if(t && !t.textContent){ t.textContent = t.getAttribute("data-fallback") || ""; }
+}, 7000);
+</script>
+
 <style>
 /* ============================================================
    SHEN_REN Industry · 神人工业 —— 主站首页
    设计语言：深空黑 + 霓虹青(#00f2ff) / 电紫(#7000ff) / 警戒红(#ff003c)
+   变量与全局重置见 assets/css/tokens.css；
+   本文件只保留"首页与全站的差异"以及首页专属组件
    ============================================================ */
-:root{
-  --bg:#020205;
-  --bg-2:#05060f;
-  --panel:rgba(10,16,28,.55);
-  --panel-solid:#080d18;
-  --line:rgba(0,242,255,.16);
-  --line-soft:rgba(255,255,255,.07);
-  --cyan:#00f2ff;
-  --purple:#7000ff;
-  --purple-soft:#b06bff;
-  --red:#ff003c;
-  --orange:#ff6b35;
-  --green:#5cb85c;
-  --amber:#ffd23f;
-  --text:#d7e6f2;
-  --dim:#7d8fa3;
-  --dimmer:#4d5a6b;
-  --mono:"JetBrains Mono","Cascadia Mono",Consolas,"SFMono-Regular","Courier New",monospace;
-  --sans:"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
-  --ease:cubic-bezier(.22,1,.36,1);
-  --shadow-cyan:0 18px 50px -18px rgba(0,242,255,.45);
-  --shadow-purple:0 18px 50px -18px rgba(176,107,255,.45);
-  --shadow-red:0 18px 50px -18px rgba(255,0,60,.45);
-}
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:var(--sans);
-  line-height:1.6;
-  overflow-x:hidden;
-  -webkit-font-smoothing:antialiased;
-}
+body{line-height:1.6}                 /* 全站 1.65，首页更紧凑 */
 body.is-booting{overflow:hidden}
-::selection{background:rgba(0,242,255,.28);color:#fff}
-:focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:4px}
-img{max-width:100%;display:block}
-a{color:var(--cyan);text-decoration:none;transition:color .25s,text-shadow .25s}
-a:hover{text-shadow:0 0 12px rgba(0,242,255,.7)}
 
 /* ---------- 通用工具 ---------- */
 .wrap{width:min(1180px,92vw);margin-inline:auto}
-.mono{font-family:var(--mono)}
 .grad-text{
   background:linear-gradient(100deg,#fff 0%,#bff6ff 38%,var(--cyan) 70%,#7ea8ff 100%);
   -webkit-background-clip:text;background-clip:text;
@@ -70,7 +84,6 @@ a:hover{text-shadow:0 0 12px rgba(0,242,255,.7)}
   text-transform:uppercase;color:var(--dim);display:flex;align-items:center;gap:14px;
 }
 .eyebrow::before{content:"";width:34px;height:1px;background:linear-gradient(90deg,transparent,var(--cyan))}
-.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* ---------- 背景层 ---------- */
 .bg-stack{position:fixed;inset:0;z-index:-3;pointer-events:none;overflow:hidden}
@@ -110,122 +123,190 @@ a:hover{text-shadow:0 0 12px rgba(0,242,255,.7)}
 }
 @keyframes sweepDown{0%{top:-180px}100%{top:100%}}
 
-/* ---------- 启动动画 ---------- */
+/* ---------- 启动动画（仅本次会话首次加载播放，策略见 <head>） ---------- */
+html.skip-boot #loader{display:none !important}
+html.skip-boot body.is-booting{overflow:auto}
+
 #loader{
-  position:fixed;inset:0;z-index:9999;display:grid;place-items:center;
-  background:radial-gradient(ellipse at 50% 45%,#071120 0%,#020205 62%);
-  transition:opacity .85s var(--ease),visibility .85s;
+  position:fixed;inset:0;z-index:9999;display:grid;place-items:center;overflow:hidden;
+  background:
+    radial-gradient(120% 78% at 50% -10%,rgba(0,242,255,.12),transparent 58%),
+    radial-gradient(110% 70% at 50% 108%,rgba(112,0,255,.16),transparent 62%),
+    #020205;
+  transition:opacity .55s var(--ease),transform .55s var(--ease),visibility .55s;
 }
-#loader.done{opacity:0;visibility:hidden}
-.boot{
-  width:min(560px,88vw);padding:38px 34px 30px;border-radius:22px;
-  background:linear-gradient(160deg,rgba(9,16,28,.92),rgba(4,6,14,.92));
+#loader.done{opacity:0;visibility:hidden;transform:scale(1.05)}
+#loader::after{ /* 退场闪光 */
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:0;
+  background:radial-gradient(58% 42% at 50% 50%,rgba(0,242,255,.55),transparent 72%);
+}
+#loader.done::after{animation:ldFlash .55s var(--ease)}
+@keyframes ldFlash{0%{opacity:0}28%{opacity:.9}100%{opacity:0}}
+
+/* 透视地面网格 */
+.ld-floor{
+  position:absolute;left:-30%;right:-30%;bottom:-14%;height:64%;
+  background-image:
+    linear-gradient(rgba(0,242,255,.20) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,242,255,.14) 1px,transparent 1px);
+  background-size:62px 42px;
+  transform:perspective(320px) rotateX(73deg);transform-origin:50% 100%;
+  mask-image:linear-gradient(180deg,transparent,#000 42%,transparent 96%);
+  -webkit-mask-image:linear-gradient(180deg,transparent,#000 42%,transparent 96%);
+  animation:ldFloor 2.4s linear infinite;
+}
+@keyframes ldFloor{to{background-position-y:42px}}
+
+/* 扫描光带 + 噪点 */
+.ld-scan{
+  position:absolute;left:0;right:0;height:170px;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(0,242,255,.10) 46%,rgba(0,242,255,.02) 54%,transparent);
+  animation:ldScan 3.6s linear infinite;
+}
+@keyframes ldScan{0%{top:-170px}100%{top:100%}}
+.ld-noise{
+  position:absolute;inset:0;pointer-events:none;opacity:.45;mix-blend-mode:overlay;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.045) 0 1px,transparent 1px 3px);
+}
+
+/* 屏幕四角准星 + 左右数据轨 */
+.ld-corner{position:absolute;width:26px;height:26px;border:2px solid rgba(0,242,255,.45);pointer-events:none}
+.ld-corner.tl{top:18px;left:18px;border-right:0;border-bottom:0;border-radius:6px 0 0 0}
+.ld-corner.tr{top:18px;right:18px;border-left:0;border-bottom:0;border-radius:0 6px 0 0}
+.ld-corner.bl{bottom:18px;left:18px;border-right:0;border-top:0;border-radius:0 0 0 6px}
+.ld-corner.br{bottom:18px;right:18px;border-left:0;border-top:0;border-radius:0 0 6px 0}
+.ld-rail{position:absolute;top:50%;transform:translateY(-50%);display:grid;gap:6px;pointer-events:none}
+.ld-rail.left{left:24px}
+.ld-rail.right{right:24px}
+.ld-rail i{display:block;width:3px;height:14px;border-radius:2px;background:var(--cyan);
+  animation:ldRail 1.5s ease-in-out infinite}
+.ld-rail i:nth-child(even){height:24px;background:var(--purple-soft)}
+.ld-rail i:nth-child(2){animation-delay:.15s}
+.ld-rail i:nth-child(3){animation-delay:.3s}
+.ld-rail i:nth-child(4){animation-delay:.45s}
+.ld-rail i:nth-child(5){animation-delay:.6s}
+@keyframes ldRail{0%,100%{opacity:.18;transform:scaleY(.55)}50%{opacity:.95;transform:scaleY(1)}}
+
+/* HUD 框体 */
+.ld-hud{
+  position:relative;z-index:2;width:min(720px,92vw);padding:20px 24px 18px;border-radius:18px;
+  text-align:center;
+  background:linear-gradient(165deg,rgba(8,14,26,.86),rgba(4,6,14,.92));
   border:1px solid var(--line);
-  box-shadow:0 0 0 1px rgba(0,242,255,.06) inset,0 30px 90px -30px rgba(0,242,255,.35);
-  position:relative;overflow:hidden;text-align:center;
+  box-shadow:0 0 0 1px rgba(0,242,255,.05) inset,0 40px 120px -46px rgba(0,242,255,.5);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
 }
-.boot::after{ /* 顶部能量条 */
-  content:"";position:absolute;top:0;left:0;right:0;height:2px;
+.ld-hud::after{ /* 顶部能量条 */
+  content:"";position:absolute;top:0;left:14px;right:14px;height:2px;border-radius:99px;
   background:linear-gradient(90deg,transparent,var(--cyan),var(--purple),transparent);
-  background-size:200% 100%;animation:flowLine 2.6s linear infinite;
+  background-size:200% 100%;animation:flowLine 2.4s linear infinite;
 }
 @keyframes flowLine{to{background-position:200% 0}}
-.core{
-  width:96px;height:96px;margin:0 auto 22px;position:relative;display:grid;place-items:center;
+
+.ld-top{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  font-size:.6rem;letter-spacing:.18em;color:var(--dim);margin-bottom:12px;
 }
-.core i{
-  position:absolute;inset:0;border-radius:50%;
-  border:1px solid rgba(0,242,255,.28);border-top-color:var(--cyan);
-  animation:spin 1.5s linear infinite;
+.ld-top-main{display:inline-flex;align-items:center;gap:8px;color:#9fe9f7}
+.ld-dot{width:7px;height:7px;border-radius:50%;background:#4fe08a;box-shadow:0 0 10px #4fe08a;animation:blink 1.6s infinite}
+#ldClock{color:var(--cyan);font-variant-numeric:tabular-nums}
+
+/* 核心：进度环 + 六边扫描 + 轨道点 + 故障字 */
+.ld-core{position:relative;width:134px;height:134px;margin:4px auto 14px;display:grid;place-items:center}
+.ld-ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.ld-ring circle{fill:none;stroke-width:2.5;stroke-linecap:round}
+.ld-ring-bg{stroke:rgba(0,242,255,.13)}
+.ld-ring-fg{stroke-dasharray:345.6;stroke-dashoffset:345.6;transition:stroke-dashoffset .3s ease-out;
+  filter:drop-shadow(0 0 6px rgba(0,242,255,.75))}
+.ld-hex{
+  position:absolute;inset:20px;opacity:.9;
+  clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);
+  background:conic-gradient(from 0deg,transparent 0 42%,rgba(0,242,255,.5) 58%,transparent 72% 100%);
+  animation:spin 6s linear infinite;
 }
-.core i:nth-child(2){inset:11px;border-color:rgba(112,0,255,.35);border-bottom-color:var(--purple);animation-duration:2.2s;animation-direction:reverse}
-.core i:nth-child(3){inset:22px;border-color:rgba(255,0,60,.28);border-left-color:var(--red);animation-duration:2.9s}
-.core b{
-  font-family:var(--mono);font-size:1.05rem;color:#eafcff;letter-spacing:.05em;
-  text-shadow:0 0 18px rgba(0,242,255,.9);
-}
+.ld-orbit{position:absolute;inset:-10px;animation:spin 3.4s linear infinite}
+.ld-orbit i{position:absolute;left:50%;width:6px;height:6px;margin-left:-3px;border-radius:50%;
+  background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+.ld-orbit i:first-child{top:-3px}
+.ld-orbit i:last-child{bottom:-3px;background:var(--purple-soft);box-shadow:0 0 12px var(--purple-soft)}
+.ld-mark{position:relative;font-family:var(--mono);font-size:1.35rem;font-weight:700;letter-spacing:.16em;
+  color:#eafcff;text-shadow:0 0 22px rgba(0,242,255,.9)}
+.ld-mark::before,.ld-mark::after{content:attr(data-glitch);position:absolute;inset:0;opacity:0}
+.ld-mark::before{color:var(--cyan);animation:ldGlitchA 3s steps(2,end) infinite}
+.ld-mark::after{color:var(--red);animation:ldGlitchB 3s steps(2,end) infinite}
+@keyframes ldGlitchA{0%,90%,100%{opacity:0;transform:none;clip-path:inset(0 0 0 0)}
+  92%{opacity:.85;transform:translate(-2px,1px);clip-path:inset(0 0 58% 0)}
+  96%{opacity:.7;transform:translate(2px,-1px);clip-path:inset(52% 0 0 0)}}
+@keyframes ldGlitchB{0%,90%,100%{opacity:0;transform:none;clip-path:inset(0 0 0 0)}
+  93%{opacity:.7;transform:translate(2px,1px);clip-path:inset(0 0 45% 0)}
+  97%{opacity:.6;transform:translate(-2px,-1px);clip-path:inset(60% 0 0 0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
-.boot-brand{
-  font-family:var(--mono);font-weight:700;font-size:1.65rem;letter-spacing:.34em;
-  margin-bottom:6px;
-}
-.boot-sub{font-family:var(--mono);font-size:.68rem;letter-spacing:.34em;color:var(--dimmer);margin-bottom:24px}
-.boot-log{
-  height:112px;overflow:hidden;text-align:left;font-family:var(--mono);font-size:.76rem;
-  line-height:1.85;color:#8fd8e8;background:rgba(0,0,0,.42);
-  border:1px solid rgba(0,242,255,.12);border-radius:10px;padding:10px 14px;position:relative;
-}
-.boot-log .ok{color:#4fe08a}
-.boot-log .warn{color:var(--amber)}
-.boot-log .hl{color:var(--purple-soft)}
-.bar{height:3px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:22px}
-.bar span{
-  display:block;height:100%;width:0;border-radius:99px;
-  background:linear-gradient(90deg,var(--cyan),var(--purple),#ff66aa);
-  box-shadow:0 0 16px var(--cyan);transition:width .32s ease-out;
-}
-.boot-foot{
-  display:flex;justify-content:space-between;font-family:var(--mono);
-  font-size:.66rem;color:var(--dimmer);letter-spacing:.18em;margin-top:12px;
-}
+
+.ld-phase{font-family:var(--mono);font-size:.64rem;letter-spacing:.3em;color:#9fe9f7;margin-bottom:10px}
+.ld-cursor{display:inline-block;width:7px;height:1em;margin-left:4px;vertical-align:-2px;
+  background:var(--cyan);animation:blink 1s steps(1) infinite}
+.ld-brand{font-family:var(--mono);font-weight:700;font-size:1.5rem;letter-spacing:.32em;margin-bottom:12px}
+
+/* 阶段步进 */
+.ld-steps{display:flex;justify-content:center;gap:8px;margin-bottom:14px;font-size:.55rem;letter-spacing:.18em}
+.ld-steps span{padding:3px 9px;border-radius:99px;color:var(--dimmer);border:1px solid rgba(255,255,255,.08);
+  transition:color .3s,border-color .3s,box-shadow .3s,background .3s}
+.ld-steps span.done{color:#4fe08a;border-color:rgba(79,224,138,.3)}
+.ld-steps span.on{color:var(--cyan);border-color:rgba(0,242,255,.5);background:rgba(0,242,255,.08);
+  box-shadow:0 0 16px -4px var(--cyan)}
+
+/* 控制台 */
+.ld-console{text-align:left;border:1px solid rgba(0,242,255,.14);border-radius:12px;
+  background:rgba(0,0,0,.5);overflow:hidden}
+.ld-console-head{display:flex;align-items:center;gap:6px;padding:7px 12px;
+  border-bottom:1px solid rgba(0,242,255,.1);background:rgba(0,242,255,.04)}
+.ld-console-head i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.16)}
+.ld-console-head i:nth-child(1){background:#ff5f57}
+.ld-console-head i:nth-child(2){background:var(--amber)}
+.ld-console-head i:nth-child(3){background:#4fe08a}
+.ld-console-head em{margin-left:6px;font-style:normal;font-size:.56rem;letter-spacing:.2em;color:var(--dimmer)}
+.ld-log{height:116px;overflow:hidden;padding:10px 14px;font-size:.74rem;line-height:1.8;color:#8fd8e8}
+.ld-line{animation:ldLine .34s var(--ease) both}
+@keyframes ldLine{from{opacity:0;transform:translateX(-8px);clip-path:inset(0 100% 0 0)}
+  to{opacity:1;transform:none;clip-path:inset(0 0 0 0)}}
+.ld-log .ok{color:#4fe08a}
+.ld-log .warn{color:var(--amber)}
+.ld-log .hl{color:var(--purple-soft)}
+
+/* 分段进度 + 读数 */
+.ld-seg{display:flex;gap:3px;margin-top:16px}
+.ld-seg i{flex:1;height:8px;border-radius:2px;background:rgba(255,255,255,.07);
+  transition:background .2s,box-shadow .2s}
+.ld-seg i.on{background:linear-gradient(180deg,var(--cyan),#0a93b8);box-shadow:0 0 10px -2px var(--cyan)}
+.ld-seg i.head{background:#fff;box-shadow:0 0 14px var(--cyan)}
+.ld-meta{display:flex;justify-content:space-between;margin-top:8px;font-size:.62rem;
+  letter-spacing:.18em;color:var(--dimmer)}
+#bootPct{color:#eafcff;font-variant-numeric:tabular-nums}
+#bootRate{color:var(--purple-soft)}
+
 .skip{
-  position:absolute;right:16px;bottom:14px;background:transparent;border:1px solid rgba(255,255,255,.18);
+  display:inline-block;margin-top:16px;background:transparent;border:1px solid rgba(255,255,255,.18);
   color:var(--dim);font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;
-  padding:7px 14px;border-radius:99px;cursor:pointer;transition:.25s;
+  padding:7px 14px;border-radius:99px;cursor:pointer;
+  transition:color var(--dur-2),border-color var(--dur-2);
+  line-height:normal;   /* 抵消 tokens.css 的 button{font:inherit} 带来的行高变化 */
 }
-.skip:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 18px rgba(0,242,255,.3)}
+.skip:hover,.skip:focus-visible{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 18px rgba(0,242,255,.3)}
+
+/* 窄屏收缩 */
+@media (max-width:560px){
+  .ld-corner,.ld-rail{display:none}
+  .ld-hud{padding:18px 15px 16px}
+  .ld-top{font-size:.5rem;gap:8px}
+  .ld-top .hide-sm{display:none}
+  .ld-log{font-size:.66rem;height:104px}
+  .ld-mark{font-size:1.2rem}
+  .ld-steps{gap:5px;font-size:.5rem}
+}
 
 /* ---------- 顶部导航 ---------- */
-.progress{position:fixed;top:0;left:0;height:2px;z-index:150;width:0;
-  background:linear-gradient(90deg,var(--cyan),var(--purple));
-  box-shadow:0 0 14px rgba(0,242,255,.8)}
-.site-head{
-  position:sticky;top:0;z-index:130;
-  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
-  background:linear-gradient(180deg,rgba(2,2,5,.9),rgba(2,2,5,.62));
-  border-bottom:1px solid var(--line-soft);
-  transition:border-color .3s,background .3s;
-}
-.site-head.stuck{border-bottom-color:var(--line);background:linear-gradient(180deg,rgba(2,2,5,.96),rgba(2,2,5,.82))}
-.head-inner{display:flex;align-items:center;gap:22px;height:70px}
-.brand{display:flex;align-items:center;gap:12px;flex-shrink:0}
-.brand-mark{
-  width:40px;height:40px;border-radius:11px;display:grid;place-items:center;
-  border:1px solid var(--line);background:rgba(0,242,255,.07);
-  box-shadow:0 0 22px -6px rgba(0,242,255,.7),0 0 0 1px rgba(0,242,255,.08) inset;
-}
-.brand-mark svg{width:20px;height:20px;filter:drop-shadow(0 0 6px var(--cyan))}
-.brand-txt{display:flex;flex-direction:column;line-height:1.15}
-.brand-txt b{font-family:var(--mono);font-size:.95rem;letter-spacing:.24em;color:#eafcff}
-.brand-txt small{font-size:.6rem;letter-spacing:.28em;color:var(--dimmer)}
-.menu{display:flex;gap:6px;margin-left:auto;align-items:center}
-.menu a{
-  position:relative;font-family:var(--mono);font-size:.76rem;letter-spacing:.16em;
-  color:#93a6b8;padding:9px 12px;border-radius:8px;text-transform:uppercase;
-}
-.menu a::after{
-  content:"";position:absolute;left:12px;right:12px;bottom:4px;height:1px;
-  background:var(--cyan);transform:scaleX(0);transform-origin:left;transition:transform .3s var(--ease);
-}
-.menu a:hover{color:var(--cyan);background:rgba(0,242,255,.05)}
-.menu a:hover::after{transform:scaleX(1)}
-.menu a.active{color:var(--cyan);text-shadow:0 0 12px rgba(0,242,255,.6)}
-.menu a.active::after{transform:scaleX(1)}
-.btn-cta{
-  font-family:var(--mono);font-size:.74rem;letter-spacing:.16em;padding:10px 18px;border-radius:9px;
-  border:1px solid var(--cyan);color:#04121a;background:var(--cyan);font-weight:700;
-  box-shadow:0 0 24px -6px rgba(0,242,255,.9);white-space:nowrap;
-}
-.btn-cta:hover{background:#8df6ff;color:#02121a;text-shadow:none;box-shadow:0 0 34px -4px rgba(0,242,255,1)}
-.burger{
-  display:none;margin-left:auto;width:42px;height:42px;border-radius:10px;
-  border:1px solid var(--line);background:rgba(0,242,255,.05);cursor:pointer;
-  align-items:center;justify-content:center;flex-direction:column;gap:5px;
-}
-.burger span{display:block;width:18px;height:1.5px;background:var(--cyan);transition:.3s}
-.burger.on span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
-.burger.on span:nth-child(2){opacity:0}
-.burger.on span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+/* 页头（.site-head / .brand / .menu / .btn-cta / .burger）见 assets/css/header.css；
+   顶部进度条 / 指针光斑 / 入场编排见 assets/css/motion.css */
 
 /* ---------- Hero ---------- */
 .hero{
@@ -239,7 +320,7 @@ a:hover{text-shadow:0 0 12px rgba(0,242,255,.7)}
   filter:blur(12px);animation:breathe 6s ease-in-out infinite;
 }
 @keyframes breathe{0%,100%{transform:scale(.94);opacity:.7}50%{transform:scale(1.06);opacity:1}}
-.hero-inner{position:relative;z-index:2;width:min(1180px,92vw)}
+.hero-inner{position:relative;z-index:2;width:min(1180px,92vw)}   /* 视差变量见 motion.css */
 .status-pill{
   display:inline-flex;align-items:center;gap:10px;padding:7px 16px;border-radius:99px;
   border:1px solid var(--line);background:rgba(0,242,255,.05);
@@ -294,8 +375,9 @@ a:hover{text-shadow:0 0 12px rgba(0,242,255,.7)}
 .btn.solid:hover{background:#9df3ff;color:#03121a;text-shadow:none}
 .btn.red{--c:var(--red);--c-55:rgba(255,0,60,.55);--c-14:rgba(255,0,60,.14);--c-08:rgba(255,0,60,.08)}
 .btn.orange{--c:var(--orange);--c-55:rgba(255,107,53,.55);--c-14:rgba(255,107,53,.14);--c-08:rgba(255,107,53,.08)}
-.btn.green{--c:var(--green);--c-55:rgba(92,184,92,.55);--c-14:rgba(92,184,92,.14);--c-08:rgba(92,184,92,.08)}
-.btn svg{width:16px;height:16px;flex-shrink:0}
+.btn.green{--c:var(--green-mc);--c-55:rgba(92,184,92,.55);--c-14:rgba(92,184,92,.14);--c-08:rgba(92,184,92,.08)}
+/* 固定描边宽度：tokens.css 里的 .btn svg 是 1.7，首页原本靠 SVG 属性写的 1.6 */
+.btn svg{width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.6}
 .hero-stats{
   display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
   background:var(--line-soft);border:1px solid var(--line-soft);border-radius:16px;overflow:hidden;
@@ -312,10 +394,15 @@ a:hover{text-shadow:0 0 12px rgba(0,242,255,.7)}
 .scroll-hint i{display:block;width:1px;height:34px;background:linear-gradient(180deg,var(--cyan),transparent);animation:hint 2s ease-in-out infinite}
 @keyframes hint{0%,100%{opacity:.25;transform:scaleY(.6)}50%{opacity:1;transform:scaleY(1)}}
 
+/* Hero 开场编排（body.ready 驱动）已移入 assets/css/motion.css，全站共用 */
+
 /* ---------- 跑马灯 ---------- */
 .ticker{
   border-block:1px solid var(--line-soft);background:rgba(4,7,14,.7);
   overflow:hidden;position:relative;z-index:2;
+  /* 两端渐隐，滚动内容不会硬切在边缘 */
+  mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);
 }
 .ticker-track{display:flex;width:max-content;animation:marquee 42s linear infinite}
 .ticker:hover .ticker-track{animation-play-state:paused}
@@ -340,17 +427,24 @@ main{position:relative;z-index:2;padding-bottom:20px}
 .sec-head.center{margin-inline:auto;text-align:center}
 .sec-head.center .eyebrow{justify-content:center}
 .sec-head.center .eyebrow::after{content:"";width:34px;height:1px;background:linear-gradient(270deg,transparent,var(--cyan))}
-.reveal{opacity:0;transform:translateY(26px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
-.reveal.in{opacity:1;transform:none}
+/* 滚动揭示 / 标题细线 / 分区分隔线：通用实现见 assets/css/motion.css */
 
 /* ---------- 入口卡片 ---------- */
 .portals{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:20px}
 .portal{
   --c:var(--cyan);
+  --mx:50%;--my:0%;                      /* 指针光斑中心，由 JS 写入；静止时是顶部微光 */
   position:relative;display:block;padding:28px 26px 26px;border-radius:18px;
-  background:linear-gradient(165deg,rgba(12,19,33,.72),rgba(5,8,16,.72));
+  background-image:
+    radial-gradient(circle 300px at var(--mx) var(--my),rgba(0,242,255,.10),transparent 70%),
+    linear-gradient(165deg,rgba(12,19,33,.72),rgba(5,8,16,.72));
   border:1px solid var(--line-soft);overflow:hidden;
-  transition:transform .45s var(--ease),border-color .45s,box-shadow .45s;
+  transition:transform var(--dur-2) var(--ease),border-color var(--dur-2),box-shadow var(--dur-2);
+}
+@supports (background:color-mix(in srgb,red 10%,transparent)){
+  .portal{background-image:
+    radial-gradient(circle 300px at var(--mx) var(--my),color-mix(in srgb,var(--c) 15%,transparent),transparent 70%),
+    linear-gradient(165deg,rgba(12,19,33,.72),rgba(5,8,16,.72))}
 }
 .portal::before{ /* 顶部扫描填充 */
   content:"";position:absolute;top:0;left:0;right:0;height:1px;
@@ -362,7 +456,13 @@ main{position:relative;z-index:2;padding-bottom:20px}
   background:linear-gradient(100deg,transparent,rgba(255,255,255,.07),transparent);
   transition:left .85s var(--ease);pointer-events:none;
 }
-.portal:hover{transform:translateY(-8px);border-color:var(--c);box-shadow:0 26px 60px -26px var(--c)}
+.portal:hover{
+  /* 透视收到 800px：越近，同样的 rotate 看起来越立体；
+     末尾那点 scale 是防止大角度倾斜时四角"陷"进去显得干瘪 */
+  transform:translateY(-8px) perspective(800px)
+            rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) scale(1.012);
+  border-color:var(--c);box-shadow:0 26px 60px -26px var(--c);
+}
 @supports (border-color:color-mix(in srgb,red 50%,transparent)){
   .portal:hover{border-color:color-mix(in srgb,var(--c) 60%,transparent)}
 }
@@ -373,7 +473,13 @@ main{position:relative;z-index:2;padding-bottom:20px}
   border:1px solid rgba(0,242,255,.4);
   background:rgba(0,242,255,.1);
   box-shadow:0 0 26px -8px var(--c);
+  transition:transform var(--dur-2) var(--ease-spring),box-shadow var(--dur-2);
 }
+.portal:hover .portal-ico{transform:translateY(-2px) scale(1.06);box-shadow:0 0 34px -6px var(--c)}
+/* 用 backwards 而不是 both：both 会把 transform 永久填成 none，悬停缩放就失效了。
+   图标在 .in 之前本来就不可见（整张卡还是 opacity:0），所以不需要 forwards。 */
+.portal.in .portal-ico{animation:iconPop .7s var(--ease-spring) .18s backwards}
+@keyframes iconPop{from{opacity:0;transform:scale(.6) rotate(-12deg)}}
 @supports (border-color:color-mix(in srgb,red 50%,transparent)){
   .portal-ico{border-color:color-mix(in srgb,var(--c) 40%,transparent);
               background:color-mix(in srgb,var(--c) 10%,transparent)}
@@ -396,13 +502,16 @@ main{position:relative;z-index:2;padding-bottom:20px}
   --c:var(--red);
   --c-soft:rgba(255,0,60,.32);--c-mid:rgba(255,0,60,.55);--c-chip:rgba(255,0,60,.45);
   --c-glow:rgba(255,0,60,.5);--c-glow-2:rgba(255,0,60,.65);
+  --mx:50%;--my:50%;
   position:relative;border-radius:18px;overflow:hidden;
   background:
     linear-gradient(165deg,rgba(18,8,14,.72),rgba(6,5,12,.78)),
     repeating-linear-gradient(45deg,rgba(255,0,60,.035) 0 2px,transparent 2px 14px);
   border:1px solid var(--c-soft);
   box-shadow:0 0 46px -22px var(--c);
+  transition:transform var(--dur-2) var(--ease),border-color var(--dur-2),box-shadow var(--dur-2);
 }
+.dossier:hover{transform:translateY(-4px);border-color:var(--c-mid);box-shadow:0 26px 70px -30px var(--c)}
 .dossier.purple{--c:var(--purple-soft);
   --c-soft:rgba(176,107,255,.32);--c-mid:rgba(176,107,255,.55);--c-chip:rgba(176,107,255,.45);
   --c-glow:rgba(176,107,255,.5);--c-glow-2:rgba(176,107,255,.65);
@@ -420,7 +529,9 @@ main{position:relative;z-index:2;padding-bottom:20px}
   position:relative;flex-shrink:0;width:148px;height:148px;border-radius:14px;overflow:hidden;
   border:1px solid var(--c-mid);background:#07070c;
   box-shadow:0 0 30px -10px var(--c),0 0 0 6px rgba(0,0,0,.4);
+  transition:border-color var(--dur-2),box-shadow var(--dur-2),transform var(--dur-2) var(--ease);
 }
+.dossier:hover .mug{border-color:var(--c);transform:translateY(-2px);box-shadow:0 0 40px -8px var(--c),0 0 0 6px rgba(0,0,0,.4)}
 .mug img{width:100%;height:100%;object-fit:cover;image-rendering:pixelated;
   filter:saturate(.65) contrast(1.12)}
 .dossier.purple .mug img{filter:saturate(.95) contrast(1.05)}
@@ -468,6 +579,12 @@ main{position:relative;z-index:2;padding-bottom:20px}
 .threat-bar{display:flex;gap:4px}
 .threat-bar i{flex:1;height:6px;border-radius:2px;background:rgba(255,255,255,.07)}
 .threat-bar i.on{background:var(--c);box-shadow:0 0 12px -2px var(--c)}
+/* 威胁条：揭示时从左往右擦出来，之后整条做极轻微的呼吸。
+   呼吸用 opacity 而不是 box-shadow —— 前者可合成，后者每帧都要重绘。 */
+.dossier.in .threat-bar{animation:barWipe .85s var(--ease-out) .3s backwards,
+  barPulse 3.2s var(--ease-inout) 1.1s infinite}
+@keyframes barWipe{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes barPulse{0%,100%{opacity:.9}50%{opacity:1}}
 .stamp{
   position:absolute;top:26px;right:30px;z-index:4;transform:rotate(-13deg);
   font-family:var(--mono);font-weight:800;letter-spacing:.18em;font-size:.72rem;
@@ -480,29 +597,31 @@ main{position:relative;z-index:2;padding-bottom:20px}
   color:transparent;-webkit-text-stroke:1.5px rgba(176,107,255,.30);
   transform:rotate(-9deg);white-space:nowrap;user-select:none;
   animation:waterPulse 4.5s ease-in-out infinite;
+  transition:transform var(--dur-3) var(--ease);
 }
+.dossier:hover .watermark{transform:rotate(-6deg) scale(1.05)}
 @keyframes waterPulse{0%,100%{opacity:.45}50%{opacity:.9}}
 .dossier.ghost{--c:#8d97a5;
+  /* 归档卡整套灰化：只换 --c 的话 --c-soft 仍是红色，外框会残留一圈红边 */
+  --c-soft:rgba(141,151,165,.32);--c-mid:rgba(141,151,165,.55);--c-chip:rgba(141,151,165,.45);
+  --c-glow:rgba(141,151,165,.5);--c-glow-2:rgba(141,151,165,.65);
   background:linear-gradient(165deg,rgba(13,15,20,.72),rgba(6,7,11,.8));
   box-shadow:none}
 .dossier.ghost .dossier-info h3{color:#b9c2cc;text-shadow:none}
 .dossier.ghost .mug img{filter:grayscale(.55) brightness(.8)}
+.dossier.ghost .mug .live{color:#c3cbd4;border-color:rgba(141,151,165,.5)}
 .dossier.ghost .badge{background:#2b3038;color:#c3cbd4;animation:none;box-shadow:none;font-weight:600}
 
 /* ---------- 团队 ---------- */
 .people{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px}
 .person{
+  --mx:50%;--my:0%;
   position:relative;text-align:center;padding:30px 20px 24px;border-radius:18px;
   background:linear-gradient(170deg,rgba(11,17,30,.7),rgba(5,7,14,.72));
-  border:1px solid var(--line-soft);transition:transform .45s var(--ease),border-color .4s,box-shadow .4s;
+  border:1px solid var(--line-soft);transition:transform var(--dur-2) var(--ease),border-color var(--dur-2),box-shadow var(--dur-2);
   overflow:hidden;
 }
-.person::before{
-  content:"";position:absolute;left:50%;top:-60px;width:160px;height:160px;transform:translateX(-50%);
-  background:radial-gradient(circle,rgba(0,242,255,.22),transparent 68%);opacity:0;transition:opacity .45s;
-}
 .person:hover{transform:translateY(-7px);border-color:var(--line);box-shadow:var(--shadow-cyan)}
-.person:hover::before{opacity:1}
 .person .p-av{
   position:relative;width:82px;height:82px;margin:0 auto 16px;border-radius:50%;overflow:hidden;
   border:1px solid rgba(0,242,255,.45);background:#0a0e18;
@@ -533,9 +652,12 @@ main{position:relative;z-index:2;padding-bottom:20px}
 /* ---------- 联系 ---------- */
 .contact-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:20px;align-items:start}
 .panel{
+  position:relative;
   padding:30px;border-radius:18px;border:1px solid var(--line-soft);
   background:linear-gradient(165deg,rgba(11,17,30,.7),rgba(5,7,14,.74));
+  transition:border-color var(--dur-2),box-shadow var(--dur-2),transform var(--dur-2) var(--ease);
 }
+.panel:hover{border-color:var(--line);transform:translateY(-3px);box-shadow:0 30px 70px -44px rgba(0,242,255,.75)}
 .panel h3{font-size:1.05rem;letter-spacing:.06em;margin-bottom:10px;color:#eaf9ff}
 .panel p{color:var(--dim);font-size:.9rem}
 .links{display:grid;gap:12px;margin-top:22px}
@@ -548,7 +670,9 @@ main{position:relative;z-index:2;padding-bottom:20px}
 .link-row svg{width:18px;height:18px;stroke:var(--cyan);fill:none;stroke-width:1.6;flex-shrink:0}
 .link-row b{display:block;color:#eaf9ff;font-size:.86rem;font-weight:600;letter-spacing:.03em}
 .link-row small{font-family:var(--mono);font-size:.68rem;color:var(--dimmer);letter-spacing:.1em}
-.link-row .go{margin-left:auto;font-family:var(--mono);color:var(--dimmer);font-size:.8rem}
+.link-row .go{margin-left:auto;font-family:var(--mono);color:var(--dimmer);font-size:.8rem;
+  transition:transform var(--dur-2) var(--ease),color var(--dur-2)}
+.link-row:hover .go{transform:translateX(5px);color:var(--cyan)}
 .terminal{
   font-family:var(--mono);font-size:.76rem;line-height:2;color:#9fe0ee;
   background:rgba(0,0,0,.42);border:1px solid rgba(0,242,255,.14);border-radius:12px;
@@ -562,6 +686,8 @@ main{position:relative;z-index:2;padding-bottom:20px}
   position:relative;z-index:70;border-top:1px solid var(--line-soft);
   background:linear-gradient(180deg,rgba(3,5,12,.72),rgba(4,7,14,.92));
   padding:54px 0 34px;margin-top:40px;
+  /* 抵消 tokens.css 给全站页脚设的等宽小字：首页页脚正文用常规排版 */
+  font-family:var(--sans);font-size:1rem;letter-spacing:normal;color:var(--text);
 }
 .foot-grid{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;margin-bottom:34px}
 .foot-col h5{font-family:var(--mono);font-size:.66rem;letter-spacing:.26em;color:var(--dimmer);
@@ -580,7 +706,9 @@ main{position:relative;z-index:2;padding-bottom:20px}
   position:fixed;right:22px;bottom:22px;z-index:110;width:46px;height:46px;border-radius:50%;
   border:1px solid var(--line);background:rgba(6,10,20,.82);backdrop-filter:blur(10px);
   color:var(--cyan);cursor:pointer;display:grid;place-items:center;
-  opacity:0;visibility:hidden;transform:translateY(12px);transition:.4s var(--ease);
+  opacity:0;visibility:hidden;transform:translateY(12px);
+  transition:opacity .4s var(--ease),transform .4s var(--ease),visibility .4s,
+             background .4s,border-color .4s;
 }
 .to-top.on{opacity:1;visibility:visible;transform:none}
 .to-top:hover{box-shadow:0 0 26px -6px var(--cyan);border-color:var(--cyan)}
@@ -592,18 +720,7 @@ main{position:relative;z-index:2;padding-bottom:20px}
   .stamp{position:static;display:inline-block;margin-bottom:14px;transform:rotate(-4deg)}
 }
 @media (max-width:860px){
-  .menu{
-    position:fixed;inset:70px 0 auto;flex-direction:column;align-items:stretch;gap:2px;
-    background:rgba(3,5,12,.98);border-bottom:1px solid var(--line);
-    padding:14px 5vw 22px;margin:0;transform:translateY(-130%);transition:transform .45s var(--ease);
-    backdrop-filter:blur(20px);max-height:calc(100svh - 70px);overflow-y:auto;
-  }
-  .menu.open{transform:none}
-  .menu a{padding:15px 6px;border-bottom:1px solid var(--line-soft);font-size:.82rem}
-  .menu a::after{display:none}
-  .btn-cta{display:none}
-  .burger{display:flex}
-  .head-inner{height:64px;gap:14px}
+  /* 导航抽屉的样式与断点见 assets/css/header.css */
   .section{padding:70px 0}
   .dossier-body{padding:26px 20px 24px;gap:22px}
   .mug{width:116px;height:116px}
@@ -614,45 +731,435 @@ main{position:relative;z-index:2;padding-bottom:20px}
 @media (max-width:560px){
   .hero-stats{grid-template-columns:repeat(2,1fr)}
   .field{grid-template-columns:1fr;gap:2px}
-  .boot{padding:26px 18px 22px}
-  .boot-log{font-size:.68rem;height:104px}
   .to-top{right:14px;bottom:14px}
 }
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
-    transition-duration:.001ms !important;scroll-behavior:auto !important}
-  .reveal{opacity:1;transform:none}
+/* ============================================================================
+   首页视觉重制 · 高端版
+   ----------------------------------------------------------------------------
+   取向（对照 apple-design）：
+   · 克制 —— 只留一个强调色，扫描线/粒子/霓虹辉光这类装饰噪音全部退场；
+   · 材质 —— 玻璃只给"浮在内容之上"的层（页头、启动页），卡片用低对比实体面；
+   · 字体 —— 系统字，字距随字号反向变化（大标题负字距、正文接近 0）；
+   · 动效 —— 入场归 animation、交互归 transition，按压反馈发生在按下那一刻；
+   · 尊重偏好 —— 减少动效 / 减少透明 / 更高对比 三档都有对应处理。
+   只作用于首页：token 改在本页 :root，其它页面不受影响。
+   ============================================================================ */
+
+:root{
+  /* 近黑而不纯黑：纯黑在 OLED 上像"空洞"，缺一层空气 */
+  --bg:#0a0a0c;
+  --bg-2:#101014;
+  --panel:rgba(255,255,255,.035);
+  --panel-solid:#121216;
+
+  /* 唯一强调色：降饱和的青，只用于可交互与状态 */
+  --cyan:#6fe0ef;
+  --purple:#9a86ff;
+  --purple-soft:#b9adff;
+  --red:#ff6b86;
+  --green:#63e6a8;
+  --amber:#efc75e;
+
+  /* 三级文字层级 */
+  --text:#f5f5f7;
+  --dim:#a1a1a6;
+  --dimmer:#6e6e76;
+
+  /* 发丝线：全站唯一的"边框"语言 */
+  --line:rgba(255,255,255,.14);
+  --line-soft:rgba(255,255,255,.07);
+
+  /* 系统字优先：它自带光学尺寸与字距表 */
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI Variable Text","Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono",Consolas,monospace;
+
+  --r-sm:10px;--r-md:14px;--r-lg:26px;
+  --shadow-2:0 24px 60px -34px rgba(0,0,0,.95),0 2px 8px -4px rgba(0,0,0,.6);
 }
+
+/* ---------- 基础排版 ---------- */
+body{
+  background:var(--bg);color:var(--text);font-family:var(--sans);
+  font-size:16px;line-height:1.6;letter-spacing:-.011em;
+  text-rendering:optimizeLegibility;
+}
+::selection{background:rgba(111,224,239,.24);color:#fff}
+
+/* 标题不再用渐变字：一套中性色已经是最高级的表达 */
+.grad-text{background:none;color:var(--text);-webkit-text-fill-color:currentColor}
+
+/* 背景：一层静态环境光，足够交代空间，又不抢注意力 */
+.bg-stack::before{
+  content:"";position:absolute;inset:-10%;
+  background:
+    radial-gradient(58% 48% at 50% -8%,rgba(111,224,239,.06),transparent 62%),
+    radial-gradient(46% 38% at 86% 12%,rgba(154,134,255,.05),transparent 64%),
+    linear-gradient(180deg,#0b0b0e 0%,#08080a 58%,#0a0a0c 100%);
+  animation:none;   /* 暗色界面上的缓慢循环光会让人晕，宁可静止 */
+}
+
+/* ---------- 启动页：从"假终端"改成安静的开场 ---------- */
+#loader{background:radial-gradient(120% 90% at 50% 30%,#101014 0%,#08080a 62%,#08080a 100%)}
+.ld-floor,.ld-scan,.ld-noise,.ld-corner,.ld-rail,
+.ld-top,.ld-steps,.ld-console,.ld-seg,.ld-meta,
+.ld-hex,.ld-orbit,.ld-mark,.ld-phase{display:none}
+.ld-hud{width:auto;padding:0;border:0;background:none;box-shadow:none;
+  backdrop-filter:none;-webkit-backdrop-filter:none}
+.ld-hud::after{display:none}
+.ld-core{width:54px;height:54px;margin:0 auto 30px}
+.ld-ring circle{stroke-width:1.5}
+.ld-ring-bg{stroke:rgba(255,255,255,.10)}
+.ld-ring-fg{filter:none;stroke:var(--text)}
+.ld-brand{font-family:var(--sans);font-weight:600;font-size:1.05rem;
+  letter-spacing:.34em;color:var(--text);margin:0}
+.skip{margin-top:34px;padding:6px 14px;border-radius:999px;font-size:.72rem;
+  letter-spacing:.08em;color:var(--dimmer);border-color:var(--line-soft)}
+.skip:hover{color:var(--text);border-color:var(--line);box-shadow:none}
+
+/* ---------- Hero ---------- */
+.hero{padding:96px 0 72px}
+.hero::before{
+  width:min(900px,120vw);
+  background:radial-gradient(circle,rgba(111,224,239,.07),transparent 66%);
+  filter:blur(40px);animation:none;
+}
+.status-pill{padding:6px 14px;border-radius:999px;border-color:var(--line-soft);
+  background:rgba(255,255,255,.04);font-size:.7rem;letter-spacing:.06em;
+  color:var(--dim);margin-bottom:32px}
+.hero h1{font-size:clamp(2.6rem,7.2vw,5.2rem);font-weight:600;
+  letter-spacing:-.035em;line-height:1.02;margin-bottom:10px}
+.hero h1 .en{letter-spacing:-.03em}
+.hero-zh{font-size:clamp(.95rem,2vw,1.15rem);letter-spacing:.18em;
+  color:var(--dim);font-weight:400;margin:0 0 26px;text-shadow:none}
+.type-line{font-size:clamp(.8rem,1.5vw,.92rem);letter-spacing:.01em;
+  color:var(--dimmer);min-height:1.6em;margin-bottom:38px}
+.hero-actions{gap:10px;margin-bottom:64px}
+
+/* 按钮：按下即反馈，抬起不做多余动作 */
+.btn{
+  --c:var(--text);
+  padding:12px 22px;border-radius:var(--r-sm);border-color:var(--line);
+  background:rgba(255,255,255,.055);color:var(--text);
+  font-family:var(--sans);font-size:.9rem;font-weight:500;letter-spacing:0;
+  box-shadow:none;
+  transition:background var(--dur-2),border-color var(--dur-2),transform var(--dur-1) var(--ease);
+}
+.btn::after{background:linear-gradient(100deg,transparent,rgba(255,255,255,.10),transparent)}
+.btn:hover,.btn:focus-visible{
+  transform:translateY(-1px);background:rgba(255,255,255,.09);
+  border-color:var(--line);text-shadow:none;box-shadow:none;
+}
+.btn:active{transform:scale(.975);transition-duration:120ms}
+.btn.solid{background:var(--text);color:#0a0a0c;border-color:transparent}
+.btn.solid:hover{background:#fff;color:#0a0a0c;box-shadow:none}
+.btn.red,.btn.orange,.btn.green{
+  --c:var(--text);background:rgba(255,255,255,.055);color:var(--text);border-color:var(--line);
+}
+.btn.red:hover,.btn.orange:hover,.btn.green:hover{background:rgba(255,255,255,.09)}
+.btn svg{width:15px;height:15px;opacity:.85}
+
+/* 数据条：去掉盒子，用发丝线分隔，像规格表 */
+.hero-stats{
+  grid-template-columns:repeat(4,1fr);gap:0;max-width:760px;margin-inline:auto;
+  background:none;border:0;border-top:1px solid var(--line-soft);
+  border-bottom:1px solid var(--line-soft);border-radius:0;backdrop-filter:none;
+}
+.hero-stats div{padding:22px 12px;background:none;border-left:1px solid var(--line-soft)}
+.hero-stats div:first-child{border-left:0}
+.hero-stats b{font-family:var(--sans);font-size:clamp(1.3rem,2.4vw,1.7rem);font-weight:600;
+  letter-spacing:-.02em;color:var(--text)}
+.hero-stats span{font-family:var(--sans);font-size:.7rem;letter-spacing:0;color:var(--dimmer)}
+.scroll-hint{font-size:.62rem;letter-spacing:.1em;color:var(--dimmer);bottom:28px}
+
+/* ---------- 跑马灯：降成一行安静的滚动信息 ---------- */
+.ticker{border-block:1px solid var(--line-soft);background:transparent}
+.ticker-track span{font-family:var(--sans);font-size:.75rem;letter-spacing:.02em;
+  color:var(--dimmer);padding:14px 0}
+.ticker-track span i{color:var(--line);margin:0 18px}
+.ticker-track span em{color:var(--dim)}
+.ticker-track span strong{color:var(--dim);font-weight:600}
+
+/* ---------- 分区与标题 ---------- */
+.section{padding:110px 0}
+.section+.section{border-top:1px solid var(--line-soft)}
+.sec-head{margin-bottom:56px;max-width:720px}
+.sec-head h2{font-size:clamp(1.7rem,3.6vw,2.4rem);font-weight:600;
+  letter-spacing:-.025em;line-height:1.16;margin:18px 0 14px}
+.sec-head p{font-size:.95rem;line-height:1.7;color:var(--dim)}
+/* 英文后缀是旧版留下的行内 letter-spacing，这里统一压回去 */
+.sec-head h2 .mono{font-family:var(--sans);font-size:.6em !important;
+  letter-spacing:.08em !important;color:var(--dimmer);font-weight:400}
+.eyebrow{font-family:var(--sans);font-size:.72rem;letter-spacing:.14em;
+  color:var(--dimmer);text-transform:none;gap:12px}
+.eyebrow::before{width:20px;opacity:.6}
+
+/* ---------- 入口卡片 ---------- */
+.portals{gap:16px}
+.portal{
+  padding:26px;border-radius:var(--r-lg);border-color:var(--line-soft);
+  background:rgba(255,255,255,.03);
+  transition:transform var(--dur-2) var(--ease),border-color var(--dur-2),
+             background var(--dur-2),box-shadow var(--dur-2);
+}
+.portal:hover{
+  transform:translateY(-3px) perspective(900px)
+            rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+  border-color:var(--line);box-shadow:var(--shadow-2);
+}
+.portal-ico{width:44px;height:44px;border-radius:12px;border-color:var(--line-soft);
+  background:rgba(255,255,255,.04);box-shadow:none;margin-bottom:22px}
+.portal:hover .portal-ico{transform:none;box-shadow:none;border-color:var(--line)}
+.portal-ico svg{width:20px;height:20px;stroke:var(--text);filter:none;stroke-width:1.5;opacity:.9}
+.portal h3{font-size:1.02rem;font-weight:600;letter-spacing:-.01em;margin-bottom:8px}
+.portal p{font-size:.875rem;line-height:1.65;color:var(--dim)}
+.portal-meta{border-top-color:var(--line-soft);font-family:var(--sans);font-size:.75rem;
+  letter-spacing:.02em;color:var(--dimmer);margin-top:22px;padding-top:14px}
+.portal-meta em{color:var(--dim);gap:6px}
+
+/* ---------- 通缉令 ---------- */
+.dossier{border-radius:var(--r-lg);border-color:var(--line-soft);
+  background:rgba(255,255,255,.03);box-shadow:var(--shadow-2)}
+.dossier.purple{background:rgba(255,255,255,.03);box-shadow:var(--shadow-2)}
+.dossier.ghost{background:rgba(255,255,255,.02);box-shadow:none}
+.dossier:hover{transform:translateY(-2px);border-color:var(--line);box-shadow:var(--shadow-2)}
+.dossier .corner,.dossier .watermark{display:none}   /* 角标与浮雕水印是装饰噪音 */
+.dossier-body{padding:30px;gap:26px}
+.stamp{position:static;transform:none;display:inline-block;margin-bottom:14px;
+  padding:3px 9px;border-radius:999px;border:1px solid var(--line);
+  font-family:var(--sans);font-size:.66rem;letter-spacing:.1em;opacity:.75;color:var(--dim)}
+.mug{width:120px;height:120px;border-radius:16px;border-color:var(--line-soft);box-shadow:none}
+.mug::after{display:none}
+.mug img{image-rendering:auto;filter:grayscale(.2) contrast(1.02)}
+.dossier-info h3{font-family:var(--sans);font-size:clamp(1.4rem,3vw,1.9rem);
+  font-weight:600;letter-spacing:-.02em;text-shadow:none;color:var(--text)}
+.dossier-info .deal{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:var(--dimmer)}
+.field{grid-template-columns:104px 1fr;gap:14px}
+.field dt{font-family:var(--sans);font-size:.72rem;letter-spacing:.02em;
+  color:var(--dimmer);text-transform:none}
+.field dd{color:var(--dim)}
+.field dd .chip{border-color:var(--line);background:rgba(255,255,255,.05);
+  color:var(--text);font-family:var(--sans);letter-spacing:0}
+.badge{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--line);
+  box-shadow:none;animation:none;font-family:var(--sans);font-weight:500;
+  letter-spacing:.02em;padding:5px 12px}
+.threat-label{font-family:var(--sans);font-size:.68rem;letter-spacing:.04em;color:var(--dimmer)}
+.threat-bar i{height:3px;border-radius:999px}
+.threat-bar i.on{background:var(--dim);box-shadow:none}
+
+/* ---------- 团队 ---------- */
+.people{gap:16px}
+.person{padding:28px 20px 24px;border-radius:var(--r-lg);border-color:var(--line-soft);
+  background:rgba(255,255,255,.03)}
+.person:hover{transform:translateY(-2px);border-color:var(--line);box-shadow:var(--shadow-2)}
+.person .p-av{width:72px;height:72px;border-color:var(--line-soft);box-shadow:none;
+  background:rgba(255,255,255,.04)}
+.person .p-av::after{display:none}                  /* 旋转虚线环：装饰噪音 */
+.person .p-av img{filter:none;opacity:.95}
+.person h4{font-size:.98rem;font-weight:600;letter-spacing:-.01em}
+.person .role{font-family:var(--sans);font-size:.74rem;letter-spacing:.02em;color:var(--dim)}
+.person .said{font-size:.85rem;color:var(--dimmer);font-style:normal;margin-top:10px}
+.person .bar-line{display:none}
+.founder-card{border-color:var(--line-soft)}
+.founder-card:hover{box-shadow:var(--shadow-2);border-color:var(--line)}
+.tagline{font-family:var(--sans);font-size:.6rem;letter-spacing:.08em;padding:3px 8px;
+  color:var(--dim);border-color:var(--line-soft);background:rgba(255,255,255,.04)}
+
+/* ---------- 联系 / 面板 ---------- */
+.contact-grid{gap:16px}
+.panel{padding:28px;border-radius:var(--r-lg);border-color:var(--line-soft);
+  background:rgba(255,255,255,.03)}
+.panel:hover{transform:translateY(-2px);border-color:var(--line);box-shadow:var(--shadow-2)}
+.panel h3{font-size:1rem;font-weight:600;letter-spacing:-.01em}
+.panel p{font-size:.9rem;line-height:1.7;color:var(--dim)}
+.terminal{font-family:var(--mono);font-size:.78rem;line-height:1.9;color:var(--dim);
+  background:rgba(0,0,0,.25);border-color:var(--line-soft);border-radius:var(--r-md);
+  padding:16px 18px}
+.terminal .c{color:var(--green)}
+.terminal .k{color:var(--dim)}
+.links{gap:6px}
+.link-row{padding:14px 16px;border-radius:var(--r-md);border-color:transparent;
+  background:transparent}
+.link-row:hover{border-color:var(--line-soft);background:rgba(255,255,255,.04);
+  transform:none;text-shadow:none}
+.link-row svg{stroke:var(--dim)}
+.link-row b{font-weight:500;color:var(--text)}
+.link-row small{font-family:var(--sans);font-size:.75rem;letter-spacing:0;color:var(--dimmer)}
+.link-row .go{color:var(--dimmer)}
+
+/* ---------- 页脚 ---------- */
+.site-foot{margin-top:0;padding:64px 0 40px;border-top-color:var(--line-soft);
+  background:none;font-family:var(--sans);font-size:.85rem;letter-spacing:0;color:var(--dim)}
+.foot-grid{gap:40px;margin-bottom:40px}
+.foot-col h5{font-family:var(--sans);font-size:.72rem;letter-spacing:.06em;
+  color:var(--dimmer);text-transform:none;margin-bottom:16px}
+.foot-col a,.foot-col span{font-size:.85rem;color:var(--dim);margin-bottom:10px}
+.foot-col a:hover{color:var(--text)}
+.foot-bottom{border-top-color:var(--line-soft);font-family:var(--sans);font-size:.75rem;
+  letter-spacing:0;color:var(--dimmer);padding-top:24px}
+.foot-bottom em{color:var(--dim)}
+
+/* ---------- 回到顶部 ---------- */
+.to-top{border-color:var(--line);background:rgba(18,18,22,.7);color:var(--text);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.to-top:hover{border-color:var(--line);box-shadow:var(--shadow-2)}
+
+/* ---------- 动效增量 ---------- */
+
+/* 1) Hero 标题：从"整体淡入"换成从下方升起、由遮罩带出的逐行入场。
+     用 clip-path（合成层，不触发重排）+ transform；首屏一次性入场，
+     时长可以超过 300ms，曲线沿用全站的 --ease-out，延迟沿用 motion.css 的错峰。 */
+body.ready .hero h1,
+body.ready .hero-zh{
+  animation-name:maskRise;animation-duration:.9s;
+  animation-timing-function:var(--ease-out);animation-fill-mode:both;
+}
+@keyframes maskRise{
+  /* 底部留 0.28em 外扩：SHEN_REN 的下划线落在字体下伸区，盒子之外会被永久裁掉 */
+  from{clip-path:inset(100% 0 -.28em 0);transform:translate3d(0,.14em,0)}
+  to{clip-path:inset(0 0 -.28em 0);transform:translate3d(0,0,0)}
+}
+
+/* 2) 通缉令印章：像真的盖上去——从略大、略高落到原位。
+     一次性、低频，属于"可以放一点惊喜"的那一档；起点是 scale(1.12) 而不是 0。 */
+.dossier.in .stamp{animation:stampDown .45s var(--ease-out) .2s both}
+@keyframes stampDown{
+  from{opacity:0;transform:scale(1.12) translateY(-.08em)}
+  to{opacity:.75;transform:scale(1) translateY(0)}
+}
+
+/* 3) 头像：悬停时极轻微推近，像把档案拿起来看。
+     悬停动效必须门控精确指针——触屏的假 hover 会把它卡在半路。 */
+.mug img{transition:transform .4s var(--ease-out)}
+@media (hover:hover) and (pointer:fine){
+  .dossier:hover .mug img{transform:scale(1.04)}
+}
+
+/* 4) 回到顶部：按下那一刻就缩，不等抬起 */
+.to-top:active{transform:scale(.94);transition-duration:120ms}
+
+/* ---------- 三档偏好 ---------- */
+@media (prefers-reduced-transparency:reduce){
+  .site-head{background:#0f0f12}
+  .to-top{background:#121216;backdrop-filter:none;-webkit-backdrop-filter:none}
+  .ld-hud{backdrop-filter:none}
+}
+@media (prefers-contrast:more){
+  .portal,.person,.panel,.dossier{background:#101014;border-color:rgba(255,255,255,.3)}
+  .sec-head p,.portal p,.panel p,.person .said{color:#c7c7cc}
+  .foot-col a,.foot-col span{color:#c7c7cc}
+}
+
+/* ---------- 响应式（覆盖旧断点里被本段顶掉的规则） ---------- */
+@media (max-width:860px){
+  .section{padding:80px 0}
+  .hero{padding:72px 0 56px}
+  .hero-actions{margin-bottom:48px}
+  .dossier-body{padding:24px 20px}
+  .mug{width:96px;height:96px}
+  .sec-head{margin-bottom:40px}
+}
+@media (max-width:560px){
+  .hero-stats{grid-template-columns:repeat(2,1fr)}
+  .hero-stats div{border-top:1px solid var(--line-soft)}
+  .hero-stats div:nth-child(-n+2){border-top:0}
+  .hero-stats div:nth-child(odd){border-left:0}
+  .field{grid-template-columns:1fr;gap:2px}
+}
+
+/* 减少动态效果（prefers-reduced-motion）的处理见 tokens.css 与 motion.css */
 </style>
 </head>
 <body class="is-booting">
 
-<!-- ============ 启动动画 ============ -->
-<div id="loader" role="status" aria-live="polite">
-  <div class="boot">
-    <div class="core" aria-hidden="true"><i></i><i></i><i></i><b>SR</b></div>
-    <div class="boot-brand grad-text">神人工业</div>
-    <div class="boot-sub">SHEN_REN INDUSTRY · PROTOCOL ALPHA-9</div>
-    <div class="boot-log mono" id="bootLog"></div>
-    <div class="bar"><span id="bootBar"></span></div>
-    <div class="boot-foot"><span id="bootPct">0%</span><span>SECURE CHANNEL · 0x9178</span></div>
-    <button class="skip" id="skip" type="button">跳过 SKIP</button>
+<!-- 页面转场遮罩：黑屏 + 镂空的「神」（内联 SVG：同一个字形既挖洞又作白字） -->
+<div class="sr-veil" aria-hidden="true">
+  <svg class="sr-veil-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" focusable="false">
+    <defs>
+      <mask id="srHanMask" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+        <rect width="100" height="100" fill="#fff"/>
+        <text x="50" y="50" text-anchor="middle" dominant-baseline="central" font-size="34" font-weight="900"
+              fill="#000" font-family="PingFang SC,Hiragino Sans GB,Microsoft YaHei,Noto Sans CJK SC,sans-serif">神</text>
+      </mask>
+    </defs>
+    <rect class="sr-veil-cover" width="100" height="100" fill="#050507" mask="url(#srHanMask)"/>
+    <text class="sr-veil-white" x="50" y="50" text-anchor="middle" dominant-baseline="central" font-size="34"
+          font-weight="900" font-family="PingFang SC,Hiragino Sans GB,Microsoft YaHei,Noto Sans CJK SC,sans-serif">神</text>
+  </svg>
+</div>
+
+<!-- ============ 启动动画（仅本次会话首次加载播放） ============ -->
+<div id="loader">
+  <div class="ld-floor" aria-hidden="true"></div>
+  <div class="ld-scan" aria-hidden="true"></div>
+  <div class="ld-noise" aria-hidden="true"></div>
+
+  <span class="ld-corner tl" aria-hidden="true"></span>
+  <span class="ld-corner tr" aria-hidden="true"></span>
+  <span class="ld-corner bl" aria-hidden="true"></span>
+  <span class="ld-corner br" aria-hidden="true"></span>
+
+  <div class="ld-rail left" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="ld-rail right" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+
+  <div class="ld-hud">
+    <div class="ld-top mono">
+      <span class="ld-top-main"><i class="ld-dot" aria-hidden="true"></i>SECURE BOOT</span>
+      <span class="hide-sm">SHEN_REN INDUSTRY</span>
+      <span class="hide-sm">PROTOCOL α-9</span>
+      <span class="hide-sm">NODE 0x9178</span>
+      <span id="ldClock">--:--:--</span>
+    </div>
+
+    <div class="ld-core">
+      <svg class="ld-ring" viewBox="0 0 120 120" aria-hidden="true">
+        <defs>
+          <linearGradient id="ldGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#00f2ff"/>
+            <stop offset=".55" stop-color="#7000ff"/>
+            <stop offset="1" stop-color="#ff66aa"/>
+          </linearGradient>
+        </defs>
+        <circle class="ld-ring-bg" cx="60" cy="60" r="55"></circle>
+        <circle class="ld-ring-fg" id="bootRing" cx="60" cy="60" r="55" stroke="url(#ldGrad)"></circle>
+      </svg>
+      <span class="ld-hex" aria-hidden="true"></span>
+      <span class="ld-orbit" aria-hidden="true"><i></i><i></i></span>
+      <b class="ld-mark" data-glitch="SR">SR</b>
+    </div>
+
+    <p class="ld-phase mono">// <span id="bootPhase">INITIALIZING</span><i class="ld-cursor" aria-hidden="true"></i></p>
+
+    <div class="ld-brand grad-text">神人工业</div>
+
+    <div class="ld-steps mono" id="bootSteps" aria-hidden="true">
+      <span>MOUNT</span><span>VERIFY</span><span>SYNC</span><span>UPLINK</span>
+    </div>
+
+    <div class="ld-console" aria-hidden="true">
+      <div class="ld-console-head mono"><i></i><i></i><i></i><em>boot.log · SECURE CHANNEL 0x9178</em></div>
+      <div class="ld-log mono" id="bootLog"></div>
+    </div>
+
+    <div class="ld-seg" id="bootSeg" aria-hidden="true"></div>
+    <div class="ld-meta mono">
+      <span id="bootPct">000%</span>
+      <span id="bootRate">0.0 MB/s</span>
+    </div>
+
+    <button class="skip" id="skip" type="button">跳过 SKIP · ESC</button>
   </div>
+
+  <p class="sr-only" id="bootStatus" role="status" aria-live="polite">正在启动</p>
 </div>
 
 <!-- ============ 背景 ============ -->
 <div class="bg-stack" aria-hidden="true"></div>
-<div class="bg-grid" aria-hidden="true"></div>
-<canvas id="particles" aria-hidden="true"></canvas>
-<div class="sweep" aria-hidden="true"></div>
-<div class="vignette" aria-hidden="true"></div>
-<div class="scanlines" aria-hidden="true"></div>
 
-<div class="progress" id="progress" aria-hidden="true"></div>
+<div class="sr-progress" id="progress" aria-hidden="true"></div>
 
 <!-- ============ 导航 ============ -->
 <header class="site-head" id="siteHead">
-  <div class="wrap head-inner">
+  <div class="head-inner">
     <a class="brand" href="index.html" aria-label="神人工业 首页">
       <span class="brand-mark" aria-hidden="true">
         <svg viewBox="0 0 100 100"><path d="M58 8 L24 56 h20 l-7 36 36-52H52z" fill="#00f2ff"/></svg>
@@ -684,7 +1191,7 @@ main{position:relative;z-index:2;padding-bottom:20px}
       <span class="status-pill"><i class="dot" aria-hidden="true"></i>ACCESS GRANTED · 节点在线 · NODE 0x9178</span>
       <h1 class="grad-text"><span class="en">SHEN_REN INDUSTRY</span></h1>
       <p class="hero-zh">神 人 工 业</p>
-      <p class="type-line mono" id="typeLine" aria-label="这么强？！？"></p>
+      <p class="type-line mono" id="typeLine" data-fallback="// 这么强？！？" aria-label="这么强？！？"></p>
       <div class="hero-actions">
         <a class="btn solid" href="profile.html">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
@@ -725,32 +1232,32 @@ main{position:relative;z-index:2;padding-bottom:20px}
       <h2 class="grad-text">模块入口 · <span class="mono" style="font-size:.7em;letter-spacing:.2em">MODULES</span></h2>
       <p>四个已开源的子系统。所有链路均已加密，点击即完成握手。</p>
     </div>
-    <div class="portals">
-      <a class="portal reveal" href="profile.html" style="--c:#00f2ff">
+    <div class="portals" data-stagger>
+      <a class="portal reveal" data-tilt href="profile.html" style="--c:#00f2ff">
         <span class="portal-ico"><svg viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 13h6M12 10v6"/></svg></span>
         <h3>人物档案库</h3>
         <p>全部成员的权限等级、代号、技能标签与在职履历，支持按身份筛选。</p>
         <span class="portal-meta"><span>profile.html</span><em>OPEN</em></span>
       </a>
-      <a class="portal reveal" href="#dossiers" style="--c:#ff003c">
+      <a class="portal reveal" data-tilt href="#dossiers" style="--c:#ff003c">
         <span class="portal-ico"><svg viewBox="0 0 24 24"><path d="M12 3 2.5 20h19z"/><path d="M12 9v5M12 17h.01"/></svg></span>
         <h3>通缉令</h3>
         <p>实时同步的目标档案：罪名、悬赏状态与威胁评级，含一条已复活记录。</p>
         <span class="portal-meta"><span>#dossiers</span><em>SCAN</em></span>
       </a>
-      <a class="portal reveal" href="anmuxi.html" style="--c:#ff6b35">
+      <a class="portal reveal" data-tilt href="anmuxi.html" style="--c:#ff6b35">
         <span class="portal-ico"><svg viewBox="0 0 24 24"><path d="M12 3c3.2 4.2 5.2 6.8 5.2 9.4A5.2 5.2 0 0 1 6.8 12.4C6.8 9.8 8.8 7.2 12 3z"/><path d="M9.5 13.5a2.6 2.6 0 0 0 5 .6"/></svg></span>
         <h3>安慕希超燃</h3>
         <p>全屏旋转沉浸页。视频环幕 + 粒子场 + 彩虹流光标题，音浪与光环同步。</p>
         <span class="portal-meta"><span>anmuxi.html</span><em>PLAY</em></span>
       </a>
-      <a class="portal reveal" href="https://mcjs.link/" target="_blank" rel="noopener" style="--c:#5cb85c">
+      <a class="portal reveal" data-tilt href="https://mcjs.link/" target="_blank" rel="noopener" style="--c:#5cb85c">
         <span class="portal-ico"><svg viewBox="0 0 24 24"><path d="M3 8.5 12 3l9 5.5v7L12 21l-9-5.5z"/><path d="M3 8.5 12 14l9-5.5M12 14v7"/></svg></span>
         <h3>我的世界</h3>
         <p>服务器入口与联机指引。刷石机、甘蔗机、刷铁机在此 24 小时无人值守。</p>
         <span class="portal-meta"><span>mcjs.link</span><em>JOIN</em></span>
       </a>
-      <a class="portal reveal" href="status.html" style="--c:#00ff88">
+      <a class="portal reveal" data-tilt href="status.html" style="--c:#00ff88">
         <span class="portal-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
         <h3>实时状态</h3>
         <p>xiezao 现在在干嘛、档期满不满、最近在玩什么。只读，只有本人能改。</p>
@@ -767,8 +1274,13 @@ main{position:relative;z-index:2;padding-bottom:20px}
       <p>以下档案由神人工业安全科直接签发。信誉分低于阈值者，请勿在服务器内提及“善魂”。</p>
     </div>
 
+    <!-- 两张通缉令放进同一个容器：液体玻璃的"折射底纹"挂在容器上，
+         而 section 的 ::before 已经被 motion.css 的滚动分隔线占用，
+         不能抢同一个伪元素。 -->
+    <div class="dossier-stack">
+
     <!-- dj_yao · 已结案 -->
-    <article class="dossier ghost reveal">
+    <article class="dossier ghost reveal" data-spot>
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="stamp">CASE CLOSED</span>
       <div class="dossier-body">
@@ -794,7 +1306,7 @@ main{position:relative;z-index:2;padding-bottom:20px}
     </article>
 
     <!-- MC_dogs · 已复活 -->
-    <article class="dossier purple reveal">
+    <article class="dossier purple reveal" data-spot>
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="stamp">RESURRECTED</span>
       <div class="watermark" aria-hidden="true">已 复 活</div>
@@ -819,6 +1331,7 @@ main{position:relative;z-index:2;padding-bottom:20px}
         </div>
       </div>
     </article>
+    </div><!-- /.dossier-stack -->
   </section>
 
   <!-- ============ 关于 ============ -->
@@ -828,7 +1341,7 @@ main{position:relative;z-index:2;padding-bottom:20px}
       <h2 class="grad-text">关于神人 · <span class="mono" style="font-size:.7em;letter-spacing:.2em">WHO WE ARE</span></h2>
     </div>
     <div class="contact-grid">
-      <div class="panel reveal">
+      <div class="panel reveal" data-spot>
         <p style="font-size:1.02rem;line-height:1.95;color:#cfe8f5">
           我们是 <b style="color:var(--cyan)">SHEN_REN Industry</b>，专注于人工智能与创新科技的结合探索。
           实验室汇聚前沿算法、深度学习、数据分析、创意设计等多领域人才，推动智能科技与现实应用的边界。
@@ -841,7 +1354,7 @@ main{position:relative;z-index:2;padding-bottom:20px}
           <a class="btn" href="https://github.com/" target="_blank" rel="noopener" style="--c:#b06bff">GitHub 主页 ↗</a>
         </div>
       </div>
-      <div class="panel reveal">
+      <div class="panel reveal" data-spot>
         <h3>系统摘要 · SYSTEM SUMMARY</h3>
         <p>一条不太重要但看起来很专业的运行日志。</p>
         <div class="terminal">[<span class="c">OK</span>] neural-core ......... <span class="k">online</span>
@@ -861,8 +1374,8 @@ main{position:relative;z-index:2;padding-bottom:20px}
       <h2 class="grad-text">核心架构师 · <span class="mono" style="font-size:.7em;letter-spacing:.2em">CORE</span></h2>
       <p>他们负责让服务器不崩，以及让崩了的时候看起来像计划的一部分。</p>
     </div>
-    <div class="people">
-      <div class="person founder-card reveal">
+    <div class="people" data-stagger>
+      <div class="person founder-card reveal" data-spot>
         <span class="tagline">FOUNDER</span>
         <div class="p-av"><img src="https://minotar.net/helm/YonmkoQWQ/160.png" alt="YonmkoQWQ 头像" loading="lazy" width="160" height="160" onerror="this.src='https://minotar.net/helm/MHF_Steve/160.png'"></div>
         <h4>YonmkoQWQ</h4>
@@ -870,7 +1383,7 @@ main{position:relative;z-index:2;padding-bottom:20px}
         <p class="said">“神人工业创始人😱😱😱”</p>
         <div class="bar-line"></div>
       </div>
-      <div class="person founder-card reveal">
+      <div class="person founder-card reveal" data-spot>
         <span class="tagline">CO-FOUNDER</span>
         <div class="p-av"><img src="https://minotar.net/helm/Miky_BIW/160.png" alt="Miky_BIW 头像" loading="lazy" width="160" height="160" onerror="this.src='https://minotar.net/helm/MHF_Steve/160.png'"></div>
         <h4>Miky_BIW</h4>
@@ -878,7 +1391,7 @@ main{position:relative;z-index:2;padding-bottom:20px}
         <p class="said">“神人来了”</p>
         <div class="bar-line"></div>
       </div>
-      <div class="person reveal">
+      <div class="person reveal" data-spot>
         <div class="p-av"><img src="https://minotar.net/helm/xiezao/160.png" alt="xiezao 头像" loading="lazy" width="160" height="160" onerror="this.src='https://minotar.net/helm/MHF_Steve/160.png'"></div>
         <h4>xiezao</h4>
         <div class="role">ARCHITECT · 核心架构师</div>
@@ -895,22 +1408,22 @@ main{position:relative;z-index:2;padding-bottom:20px}
       <h2 class="grad-text">团队成员 · <span class="mono" style="font-size:.7em;letter-spacing:.2em">AUTOMATION</span></h2>
       <p>三台永动机。它们不需要工资，只需要区块加载。</p>
     </div>
-    <div class="people">
-      <div class="person reveal">
+    <div class="people" data-stagger>
+      <div class="person reveal" data-spot>
         <div class="p-av"><img src="https://minotar.net/helm/MHF_Cobblestone/160.png" alt="刷石机 代表头像" loading="lazy" width="160" height="160" onerror="this.src='https://randomuser.me/api/portraits/men/31.jpg'"></div>
         <h4>刷石机</h4>
         <div class="role">负责 刷石</div>
         <p class="said">产能：∞ / 天，从不堵料。</p>
         <div class="bar-line"></div>
       </div>
-      <div class="person reveal">
+      <div class="person reveal" data-spot>
         <div class="p-av"><img src="https://minotar.net/helm/MHF_SugarCane/160.png" alt="甘蔗机 代表头像" loading="lazy" width="160" height="160" onerror="this.src='https://randomuser.me/api/portraits/women/24.jpg'"></div>
         <h4>甘蔗机</h4>
         <div class="role">负责 甘蔗</div>
         <p class="said">骨粉自由，纸张自由，附魔自由。</p>
         <div class="bar-line"></div>
       </div>
-      <div class="person reveal">
+      <div class="person reveal" data-spot>
         <div class="p-av"><img src="https://minotar.net/helm/MHF_IronGolem/160.png" alt="刷铁机 代表头像" loading="lazy" width="160" height="160" onerror="this.src='https://randomuser.me/api/portraits/men/78.jpg'"></div>
         <h4>刷铁机</h4>
         <div class="role">负责 刷铁</div>
@@ -928,7 +1441,7 @@ main{position:relative;z-index:2;padding-bottom:20px}
       <p>感兴趣加入、合作或交流，任选一条信道发起握手。通常 24 小时内响应。</p>
     </div>
     <div class="contact-grid">
-      <div class="panel reveal">
+      <div class="panel reveal" data-spot>
         <div class="links">
           <a class="link-row" href="mailto:neuralcore.lab@example.com">
             <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
@@ -947,7 +1460,7 @@ main{position:relative;z-index:2;padding-bottom:20px}
           </a>
         </div>
       </div>
-      <div class="panel reveal">
+      <div class="panel reveal" data-spot>
         <h3>招聘频道 · RECRUITING</h3>
         <p>长期缺人。会写代码、会搭红石、或者只是能稳定上线，都算人才。</p>
         <div class="terminal">&gt; apply --role=<span class="k">"架构师"</span>
@@ -1005,67 +1518,9 @@ main{position:relative;z-index:2;padding-bottom:20px}
   "use strict";
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* ================= 启动动画 ================= */
-  var loader = document.getElementById("loader");
-  var logBox = document.getElementById("bootLog");
-  var bar = document.getElementById("bootBar");
-  var pct = document.getElementById("bootPct");
-  var bootDone = false;
-
-  var lines = [
-    "> BOOT SHEN_REN INDUSTRY v9.17",
-    "> mounting /core ............ <span class='ok'>OK</span>",
-    "> loading personnel.db ...... <span class='ok'>9 records</span>",
-    "> verifying 善魂 integrity ... <span class='ok'>PASS</span>",
-    "> scanning wanted list ...... <span class='warn'>2 targets</span>",
-    "> MC_dogs status ............ <span class='hl'>RESURRECTED</span>",
-    "> dj_yao  verdict ........... <span class='hl'>算了</span>",
-    "> establishing uplink ....... <span class='ok'>READY</span>"
-  ];
-
-  function boot(){
-    var i = 0, p = 0;
-    var timer = setInterval(function(){
-      if(bootDone){ clearInterval(timer); return; }
-      if(i < lines.length){
-        var row = document.createElement("div");
-        row.innerHTML = lines[i];
-        logBox.appendChild(row);
-        if(logBox.children.length > 5) logBox.removeChild(logBox.firstChild);
-        i++;
-      }
-      p = Math.min(100, p + 12 + Math.random() * 8);
-      bar.style.width = p + "%";
-      pct.textContent = Math.floor(p) + "%";
-      if(p >= 100){
-        clearInterval(timer);
-        setTimeout(finish, 480);
-      }
-    }, 210);
-  }
-
-  function finish(){
-    if(bootDone) return;
-    bootDone = true;
-    loader.classList.add("done");
-    document.body.classList.remove("is-booting");
-    setTimeout(function(){ if(loader.parentNode) loader.parentNode.removeChild(loader); }, 1000);
-    startType();
-  }
-
-  document.getElementById("skip").addEventListener("click", finish);
-  if(reduce){
-    bootDone = true;
-    loader.classList.add("done");
-    document.body.classList.remove("is-booting");
-    if(loader.parentNode) loader.parentNode.removeChild(loader);
-  } else {
-    boot();
-    // 兜底：无论如何 6 秒后放行
-    setTimeout(finish, 6000);
-  }
-
-  /* ================= 打字机 ================= */
+  /* ================= 打字机 =================
+     声明必须排在启动动画之前：下面的 reduce 分支会立刻调用 startType()，
+     而 var 只提升声明、不提升赋值 —— 放后面的话这里读到的是 undefined。 */
   var typeEl = document.getElementById("typeLine");
   var phrases = [
     "// 这么强？！？",
@@ -1073,6 +1528,167 @@ main{position:relative;z-index:2;padding-bottom:20px}
     "// 已拦截 1 次降维打击，归档 1 份通缉令",
     "// mcjs.link 已就绪，欢迎回家"
   ];
+
+  /* ================= 启动动画 =================
+     只在本次会话首次加载播放；重复加载由 <head> 的策略脚本拦掉（.skip-boot）。
+     播放策略在 <head> 顶部改一处即可（session / once）。 */
+  var bootCfg = window.__SR_BOOT || { store: "session", key: "sr_booted", skip: false };
+  var skipBoot = !!bootCfg.skip;
+
+  var loader = document.getElementById("loader");
+  var logBox = document.getElementById("bootLog");
+  var segBox = document.getElementById("bootSeg");
+  var stepsBox = document.getElementById("bootSteps");
+  var ring = document.getElementById("bootRing");
+  var pctEl = document.getElementById("bootPct");
+  var rateEl = document.getElementById("bootRate");
+  var phaseEl = document.getElementById("bootPhase");
+  var clockEl = document.getElementById("ldClock");
+  var bootStatus = document.getElementById("bootStatus");
+  var bootDone = false;
+  var clockTimer = null;
+  var RING_LEN = 345.6;   /* 2πr，r = 55 */
+  var SEG_COUNT = 32;
+
+  /* 日志行：[进度到达多少, 文本] */
+  var lines = [
+    [4,  "> BOOT SHEN_REN INDUSTRY v9.17"],
+    [12, "> mounting /core ............ <span class='ok'>OK</span>"],
+    [22, "> loading personnel.db ...... <span class='ok'>9 records</span>"],
+    [34, "> verifying 善魂 integrity ... <span class='ok'>PASS</span>"],
+    [46, "> scanning wanted list ...... <span class='warn'>2 targets</span>"],
+    [58, "> MC_dogs status ............ <span class='hl'>RESURRECTED</span>"],
+    [70, "> dj_yao  verdict ........... <span class='hl'>算了</span>"],
+    [82, "> arming 降维打击防护 ....... <span class='ok'>ARMED</span>"],
+    [94, "> establishing uplink ....... <span class='ok'>READY</span>"]
+  ];
+
+  /* 阶段：progress >= at 时点亮第 idx 个步骤 */
+  var stages = [
+    { at: 0,  idx: 0, label: "INITIALIZING" },
+    { at: 24, idx: 1, label: "VERIFYING DATA" },
+    { at: 52, idx: 2, label: "SYNCING NODES" },
+    { at: 80, idx: 3, label: "OPENING UPLINK" },
+    { at: 99, idx: 3, label: "READY" }
+  ];
+
+  function pad(n, w){ n = String(n); while(n.length < w){ n = "0" + n; } return n; }
+
+  function buildSeg(){
+    if(!segBox) return;
+    var html = "";
+    for(var i = 0; i < SEG_COUNT; i++){ html += "<i></i>"; }
+    segBox.innerHTML = html;
+  }
+
+  function paint(p){
+    var lit = Math.round((p / 100) * SEG_COUNT);
+    if(segBox){
+      for(var i = 0; i < segBox.children.length; i++){
+        segBox.children[i].className = i < lit - 1 ? "on" : (i === lit - 1 ? "on head" : "");
+      }
+    }
+    if(ring){ ring.style.strokeDashoffset = String(RING_LEN * (1 - p / 100)); }
+    if(pctEl){ pctEl.textContent = pad(Math.floor(p), 3) + "%"; }
+    if(rateEl){ rateEl.textContent = (2.4 + Math.random() * 6.2).toFixed(1) + " MB/s"; }
+
+    var st = stages[0];
+    for(var s = 0; s < stages.length; s++){ if(p >= stages[s].at){ st = stages[s]; } }
+    if(phaseEl && phaseEl.textContent !== st.label){ phaseEl.textContent = st.label; }
+    if(stepsBox){
+      for(var k = 0; k < stepsBox.children.length; k++){
+        stepsBox.children[k].className = k < st.idx ? "done" : (k === st.idx ? "on" : "");
+      }
+    }
+    /* 读屏播报：只在整数百分比变化时更新，避免刷屏 */
+    var ip = Math.floor(p);
+    if(bootStatus && ip !== paint.last){
+      paint.last = ip;
+      bootStatus.textContent = "正在启动：" + st.label + " " + ip + "%";
+    }
+  }
+  paint.last = -1;
+
+  function logLine(txt){
+    if(!logBox) return;
+    var row = document.createElement("div");
+    row.className = "ld-line";
+    row.innerHTML = txt;
+    logBox.appendChild(row);
+    while(logBox.children.length > 6){ logBox.removeChild(logBox.firstChild); }
+  }
+
+  function boot(){
+    buildSeg();
+    paint(0);
+    var p = 0, li = 0;
+    var timer = setInterval(function(){
+      if(bootDone){ clearInterval(timer); return; }
+      p = Math.min(100, p + 6.4 + Math.random() * 4.2);
+      while(li < lines.length && p >= lines[li][0]){ logLine(lines[li][1]); li++; }
+      paint(p);
+      if(p >= 100){
+        clearInterval(timer);
+        setTimeout(finish, 380);
+      }
+    }, 110);
+  }
+
+  function markBooted(){
+    try{
+      var st = bootCfg.store === "once" ? window.localStorage : window.sessionStorage;
+      st.setItem(bootCfg.key, "1");
+    }catch(e){ /* 存储不可用就不记，下次照常播放 */ }
+  }
+
+  function startClock(){
+    if(!clockEl) return;
+    function tick(){
+      var d = new Date();
+      clockEl.textContent = pad(d.getHours(), 2) + ":" + pad(d.getMinutes(), 2) + ":" + pad(d.getSeconds(), 2);
+    }
+    tick();
+    clockTimer = setInterval(tick, 1000);
+  }
+
+  function finish(){
+    if(bootDone) return;
+    bootDone = true;
+    if(clockTimer){ clearInterval(clockTimer); clockTimer = null; }
+    loader.classList.add("done");
+    loader.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("is-booting");
+    document.body.classList.add("ready");   // 开场编排的触发器：遮罩退场的同时 Hero 逐层落位
+    setTimeout(function(){ if(loader.parentNode) loader.parentNode.removeChild(loader); }, 600);
+    startType();
+  }
+
+  document.getElementById("skip").addEventListener("click", finish);
+  document.addEventListener("keydown", function(e){
+    if(!bootDone && (e.key === "Escape" || e.key === "Esc")){ finish(); }
+  });
+
+  if(skipBoot){
+    /* 本次会话已经看过：不放动画，直接放行（CSS 里遮罩本就是 display:none） */
+    finish();
+  } else if(reduce){
+    bootDone = true;
+    loader.classList.add("done");
+    document.body.classList.remove("is-booting");
+    document.body.classList.add("ready");
+    if(loader.parentNode) loader.parentNode.removeChild(loader);
+    // 修复：这里以前直接跳过 finish()，而 startType() 只在 finish() 里被调用，
+    //       导致 prefers-reduced-motion 用户看到的首屏文案永远是空的。
+    startType();
+  } else {
+    markBooted();   /* 先记账：即使用户中途刷新，也不再重放 */
+    startClock();
+    boot();
+    // 兜底：无论如何 6 秒后放行
+    setTimeout(finish, 6000);
+  }
+
+  /* ================= 打字机 ================= */
   function startType(){
     if(reduce || !typeEl){ if(typeEl) typeEl.textContent = phrases[0]; return; }
     var pi = 0, ci = 0, del = false;
@@ -1124,76 +1740,9 @@ main{position:relative;z-index:2;padding-bottom:20px}
     }
   });
 
-  /* ================= 粒子场 ================= */
-  var cv = document.getElementById("particles");
-  if(cv && !reduce){
-    var ctx = cv.getContext("2d");
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    var W = 0, H = 0, ps = [], raf = null, pageVisible = true;
-
-    function resize(){
-      W = cv.clientWidth; H = cv.clientHeight;
-      cv.width = W * dpr; cv.height = H * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      var target = Math.min(76, Math.round(W * H / 22000));
-      ps = [];
-      for(var i = 0; i < target; i++){
-        ps.push({
-          x: Math.random() * W, y: Math.random() * H,
-          vx: (Math.random() - .5) * .22, vy: (Math.random() - .5) * .22,
-          r: Math.random() * 1.5 + .5,
-          purple: Math.random() > .72
-        });
-      }
-    }
-
-    function frame(){
-      ctx.clearRect(0, 0, W, H);
-      for(var i = 0; i < ps.length; i++){
-        var p = ps[i];
-        p.x += p.vx; p.y += p.vy;
-        if(p.x < -20) p.x = W + 20; if(p.x > W + 20) p.x = -20;
-        if(p.y < -20) p.y = H + 20; if(p.y > H + 20) p.y = -20;
-        ctx.beginPath();
-        ctx.fillStyle = p.purple ? "rgba(176,107,255,.75)" : "rgba(0,242,255,.8)";
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fill();
-        // 近邻连线
-        for(var j = i + 1; j < ps.length; j++){
-          var q = ps[j], dx = p.x - q.x, dy = p.y - q.y, d2 = dx * dx + dy * dy;
-          if(d2 < 15000){
-            ctx.beginPath();
-            ctx.strokeStyle = "rgba(0,242,255," + (0.16 * (1 - d2 / 15000)).toFixed(3) + ")";
-            ctx.lineWidth = 1;
-            ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y);
-            ctx.stroke();
-          }
-        }
-      }
-      raf = requestAnimationFrame(frame);
-    }
-
-    function start(){ if(!raf && pageVisible) raf = requestAnimationFrame(frame); }
-    function stop(){ if(raf){ cancelAnimationFrame(raf); raf = null; } }
-
-    resize();
-    start();
-    var rt;
-    window.addEventListener("resize", function(){
-      clearTimeout(rt); rt = setTimeout(resize, 180);
-    });
-    document.addEventListener("visibilitychange", function(){
-      pageVisible = !document.hidden;
-      if(pageVisible){ start(); } else { stop(); }
-    });
-  }
-
   /* ================= 导航：滚动进度 / 吸顶 / 回到顶部 / 高亮 ================= */
-  var head = document.getElementById("siteHead");
-  var barTop = document.getElementById("progress");
   var toTop = document.getElementById("toTop");
   var menu = document.getElementById("menu");
-  var burger = document.getElementById("burger");
   var navLinks = Array.prototype.slice.call(menu ? menu.querySelectorAll("a") : []);
   var sections = navLinks.map(function(a){
     var id = a.getAttribute("href");
@@ -1202,12 +1751,10 @@ main{position:relative;z-index:2;padding-bottom:20px}
 
   function onScroll(){
     var y = window.scrollY || document.documentElement.scrollTop;
-    var max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-    if(barTop) barTop.style.width = Math.min(100, (y / max) * 100) + "%";
-    if(head) head.classList.toggle("stuck", y > 8);
+    // 进度条 / 页头收缩 / Hero 视差 / SCROLL 提示：由 assets/js/motion.js 统一处理
     if(toTop) toTop.classList.toggle("on", y > 520);
 
-    // 当前区块高亮
+    // 当前区块高亮（首页专属）
     var active = 0;
     for(var i = 0; i < sections.length; i++){
       var s = sections[i];
@@ -1218,21 +1765,7 @@ main{position:relative;z-index:2;padding-bottom:20px}
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
 
-  if(burger){
-    burger.addEventListener("click", function(){
-      var open = menu.classList.toggle("open");
-      burger.classList.toggle("on", open);
-      burger.setAttribute("aria-expanded", open ? "true" : "false");
-    });
-    // 点击导航项后收起移动端菜单
-    menu.querySelectorAll("a").forEach(function(a){
-      a.addEventListener("click", function(){
-        menu.classList.remove("open");
-        burger.classList.remove("on");
-        burger.setAttribute("aria-expanded", "false");
-      });
-    });
-  }
+  /* 汉堡菜单的开合由 assets/js/motion.js 统一处理（全站共用同一份行为） */
 
   if(toTop){
     toTop.addEventListener("click", function(){
@@ -1241,49 +1774,7 @@ main{position:relative;z-index:2;padding-bottom:20px}
   }
 
   /* ================= 滚动进场 ================= */
-  var reveals = document.querySelectorAll(".reveal");
-  if("IntersectionObserver" in window && !reduce){
-    var io = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if(e.isIntersecting){
-          e.target.classList.add("in");
-          io.unobserve(e.target);
-        }
-      });
-    }, { rootMargin: "0px 0px -8% 0px", threshold: .12 });
-    reveals.forEach(function(el, i){
-      el.style.transitionDelay = ((i % 4) * 70) + "ms";
-      io.observe(el);
-    });
-  } else {
-    reveals.forEach(function(el){ el.classList.add("in"); });
-  }
-
-  /* ================= 数字滚动 ================= */
-  var counters = document.querySelectorAll("[data-count]");
-  function runCount(el){
-    var end = parseInt(el.getAttribute("data-count"), 10) || 0;
-    if(reduce){ el.textContent = end.toLocaleString(); return; }
-    var t0 = null, dur = 1300;
-    function step(ts){
-      if(!t0) t0 = ts;
-      var k = Math.min(1, (ts - t0) / dur);
-      var v = Math.round(end * (1 - Math.pow(1 - k, 3)));
-      el.textContent = v.toLocaleString();
-      if(k < 1) requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-  }
-  if("IntersectionObserver" in window){
-    var io2 = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if(e.isIntersecting){ runCount(e.target); io2.unobserve(e.target); }
-      });
-    }, { threshold: .5 });
-    counters.forEach(function(el){ io2.observe(el); });
-  } else {
-    counters.forEach(runCount);
-  }
+  /* 滚动揭示 / 错峰 / 数字滚动 / 指针光斑与倾斜：全部由 assets/js/motion.js 接管 */
 
   /* ================= 控制台彩蛋 ================= */
   try{
@@ -1292,5 +1783,8 @@ main{position:relative;z-index:2;padding-bottom:20px}
   }catch(e){}
 })();
 </script>
+<script src="assets/js/motion.js"></script>
+<script src="assets/js/liquid-glass.js"></script>
+<script src="assets/js/cursor-egg.js"></script>
 </body>
 </html>

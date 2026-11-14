@@ -83,10 +83,63 @@
     var body = null;
     try { body = text ? JSON.parse(text) : null; } catch (e) { body = text; }
     if (!res.ok) {
-      var msg = (body && (body.message || body.error_description || body.error || body.msg)) || res.status;
-      throw new Error(what + ' 失败（HTTP ' + res.status + '）：' + msg);
+      /* GoTrue 把机器可读的原因放在 error_code / code 里，
+         只把 message 往上抛会丢掉"到底哪儿错了"这个关键信息 */
+      var msg = (body && (body.message || body.error_description || body.error || body.msg))
+        || res.status;
+      var code = (body && (body.error_code || body.code)) || '';
+      var err = new Error(what + ' 失败（HTTP ' + res.status + '）：' + msg);
+      err.status = res.status;
+      err.body = body;
+      err.code = code;
+      throw err;
     }
     return body;
+  }
+
+  /* 把 Supabase Auth 的报错翻译成"下一步该干什么"。
+     登录失败最常见的就是"账号没建"或"密码不对"，
+     但原始报错只给一句 Invalid login credentials，等于没说。 */
+  function authErrorHint(e, provider, expectedEmail) {
+    var s = Number(e && e.status);
+    var m = String((e && e.message) || '');
+    var code = String((e && e.code) || '');
+
+    if (provider === 'jsonbin') {
+      if (s === 401 || s === 403) {
+        return 'Master Key 不对。去 JSONBin → API Keys 重新复制 X-MASTER-KEY。';
+      }
+      return null;
+    }
+
+    if (/invalid login credentials/i.test(m) || code === 'invalid_credentials') {
+      return 'Supabase 里没有"(这个邮箱 + 这个密码)"这个组合。两个最常见原因：\n'
+        + '① Authentication → Users 里根本没建这个账号（或邮箱拼错了，注意是 qq.com 不是 qq.con）；\n'
+        + '② 密码不对 —— 去 Users 里点该用户 → Reset password 直接重设一个，别猜。';
+    }
+    if (/email not confirmed/i.test(m) || code === 'email_not_confirmed') {
+      return '账号存在但邮箱没验证。去 Authentication → Users 里点该用户 → Confirm，'
+        + '或者重建一个并勾上 Auto Confirm User。';
+    }
+    if (/invalid api key/i.test(m) || code === 'invalid_api_key' || (s === 401 && !expectedEmail)) {
+      return 'publishable key 不对或已被 Rotate。去 Project Settings → API 重新复制。';
+    }
+    if (/user already registered/i.test(m)) {
+      return '这个邮箱已经注册过了，直接登录即可；忘了密码就在 Users 里重设。';
+    }
+    if (/weak password/i.test(m)) {
+      return '密码太弱（Supabase 要求至少 6 位）。换一个长一点的。';
+    }
+    if (s === 429) {
+      return '请求太频繁。等 1 分钟再试 —— 连续试错会触发 Supabase 的限流。';
+    }
+    return null;
+  }
+
+  /* 大小写/空白差异也算"邮箱不一致"，这个坑很常见 */
+  function sameEmail(entered, expected) {
+    if (!entered || !expected) return true;
+    return String(entered).trim().toLowerCase() === String(expected).trim().toLowerCase();
   }
 
   /* 极简发布订阅 */
@@ -689,6 +742,8 @@
     detectOwnerEmail: detectOwnerEmail,
     backendReady: backendReady,
     testBackend: testBackend,
+    authErrorHint: authErrorHint,
+    sameEmail: sameEmail,
     baseUrl: supabaseBase,
     on: function (fn) { listeners.push(fn); return function () { listeners = listeners.filter(function (f) { return f !== fn; }); }; },
     _emit: emit,

@@ -1,0 +1,250 @@
+/* ============================================================================
+   液态玻璃（Liquid Glass）
+   ----------------------------------------------------------------------------
+   与 assets/js/liquid-glass.js 配套：JS 为每个玻璃元素按其尺寸 / 圆角生成
+   折射贴图并写进 <filter>，这里负责"玻璃表面"与它所需要的环境光。
+
+   参数取自演示页里调好的那一组：
+     玻璃厚度 25 · 边框宽度 30 · 折射率 2.05 · 缩放比例 2.2
+     模糊 0.0 · 高光不透明度 0.00 · 高光饱和度 4 · 色调 #000 45%
+   （必须和 liquid-glass.js 的 CFG 一致。这段曾经写着"模糊 0.0"、代码却在跑
+    10px —— 文档与实现的漂移正是"折射完全看不见"的原因之一。）
+
+   为什么还有"光照层"：这一组参数的玻璃不磨砂、不加高光，是"清玻璃"，
+   它的存在感全部来自"折射背景"。原来的近黑纯色背景没有可折射的内容，
+   玻璃会变成一块几乎看不出来的浅色矩形。所以这里补了两层很轻的底：
+     · .bg-stack::before  极淡的环境光（给玻璃一层可透出的色）
+     · .bg-stack::after   56px 网格（折射在边缘才看得出来，弧线会微微弯折）
+   两层都很轻，觉得多余可以整段删掉，玻璃会退回"只有一层白"的状态。
+
+   支持情况：backdrop-filter 引用 SVG 滤镜目前只有 Chromium 会真正渲染；
+   其余浏览器会用下面的 blur 降级（声明在前、url() 在后，不支持的浏览器
+   丢掉第二条声明，自动退回毛玻璃）。
+   ============================================================================ */
+
+/* ---------- 环境光：一层很淡的顶光 + 两侧冷光 ---------------------------- */
+/* 关键：背景要画在 main 的层叠上下文里。
+   main{position:relative;z-index:2} 自己是一个层叠上下文，而原来那层
+   .bg-stack 在它外面（z-index:-3）。backdrop-filter 只能吃到"同一个
+   backdrop root 里、元素下方"的像素 —— 在 main 里面，这几层根本不存在，
+   所以滤镜一直在跑，却没有任何像素可滤，看起来就是一块平的底色。
+   这里用 main 自己的 ::before / ::after 重画同一套背景（fixed 定位，
+   和原来逐像素对齐），卡片才真正"有东西可折"。 */
+body main::before{
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background:
+        radial-gradient(48% 40% at 22% 58%, rgba(0, 242, 255, .11), transparent 64%),
+        radial-gradient(44% 36% at 80% 38%, rgba(154, 134, 255, .10), transparent 66%),
+        linear-gradient(180deg, #0b0b0e 0%, #08080a 58%, #0a0a0c 100%);
+}
+
+/* ---------- 网格 + 颗粒：玻璃的折射 / 模糊拿它们当"参照物" -------------- */
+/* 纯色背景上，模糊和折射在视觉上等于"没变化"。所以底下垫两样有细节的东西：
+   一圈 56px 网格（看边缘的弯折）+ 一层很淡的颗粒噪点（看模糊是否生效）。 */
+body main::after{
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E"),
+        linear-gradient(rgba(111, 224, 239, .07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(111, 224, 239, .07) 1px, transparent 1px);
+    background-size: 160px 160px, 56px 56px, 56px 56px;
+    opacity: .32;
+    mask-image: radial-gradient(ellipse 78% 66% at 50% 46%, #000 24%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 78% 66% at 50% 46%, #000 24%, transparent 100%);
+}
+
+/* ---------- 折射底纹：玻璃必须"有东西可折" --------------------------------
+   这一层不是装饰，是光学前提。
+   backdrop-filter 的位移贴图只能弯折背景里**本来就存在的边缘**：在一张
+   近黑纯色 + 大半径径向渐变上，位移 57px 和位移 0 在视觉上是同一张图。
+   上面 main::after 那层 56px 网格本来就是为了这个，但 .07 的线 × .32 的
+   不透明度 ≈ 2.2% 对比度，在暗背景上已经是暗纹，再被滤镜里的高斯模糊糊一遍
+   就彻底没了 —— 于是"玻璃明明生效，却一点折射都看不到"。
+
+   所以给这几组卡片单独垫一层斜线底纹，径向遮罩淡出边界。
+   用 45° 斜线而不是正交网格：网格被镜片弯折只是"错位"，不容易看出来；
+   斜线被弯折会同时改变疏密和走向，边缘那圈镜片一眼就能看见。
+   通缉令那两张卡住在一个 .dossier-stack 容器里（见 index.html）：底纹必须挂在
+   容器上而不是 section 上，因为 .section::before 已经被 motion.css 的滚动分隔线
+   占用了，抢同一个伪元素会丢一样东西。
+   想给别的区块也加：把容器选择器补进下面两条规则即可（容器内只能放卡片，
+   否则底纹会盖到非定位的正文上面 —— 定位元素总是后画）。 */
+.portals,
+.people,
+.contact-grid,
+.dossier-stack{position:relative}
+
+.portals::before,
+.people::before,
+.contact-grid::before,
+.dossier-stack::before{
+    content: "";
+    position: absolute;
+    inset: -64px;
+    z-index: 0;              /* 卡片是 position:relative + z-index:auto，按树序盖在底纹上 */
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, .085) 0 1px,
+        transparent 1px 13px
+    );
+    mask-image: radial-gradient(94% 84% at 50% 50%, #000 46%, transparent 100%);
+    -webkit-mask-image: radial-gradient(94% 84% at 50% 50%, #000 46%, transparent 100%);
+    /* 13s 一圈、匀速：慢慢流过卡片边缘时，镜片带里的斜线会持续被压密/拉开，
+       比静止的底纹更能说明"这里真的在折射"。 */
+    animation: bedDrift 13s linear infinite;
+}
+
+/* 13px 是斜线沿法线方向的周期；水平方向要走它的 √2 倍（= 18.385px）
+   才落在下一条线上。写成 13px 的话每个循环末尾会跳一下。 */
+@keyframes bedDrift{
+    to{ background-position: 18.385px 0 }
+}
+
+/* 减少动态效果：底纹保持静止（上面的全局规则只是把时长压到 0.001ms，
+   那会让无限循环变成空转，这里直接关掉）。 */
+@media (prefers-reduced-motion: reduce){
+    .portals::before,
+    .people::before,
+    .contact-grid::before,
+    .dossier-stack::before{animation: none}
+}
+
+/* ---------- 玻璃表面 ------------------------------------------------------ */
+/* 1) 只上色：JS 还没生成贴图时，先是一块薄薄的玻璃 */
+body .lg-glass{
+    /* 底色是"烟熏"而不是"奶白"：白 tint 把卡片往上提亮，在这张暗页面上
+       看起来像蒙了层白纸；黑 tint 让玻璃沉下去，被弯折的亮底纹对比反而更强。
+       数值与 liquid-glass.js 的 tintColor / tintOpacity 保持一致。 */
+    background-color: var(--lg-tint, rgba(0, 0, 0, .45)) !important;
+    /* 反光：跟着指针走的一团高光（--mx/--my 由 motion.js 写在 [data-spot] 上），
+       叠一层左上到右下的大面积渐变。强度压得很低 —— 反光一旦压过折射，
+       看见的就只是"一块白"，不是镜片。原来这里是 .10 / .12。 */
+    background-image:
+        radial-gradient(
+            340px circle at var(--mx, 50%) var(--my, -10%),
+            rgba(255, 255, 255, .035),
+            transparent 62%
+        ),
+        linear-gradient(
+            158deg,
+            rgba(255, 255, 255, .04) 0%,
+            rgba(255, 255, 255, .012) 38%,
+            rgba(255, 255, 255, 0) 66%
+        ) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .14),
+        inset 0 22px 34px -28px rgba(255, 255, 255, .12),
+        inset 0 -1px 0 rgba(0, 0, 0, .35),
+        inset 0 0 0 1px rgba(255, 255, 255, .06);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    backdrop-filter: blur(18px) saturate(140%);
+}
+
+/* 2) 贴图就绪：JS 会补一条 [data-lg] 规则，把 backdrop-filter 换成 url(#…)
+   注意这条规则故意不写在这里：url() 必须写成字面量（由 JS 注入），
+   否则不支持该语法的浏览器会把整条声明算成 invalid，连上面的磨砂降级一起丢。 */
+
+/* ---------- 小控件不跟着一起压暗 ------------------------------------------
+   45% 黑的 tint 用在卡片上正好（沉下去、折射更清楚），但按钮那么小一块，
+   沉下去就等于"没有可点区域"了 —— 边框还在，面却没了。
+   所以按钮 / 回到顶部 / 汉堡保持一层浅色玻璃面，它们的折射本来也只有 10px。 */
+body .btn.lg-glass,
+body .to-top.lg-glass,
+body .burger.lg-glass{
+    background-color: rgba(255, 255, 255, .05) !important;
+}
+/* hover 态见下面「按钮」一节，那条已经在写 .10 */
+
+/* 面积超限的大面板（见 liquid-glass.js 的 maxArea）：轻磨砂，别把网格糊没 */
+body .lg-glass.lg-frost{
+    -webkit-backdrop-filter: blur(6px) saturate(140%);
+    backdrop-filter: blur(6px) saturate(140%);
+}
+
+/* 连 backdrop-filter 都没有的浏览器：换成**不透明**的深色玻璃面。
+   原来是 rgba(255,255,255,.14) —— 那本来就是半透明，等于想要的失败状态。 */
+body .lg-glass.lg-solid{
+    background-color: #101216 !important;
+    background-image: linear-gradient(
+        160deg,
+        rgba(255, 255, 255, .06) 0%,
+        rgba(255, 255, 255, .015) 45%,
+        rgba(0, 0, 0, .25) 100%
+    ) !important;
+}
+
+/* ---------- 导航栏 -------------------------------------------------------- */
+/* 沿用页头原来的节奏：页面顶部完全透明，吸顶之后才浮现成一条玻璃。
+   玻璃需要圆角才算得出折射（直角边没有可弯折的曲面），所以吸顶时页头
+   变成一条下缘圆角的玻璃条；顶部两角贴着视口上沿，看不出来。
+   导航必须一直读得清，所以这条玻璃额外叠了一点模糊 —— 纯清玻璃压字会花。 */
+@media (min-width: 1121px){
+    body .site-head.lg-glass{
+        background-color: transparent !important;
+        background-image: none !important;   /* 导航栏用深色玻璃，不要那层反光 */
+        border-radius: 0 0 22px 22px;
+        box-shadow: none;
+    }
+    body .site-head.lg-glass:not(.stuck){
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+    }
+    body .site-head.stuck.lg-glass{
+        background-color: rgba(10, 10, 12, .60) !important;
+    }
+}
+
+/* 窄屏：抽屉菜单靠页头的盒模型定位，这里保持原来的深色毛玻璃，不套折射 */
+@media (max-width: 1120px){
+    body .site-head.lg-glass{
+        background-color: transparent !important;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    body .site-head.stuck.lg-glass{
+        background-color: rgba(10, 10, 12, .72) !important;
+        /* 窄屏统一用毛玻璃：抽屉菜单依赖页头的盒模型，折射在这里不划算 */
+        -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+        backdrop-filter: blur(20px) saturate(180%) !important;
+    }
+}
+
+/* ---------- 按钮 ---------------------------------------------------------- */
+/* 小尺寸元素给一点悬停加亮，不然玻璃按钮按下去没反馈 */
+body .btn.lg-glass:hover,
+body .btn.lg-glass:focus-visible,
+body .to-top.lg-glass:hover,
+body .burger.lg-glass:hover{
+    background-color: rgba(255, 255, 255, .10) !important;
+}
+
+/* 白色主按钮（.btn.solid / .btn-cta）不参与玻璃化，见 liquid-glass.js 的 exclude */
+
+/* ---------- 无障碍 / 偏好降级 -------------------------------------------- */
+@media (prefers-reduced-transparency: reduce){
+    body .lg-glass,
+    body .lg-glass.lg-frost,
+    body [data-lg]{
+        background-color: #101014 !important;
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+        box-shadow: none;
+    }
+}
+
+@media (prefers-contrast: more){
+    body .lg-glass,
+    body .lg-glass.lg-frost,
+    body [data-lg]{
+        background-color: #101014 !important;
+    }
+}

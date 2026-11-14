@@ -14,6 +14,8 @@
             --glass: rgba(255, 255, 255, 0.03);
             --border: rgba(0, 242, 255, 0.2);
             --border-purple: rgba(112, 0, 255, 0.35);
+            /* 内容列 1100px + 30px 内边距 → 页头用 1040px 才能让 logo 与正文左对齐 */
+            --head-w: min(1040px, 92vw);
         }
 
         * {
@@ -97,82 +99,7 @@
             }
         }
 
-        /* 导航栏 */
-        header {
-            width: 100%;
-            padding: 18px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            background: rgba(2, 2, 5, 0.88);
-            backdrop-filter: blur(16px);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 900;
-            font-size: 1.3rem;
-            letter-spacing: 5px;
-            color: var(--accent-blue);
-            text-shadow: 0 0 22px rgba(0, 242, 255, 0.5);
-            text-decoration: none;
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            border: 2px solid var(--accent-blue);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            background: rgba(0, 242, 255, 0.06);
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.25);
-        }
-
-        nav {
-            display: flex;
-            gap: 26px;
-        }
-
-        nav a {
-            color: #8899aa;
-            text-decoration: none;
-            font-size: 0.85rem;
-            letter-spacing: 2.5px;
-            transition: all 0.3s;
-            font-family: monospace;
-            position: relative;
-        }
-
-        nav a:hover,
-        nav a.active {
-            color: var(--accent-blue);
-            text-shadow: 0 0 10px var(--accent-blue);
-        }
-
-        nav a::after {
-            content: '';
-            position: absolute;
-            bottom: -6px;
-            left: 0;
-            width: 0;
-            height: 1px;
-            background: var(--accent-blue);
-            transition: width 0.3s;
-        }
-
-        nav a:hover::after,
-        nav a.active::after {
-            width: 100%;
-        }
+        /* 页头：统一到 assets/css/header.css（.site-head / .head-inner / .brand / .menu） */
 
         /* 主内容 */
         main {
@@ -571,20 +498,7 @@
 
         /* 响应式 */
         @media (max-width: 768px) {
-            header {
-                padding: 14px 18px;
-                flex-direction: column;
-                gap: 12px;
-            }
-            nav {
-                gap: 14px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            nav a {
-                font-size: 0.72rem;
-                letter-spacing: 1.5px;
-            }
+            /* 页头的窄屏行为（含抽屉菜单）在 assets/css/header.css 里 */
             .personnel-grid {
                 grid-template-columns: 1fr;
             }
@@ -593,8 +507,34 @@
             }
         }
     </style>
+    <!-- 全站共享动效层。放在本页 <style> 之后：让 [data-tilt]:hover 能盖过
+         .personnel-card:hover 自带的 transform，倾斜才生效 -->
+    <link rel="stylesheet" href="assets/css/motion.css">
+    <!-- 全站统一页头（与首页共用同一份实现） -->
+    <link rel="stylesheet" href="assets/css/header.css">
+
+    <!-- 无 JS 时（motion.js 不会加 .in）不要让 .reveal 把内容藏起来 -->
+    <noscript><style>.reveal{opacity:1 !important;transform:none !important}</style></noscript>
 </head>
 <body>
+
+    <!-- 页面转场遮罩：黑屏 + 镂空的「神」（内联 SVG：同一个字形既挖洞又作白字） -->
+    <div class="sr-veil" aria-hidden="true">
+      <svg class="sr-veil-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" focusable="false">
+        <defs>
+          <mask id="srHanMask" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+            <rect width="100" height="100" fill="#fff"/>
+            <text x="50" y="50" text-anchor="middle" dominant-baseline="central" font-size="34" font-weight="900"
+                  fill="#000" font-family="PingFang SC,Hiragino Sans GB,Microsoft YaHei,Noto Sans CJK SC,sans-serif">神</text>
+          </mask>
+        </defs>
+        <rect class="sr-veil-cover" width="100" height="100" fill="#050507" mask="url(#srHanMask)"/>
+        <text class="sr-veil-white" x="50" y="50" text-anchor="middle" dominant-baseline="central" font-size="34"
+              font-weight="900" font-family="PingFang SC,Hiragino Sans GB,Microsoft YaHei,Noto Sans CJK SC,sans-serif">神</text>
+      </svg>
+    </div>
+
+    <div class="sr-progress" id="progress" aria-hidden="true"></div>
 
     <!-- 背景网格 -->
     <div class="bg-lines"></div>
@@ -602,32 +542,43 @@
     <!-- 扫描线 -->
     <div class="scanline"></div>
 
-    <!-- 导航栏 -->
-    <header>
-        <a href="index.html" class="logo">
-            <div class="logo-icon">⚡</div>
-            <span>SHEN_REN</span>
-        </a>
-        <nav>
-            <a href="index.html">// 主页</a>
-            <a href="profile.html" class="active">// 人物档案</a>
-            <a href="index.html#architects">// 架构师</a>
-            <a href="index.html#download">// 下载</a>
-            <a href="index.html#contact">// 联系</a>
-        </nav>
+    <!-- 导航栏：全站统一页头，样式见 assets/css/header.css -->
+    <header class="site-head">
+        <div class="head-inner">
+            <a class="brand" href="index.html" aria-label="神人工业 首页">
+                <span class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 100 100"><path d="M58 8 L24 56 h20 l-7 36 36-52H52z" fill="#00f2ff"/></svg>
+                </span>
+                <span class="brand-txt">
+                    <b>SHEN_REN</b>
+                    <small>神人工业</small>
+                </span>
+            </a>
+            <nav class="menu" id="menu" aria-label="主导航">
+                <a href="index.html">// 主页</a>
+                <a href="index.html#dossiers">// 通缉令</a>
+                <a href="index.html#architects">// 架构师</a>
+                <a href="index.html#team">// 团队</a>
+                <a href="status.html">// 状态</a>
+                <a href="profile.html" class="active" aria-current="page">// 人物档案</a>
+                <a href="index.html#contact">// 联系</a>
+            </nav>
+            <a class="btn-cta" href="index.html">回到主页 →</a>
+            <button class="burger" id="burger" type="button" aria-label="切换菜单" aria-expanded="false"><span></span><span></span><span></span></button>
+        </div>
     </header>
 
     <!-- 主内容 -->
     <main>
         <!-- 页面标题 -->
-        <div class="page-header">
+        <div class="page-header reveal">
             <div class="tag">📁 CLASSIFIED DOSSIER</div>
             <h1>PERSONNEL FILE</h1>
             <p class="subtitle">&gt; 神人工业 · 核心人物档案库</p>
         </div>
 
         <!-- 筛选栏 -->
-        <div class="filter-bar">
+        <div class="filter-bar reveal">
             <button class="filter-btn active" data-filter="all">全部</button>
             <button class="filter-btn" data-filter="founder">创始人</button>
             <button class="filter-btn" data-filter="architect">架构师</button>
@@ -636,8 +587,8 @@
             <button class="filter-btn" data-filter="wanted">⚠ 通缉中</button>
         </div>
 
-        <!-- 人物卡片网格 -->
-        <div class="personnel-grid" id="personnelGrid">
+        <!-- 人物卡片网格（data-stagger：子项按序号错峰入场） -->
+        <div class="personnel-grid" id="personnelGrid" data-stagger>
             <!-- 卡片通过 JS 动态生成 -->
         </div>
     </main>
@@ -790,8 +741,14 @@
 
             filtered.forEach(person => {
                 const card = document.createElement('div');
-                card.className = `personnel-card ${person.category === 'founder' ? 'founder' : ''} fade-in`;
+                card.className = `personnel-card ${person.category === 'founder' ? 'founder' : ''} reveal`;
                 card.setAttribute('data-category', person.category);
+                /* 共享动效层：指针光斑 + 3D 倾斜。
+                   原先这里用内联 opacity/transform 做渐入，内联的 transform 会
+                   永久压住 .personnel-card:hover 的抬升（悬停其实一直没生效）；
+                   换成 .reveal 后，入场归 animation、悬停归 transition，各管各的。 */
+                card.setAttribute('data-spot', '');
+                card.setAttribute('data-tilt', '');
                 card.onclick = () => openModal(person);
 
                 const statusClass = person.status;
@@ -823,13 +780,8 @@
                 grid.appendChild(card);
             });
 
-            // 触发渐入动画
-            requestAnimationFrame(() => {
-                document.querySelectorAll('.fade-in').forEach((el, i) => {
-                    el.style.opacity = '1';
-                    el.style.transform = 'translateY(0)';
-                });
-            });
+            // 渐入动画交给 assets/js/motion.js：卡片带着 .reveal 生成，
+            // 它会在 MutationObserver 里补观察、按序号错峰加上 .in
         }
 
         // ==================== 筛选功能 ====================
@@ -905,17 +857,7 @@
 
         // ==================== 初始渲染 ====================
         renderCards();
-
-        // 渐入动画样式补充
-        const style = document.createElement('style');
-        style.textContent = `
-            .fade-in {
-                opacity: 0;
-                transform: translateY(20px);
-                transition: opacity 0.6s ease, transform 0.6s ease;
-            }
-        `;
-        document.head.appendChild(style);
     </script>
+    <script src="assets/js/motion.js"></script>
 </body>
 </html>
